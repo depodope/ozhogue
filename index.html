@@ -128,13 +128,16 @@
   /* ── HERO PHOTO ── */
   .hero-photo-wrap {
     position: absolute;
-    right: 0; top: 0; bottom: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 518px;
     cursor: crosshair;
     -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 22%);
     mask-image: linear-gradient(to top, transparent 0%, #000 22%);
   }
   .hero-photo-base {
-    height: 100%;
+    height: 518px;
     width: auto;
     display: block;
     pointer-events: none;
