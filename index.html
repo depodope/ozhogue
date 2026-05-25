@@ -148,7 +148,7 @@
       transform: none;
       width: 100%;
       height: auto;
-      margin-top: 30px; /* 30px ниже hero-index */
+      margin-top: 20px;
       z-index: 1;
       cursor: crosshair;
     }
@@ -864,6 +864,11 @@
       top: auto; left: auto; right: auto;
       padding: 92px var(--page-px) 0;
       max-width: none;
+      width: 100%;
+    }
+    .hero-index::after {
+      height: 2px;   /* 1px на Retina = <1px физически, невидимо */
+      opacity: 0.9;
     }
     .hero-inner { padding: 32px var(--page-px) 60px; }
     .heat-name {
@@ -872,7 +877,7 @@
       gap: 0;
       justify-content: space-between;
     }
-    .title-text { font-size: 11vw; }
+    .title-text { font-size: 12vw; }
     .hero-manifesto { max-width: 100%; font-size: 16px; margin-bottom: 40px; }
     .hero-meta { gap: 24px; }
     .hero-cta {
@@ -939,7 +944,7 @@
       --page-px: 20px;
     }
 
-    .title-text { font-size: 11vw; }
+    .title-text { font-size: 12vw; }
     .hero-role { font-size: 11px; margin-bottom: 28px; }
     .hero-manifesto { font-size: 15px; margin-bottom: 32px; }
     .hero-inner { padding: 24px var(--page-px) 48px; }
