@@ -1585,9 +1585,10 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   const cvs  = document.getElementById('heroPhotoCanvas');
   if (!wrap || !cvs) return;
 
-  let W = 0, H = 0, heat = null, offscreen = null;
+  let W = 0, H = 0, heat = null, offscreen = null, maskCanvas = null;
 
   const heatmapImg = new Image();
+  heatmapImg.crossOrigin = 'anonymous';
   heatmapImg.src = 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me_heatmap_.png';
 
   function init() {
@@ -1596,36 +1597,44 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     H = Math.ceil(r.height);
     cvs.width  = W;
     cvs.height = H;
-    heat      = new Float32Array(W * H);
+    heat       = new Float32Array(W * H);
     offscreen  = document.createElement('canvas');
     offscreen.width  = W;
     offscreen.height = H;
+    maskCanvas = document.createElement('canvas');
+    maskCanvas.width  = W;
+    maskCanvas.height = H;
   }
 
   function frame() {
     requestAnimationFrame(frame);
-    if (!heat || !offscreen || W === 0 || H === 0) return;
+    if (!heat || !offscreen || !maskCanvas || W === 0 || H === 0) return;
 
     // Cool down
     for (let i = 0; i < heat.length; i++)
       if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
 
-    // Build alpha mask from heat values
-    const oc = offscreen.getContext('2d');
-    oc.clearRect(0, 0, W, H);
-    const maskData = oc.createImageData(W, H);
+    // 1. Write heat alpha values into maskCanvas via putImageData
+    const mc = maskCanvas.getContext('2d');
+    const maskData = mc.createImageData(W, H);
     for (let i = 0; i < heat.length; i++) {
       const p = i * 4;
       maskData.data[p] = maskData.data[p+1] = maskData.data[p+2] = 255;
       maskData.data[p+3] = Math.round(heat[i] * 255);
     }
-    oc.putImageData(maskData, 0, 0);
+    mc.putImageData(maskData, 0, 0);
 
-    // Reveal me_heatmap_ поверх base-фото
-    oc.globalCompositeOperation = 'source-in';
-    oc.drawImage(heatmapImg, 0, 0, W, H);
+    // 2. Draw heatmapImg to offscreen, then clip it with maskCanvas via destination-in
+    const oc = offscreen.getContext('2d');
+    oc.clearRect(0, 0, W, H);
+    if (heatmapImg.naturalWidth > 0) {
+      oc.drawImage(heatmapImg, 0, 0, W, H);
+    }
+    oc.globalCompositeOperation = 'destination-in';
+    oc.drawImage(maskCanvas, 0, 0);
     oc.globalCompositeOperation = 'source-over';
 
+    // 3. Blit to visible canvas
     const ctx = cvs.getContext('2d');
     ctx.clearRect(0, 0, W, H);
     ctx.drawImage(offscreen, 0, 0);
