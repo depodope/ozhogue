@@ -128,47 +128,17 @@
   /* ── HERO PHOTO ── */
   .hero-photo-wrap {
     position: absolute;
-    right: 56px;
+    right: 36px;
     top: calc(50% - 50px);
     transform: translateY(-50%);
-    height: 518px;
-    cursor: crosshair;
+    height: 548px;
     -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 22%);
     mask-image: linear-gradient(to top, transparent 0%, #000 22%);
   }
   .hero-photo-base {
-    height: 518px;
+    height: 548px;
     width: auto;
     display: block;
-    pointer-events: none;
-  }
-  /* ── HEAT SCALE ── */
-  .heat-scale {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 220px;
-    border-radius: 2px;
-    background: linear-gradient(to bottom,
-      #ffe6c8,
-      #ff1400,
-      #ff6400,
-      #f0d200,
-      #00d264,
-      #0050dc,
-      #383836
-    );
-    pointer-events: none;
-    z-index: 2;
-  }
-  @media (max-width: 768px) {
-    .heat-scale { display: none; }
-  }
-  #heroPhotoCanvas {
-    position: absolute;
-    top: 0; left: 0;
     pointer-events: none;
   }
   @media (max-width: 768px) {
@@ -576,9 +546,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 16px;
   }
-  .overlay-images.many {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
   .overlay-images--stack {
     grid-template-columns: 1fr;
   }
@@ -588,13 +555,6 @@
     grid-column: 1 / -1;
     aspect-ratio: 16/9;
   }
-  .overlay-img-placeholder {
-    background: rgba(240,237,230,0.04);
-    border: 1px solid var(--surface-border);
-    aspect-ratio: 16/10;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .overlay-img-placeholder:first-child { grid-column: 1 / -1; aspect-ratio: 16/7; }
   .overlay-img-real {
     width: 100%;
     display: block;
@@ -903,8 +863,6 @@
     .overlay-inner { padding: 60px var(--page-px) 80px; }
     .overlay-body { grid-template-columns: 1fr; gap: 32px; }
     .overlay-images { grid-template-columns: 1fr; }
-    .overlay-img-placeholder:first-child { grid-column: 1; aspect-ratio: 16/9; }
-
     /* services */
     .acc-name { font-size: 16px; }
     .accordion-body { padding: 0 0 24px 32px; }
@@ -1016,12 +974,10 @@
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-photo-wrap" id="heroPhotoWrap">
+  <div class="hero-photo-wrap">
     <img src="https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me.png"
-         alt="Давлат Набиев" class="hero-photo-base" id="heroPhotoBase">
-    <canvas id="heroPhotoCanvas"></canvas>
+         alt="Давлат Набиев" class="hero-photo-base">
   </div>
-  <div class="heat-scale"></div>
   <div class="hero-inner">
   <div class="hero-index reveal">01 / SENIOR BRAND DESIGNER</div>
 
@@ -1414,8 +1370,7 @@ function addHover(selector) {
 addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 
 // ═══════════════════════════════════════
-// HEATMAP — canvas sits over grey text,
-// mix-blend-mode:screen adds colour on hover
+// HEATMAP TITLE — термальный эффект на буквах
 // ═══════════════════════════════════════
 (function() {
   const COOL_RATE   = 0.00216;
@@ -1577,112 +1532,6 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 })();
 
 // ═══════════════════════════════════════
-// HERO PHOTO HEATMAP
-// Те же термальные цвета что в заголовке, putImageData напрямую.
-// W/H берём из naturalWidth/Height — не зависим от layout.
-// ═══════════════════════════════════════
-(function() {
-  const COOL_RATE = 0.0025;
-  const BRUSH_R   = 130;
-  const BRUSH_PWR = 0.75;
-
-  const STOPS = [
-    [56,  54,  51],
-    [0,   80, 220],
-    [0,  210, 100],
-    [240,210,   0],
-    [255,100,   0],
-    [255, 20,   0],
-    [255,230, 200],
-  ];
-  function stopColor(t) {
-    t = Math.max(0, Math.min(t, 1));
-    const n = STOPS.length - 1;
-    const pos = t * n;
-    const i   = Math.min(Math.floor(pos), n - 1);
-    const f   = pos - i;
-    const a   = STOPS[i], b = STOPS[i + 1];
-    return [
-      (a[0] + (b[0]-a[0])*f) | 0,
-      (a[1] + (b[1]-a[1])*f) | 0,
-      (a[2] + (b[2]-a[2])*f) | 0,
-    ];
-  }
-
-  const wrap   = document.getElementById('heroPhotoWrap');
-  const cvs    = document.getElementById('heroPhotoCanvas');
-  const baseEl = document.getElementById('heroPhotoBase');
-  if (!wrap || !cvs || !baseEl) return;
-
-  let W = 0, H = 0, heat = null, noise = null;
-
-  function init() {
-    if (!baseEl.naturalWidth || !baseEl.naturalHeight) return;
-    H = 518;
-    W = Math.round(baseEl.naturalWidth * 518 / baseEl.naturalHeight);
-    cvs.width  = W;
-    cvs.height = H;
-    heat  = new Float32Array(W * H);
-    noise = new Float32Array(W * H);
-    for (let i = 0; i < noise.length; i++) noise[i] = (Math.random() - 0.5) * 0.18;
-  }
-
-  function frame() {
-    requestAnimationFrame(frame);
-    if (!heat || W === 0) return;
-
-    for (let i = 0; i < heat.length; i++)
-      if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
-
-    const ctx = cvs.getContext('2d');
-    const out  = ctx.createImageData(W, H);
-    const d    = out.data;
-    for (let i = 0; i < heat.length; i++) {
-      const h = heat[i];
-      if (h <= 0) continue;
-      const s = i * 4;
-      const c = stopColor(h + noise[i]);
-      d[s]   = c[0];
-      d[s+1] = c[1];
-      d[s+2] = c[2];
-      d[s+3] = Math.round(h * 255);
-    }
-    ctx.putImageData(out, 0, 0);
-  }
-
-  wrap.addEventListener('mousemove', e => {
-    if (!heat) return;
-    const r  = wrap.getBoundingClientRect();
-    const mx = (e.clientX - r.left) | 0;
-    const my = (e.clientY - r.top)  | 0;
-    const R2 = BRUSH_R * BRUSH_R;
-    for (let y = Math.max(0, my - BRUSH_R); y <= Math.min(H-1, my + BRUSH_R); y++) {
-      for (let x = Math.max(0, mx - BRUSH_R); x <= Math.min(W-1, mx + BRUSH_R); x++) {
-        const d2 = (x-mx)**2 + (y-my)**2;
-        if (d2 < R2) {
-          const f = 1 - d2/R2;
-          heat[y*W + x] = Math.min(1, heat[y*W + x] + BRUSH_PWR * f * f);
-        }
-      }
-    }
-  });
-
-  function start() {
-    init();
-    if (W > 0) frame();
-  }
-
-  if (baseEl.complete && baseEl.naturalWidth) {
-    start();
-  } else {
-    baseEl.addEventListener('load', start);
-  }
-
-  // Страховочный запуск после полной загрузки страницы
-  window.addEventListener('load', () => { if (W === 0) start(); });
-})();
-
-// ═══════════════════════════════════════
 // SCROLL REVEAL
 // ═══════════════════════════════════════
 const revealObs = new IntersectionObserver(entries => {
@@ -1797,28 +1646,15 @@ function openOverlay(key) {
   overlayImages.innerHTML = '';
   overlayImages.className = 'overlay-images';
   if (p.imagesLayout === 'stack') overlayImages.classList.add('overlay-images--stack');
-  else if (Array.isArray(p.images) && p.images.length >= 5) overlayImages.classList.add('many');
 
-  if (Array.isArray(p.images) && typeof p.images[0] === 'string') {
-    // Real image paths
-    p.images.forEach((src, i) => {
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = `${p.title} — изображение ${i+1}`;
-      img.className = 'overlay-img-real';
-      img.loading = 'lazy';
-      overlayImages.appendChild(img);
-    });
-  } else {
-    // Placeholder count
-    const count = typeof p.images === 'number' ? p.images : 3;
-    for (let i = 0; i < count; i++) {
-      const ph = document.createElement('div');
-      ph.className = 'overlay-img-placeholder';
-      ph.innerHTML = `<span class="overlay-img-label">Изображение ${i+1}</span>`;
-      overlayImages.appendChild(ph);
-    }
-  }
+  p.images.forEach((src, i) => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = `${p.title} — изображение ${i+1}`;
+    img.className = 'overlay-img-real';
+    img.loading = 'lazy';
+    overlayImages.appendChild(img);
+  });
 
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
