@@ -872,7 +872,7 @@
       gap: 0;
       justify-content: space-between;
     }
-    .title-text { font-size: 13vw; }
+    .title-text { font-size: 11vw; }
     .hero-manifesto { max-width: 100%; font-size: 16px; margin-bottom: 40px; }
     .hero-meta { gap: 24px; }
     .hero-cta {
@@ -939,7 +939,7 @@
       --page-px: 20px;
     }
 
-    .title-text { font-size: 13vw; }
+    .title-text { font-size: 11vw; }
     .hero-role { font-size: 11px; margin-bottom: 28px; }
     .hero-manifesto { font-size: 15px; margin-bottom: 32px; }
     .hero-inner { padding: 24px var(--page-px) 48px; }
@@ -1610,18 +1610,20 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   if (!wrap || !cvs) return;
 
   let W = 0, H = 548, heat = null, noise = null, offCanvas = null;
-  let photoPixels = null; // пиксели me.png для linear light + маски
+  let photoPixels = null;
+  let drawYAlign = 0.5; // 0 = верх фото, 0.5 = центр (десктоп)
 
   const meImg = new Image();
   meImg.crossOrigin = 'anonymous'; // нужен для getImageData (GitHub raw поддерживает CORS)
   meImg.src = 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me.png';
 
-  // Cover-crop: масштабирует изображение чтобы заполнить cw×ch, обрезает центр
+  // Cover-crop с выравниванием по вертикали: yAlign 0=верх, 0.5=центр, 1=низ
   function drawCover(ctx, img, cw, ch) {
     const iw = img.naturalWidth, ih = img.naturalHeight;
     const scale = Math.max(cw / iw, ch / ih);
     const sw = cw / scale, sh = ch / scale;
-    const sx = (iw - sw) / 2, sy = (ih - sh) / 2;
+    const sx = (iw - sw) / 2;
+    const sy = (ih - sh) * drawYAlign;
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
   }
 
@@ -1632,13 +1634,15 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       W = window.innerWidth;
       const naturalH = Math.round(meImg.naturalHeight * W / meImg.naturalWidth);
       const maxH = Math.round(window.innerHeight * 0.72);
-      H = Math.round(Math.min(naturalH, maxH) * 0.9);
+      H = Math.round(Math.min(naturalH, maxH) * 0.9 * 0.8); // ×0.8 = кроп 20% снизу
       W = Math.round(W * 0.9);
       BRUSH_R = Math.round(109 * 0.6); // −40% на мобилке = 65px
+      drawYAlign = 0; // показываем верхнюю часть фото (голова/торс)
     } else {
       H = 548;
       W = Math.round(meImg.naturalWidth * H / meImg.naturalHeight);
       BRUSH_R = 109;
+      drawYAlign = 0.5; // центр (десктоп не трогаем)
     }
     cvs.width  = W;
     cvs.height = H;
