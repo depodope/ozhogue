@@ -386,17 +386,6 @@
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_1.webp') center/cover no-repeat !important;
   }
 
-  .viz-text {
-    font-family: var(--mono);
-    font-size: clamp(40px, 5vw, 64px);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    opacity: 0.06;
-    color: var(--surface);
-    position: absolute;
-    white-space: nowrap;
-  }
   .project-card-open-hint {
     position: absolute;
     bottom: 16px; right: 16px;
@@ -534,7 +523,9 @@
   .overlay-images--stack {
     grid-template-columns: 1fr;
   }
-  .overlay-images--stack .overlay-img-real {
+  .overlay-images--stack .overlay-img-real,
+  .overlay-images--stack .overlay-img-real:first-child,
+  .overlay-images--stack .overlay-img-real:not(:first-child) {
     grid-column: 1 / -1;
     aspect-ratio: 16/9;
   }
@@ -1153,7 +1144,6 @@
 
       <div class="project-card reveal" data-project="alldigital">
         <div class="project-card-visual alldigital-visual">
-          <span class="viz-text">ALL.DIGITAL</span>
           <span class="project-card-open-hint">Открыть →</span>
         </div>
         <div class="project-card-body">
@@ -1166,7 +1156,6 @@
 
       <div class="project-card reveal reveal-delay-1" data-project="nipigaz">
         <div class="project-card-visual">
-          <span class="viz-text">НИПИГАЗ</span>
           <span class="project-card-open-hint">Открыть →</span>
         </div>
         <div class="project-card-body">
@@ -1179,7 +1168,6 @@
 
       <div class="project-card reveal reveal-delay-1" data-project="sibur">
         <div class="project-card-visual">
-          <span class="viz-text">СИБУР</span>
           <span class="project-card-open-hint">Открыть →</span>
         </div>
         <div class="project-card-body">
@@ -1192,7 +1180,6 @@
 
       <div class="project-card reveal reveal-delay-2" data-project="bloc">
         <div class="project-card-visual">
-          <span class="viz-text">BLOC</span>
           <span class="project-card-open-hint">Открыть →</span>
         </div>
         <div class="project-card-body">
@@ -1205,7 +1192,6 @@
 
       <div class="project-card reveal reveal-delay-3" data-project="zarubezh">
         <div class="project-card-visual">
-          <span class="viz-text">ЗАРУБЕЖНЕФТЬ</span>
           <span class="project-card-open-hint">Открыть →</span>
         </div>
         <div class="project-card-body">
