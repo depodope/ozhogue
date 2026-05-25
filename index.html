@@ -170,7 +170,6 @@
     position: absolute;
     top: 0; left: 0;
     pointer-events: none;
-    mix-blend-mode: linear-light;
   }
   @media (max-width: 768px) {
     .hero-photo-wrap { display: none; }
@@ -1513,7 +1512,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       const img = oc.createImageData(W, H);
       const d   = img.data;
       for (let i = 0; i < heat.length; i++) {
-        const c = stopColor(heat[i] + (noise ? noise[i] : 0));
+        const c = stopColor(heat[i] > 0 ? heat[i] + noise[i] : 0);
         const p = i * 4;
         d[p]   = c[0];
         d[p+1] = c[1];
@@ -1578,95 +1577,78 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 })();
 
 // ═══════════════════════════════════════
-// HERO PHOTO HEATMAP — те же цветовые стопы что в заголовке,
-// mix-blend-mode: linear-light накладывается поверх me.png
+// HERO PHOTO HEATMAP
+// me.png — base <img>. Canvas reveals me_heatmap_.png via gradient heat blobs.
+// Нет per-pixel циклов в рендер-луп: heat накапливается как радиальные градиенты,
+// остывание — destination-out fillRect, обрезка — destination-in drawImage.
 // ═══════════════════════════════════════
 (function() {
-  const COOL_RATE = 0.0025;
-  const BRUSH_R   = 130;
-  const BRUSH_PWR = 0.75;
+  const BRUSH_R    = 140;   // радиус кисти px
+  const BRUSH_A    = 0.55;  // непрозрачность добавляемая за одно mousemove
+  const COOL_A     = 0.012; // скорость остывания за кадр (destination-out)
 
-  // Те же термальные стопы что и в заголовке
-  const STOPS = [
-    [56,  54,  51],
-    [0,   80, 220],
-    [0,  210, 100],
-    [240,210,   0],
-    [255,100,   0],
-    [255, 20,   0],
-    [255,230, 200],
-  ];
-  function stopColor(t) {
-    t = Math.max(0, Math.min(t, 1));
-    const n = STOPS.length - 1;
-    const pos = t * n;
-    const i = Math.min(Math.floor(pos), n - 1);
-    const f = pos - i;
-    const a = STOPS[i], b = STOPS[i + 1];
-    return [
-      (a[0] + (b[0]-a[0])*f) | 0,
-      (a[1] + (b[1]-a[1])*f) | 0,
-      (a[2] + (b[2]-a[2])*f) | 0,
-    ];
-  }
-
-  const wrap   = document.getElementById('heroPhotoWrap');
-  const cvs    = document.getElementById('heroPhotoCanvas');
-  const baseEl = document.getElementById('heroPhotoBase');
+  const wrap    = document.getElementById('heroPhotoWrap');
+  const cvs     = document.getElementById('heroPhotoCanvas');
+  const baseEl  = document.getElementById('heroPhotoBase');
   if (!wrap || !cvs || !baseEl) return;
 
-  let W = 0, H = 0, heat = null, noise = null;
+  let W = 0, H = 0;
+  let offscreen  = null;  // heatmapImg обрезанный по heatCanvas
+  let heatCanvas = null;  // накопленные градиентные пятна тепла
+
+  const heatmapImg = new Image();
+  heatmapImg.src = 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me_heatmap_.png';
 
   function init() {
     const r = wrap.getBoundingClientRect();
     W = Math.ceil(r.width);
     H = Math.ceil(r.height);
     if (W === 0 || H === 0) return;
-    cvs.width  = W;
-    cvs.height = H;
-    heat  = new Float32Array(W * H);
-    noise = new Float32Array(W * H);
-    for (let i = 0; i < noise.length; i++) noise[i] = (Math.random() - 0.5) * 0.18;
+    cvs.width  = W;  cvs.height = H;
+    offscreen  = document.createElement('canvas');
+    offscreen.width  = W;  offscreen.height = H;
+    heatCanvas = document.createElement('canvas');
+    heatCanvas.width = W;  heatCanvas.height = H;
   }
 
   function frame() {
     requestAnimationFrame(frame);
-    if (!heat || W === 0 || H === 0) return;
+    if (!offscreen || !heatCanvas || W === 0 || H === 0) return;
 
-    for (let i = 0; i < heat.length; i++)
-      if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
+    // Остывание: каждый кадр чуть стираем heatCanvas
+    const hc = heatCanvas.getContext('2d');
+    hc.globalCompositeOperation = 'destination-out';
+    hc.globalAlpha = COOL_A;
+    hc.fillRect(0, 0, W, H);
+    hc.globalCompositeOperation = 'source-over';
+    hc.globalAlpha = 1;
+
+    // Рендер: heatmapImg обрезаем по форме тепла
+    const oc = offscreen.getContext('2d');
+    oc.clearRect(0, 0, W, H);
+    if (heatmapImg.naturalWidth > 0) {
+      oc.drawImage(heatmapImg, 0, 0, W, H);
+    }
+    oc.globalCompositeOperation = 'destination-in';
+    oc.drawImage(heatCanvas, 0, 0);
+    oc.globalCompositeOperation = 'source-over';
 
     const ctx = cvs.getContext('2d');
-    const out  = ctx.createImageData(W, H);
-    const d    = out.data;
-    for (let i = 0; i < heat.length; i++) {
-      const h = heat[i];
-      const s = i * 4;
-      if (h <= 0) { d[s+3] = 0; continue; }
-      const c = stopColor(h + (noise ? noise[i] : 0));
-      d[s]   = c[0];
-      d[s+1] = c[1];
-      d[s+2] = c[2];
-      d[s+3] = Math.round(h * 255);
-    }
-    ctx.putImageData(out, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(offscreen, 0, 0);
   }
 
   wrap.addEventListener('mousemove', e => {
-    if (!heat) return;
+    if (!heatCanvas) return;
     const r  = wrap.getBoundingClientRect();
-    const mx = (e.clientX - r.left) | 0;
-    const my = (e.clientY - r.top)  | 0;
-    const R2 = BRUSH_R * BRUSH_R;
-    for (let y = Math.max(0, my - BRUSH_R); y <= Math.min(H-1, my + BRUSH_R); y++) {
-      for (let x = Math.max(0, mx - BRUSH_R); x <= Math.min(W-1, mx + BRUSH_R); x++) {
-        const d2 = (x - mx)**2 + (y - my)**2;
-        if (d2 < R2) {
-          const f = 1 - d2 / R2;
-          heat[y*W + x] = Math.min(1, heat[y*W + x] + BRUSH_PWR * f * f);
-        }
-      }
-    }
+    const mx = e.clientX - r.left;
+    const my = e.clientY - r.top;
+    const hc = heatCanvas.getContext('2d');
+    const g  = hc.createRadialGradient(mx, my, 0, mx, my, BRUSH_R);
+    g.addColorStop(0,   `rgba(255,255,255,${BRUSH_A})`);
+    g.addColorStop(1,   'rgba(255,255,255,0)');
+    hc.fillStyle = g;
+    hc.fillRect(mx - BRUSH_R, my - BRUSH_R, BRUSH_R * 2, BRUSH_R * 2);
   });
 
   let started = false;
@@ -1681,7 +1663,6 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 
   baseEl.addEventListener('load', tryStart);
   requestAnimationFrame(tryStart);
-
   new ResizeObserver(() => { if (started) init(); else tryStart(); }).observe(wrap);
 })();
 
