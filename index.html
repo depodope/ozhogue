@@ -116,7 +116,7 @@
     width: 100%;
     max-width: var(--page-max);
     margin: 0 auto;
-    padding: 160px var(--page-px) 80px;
+    padding: 0 var(--page-px) 80px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -148,9 +148,9 @@
       transform: none;
       width: 100%;
       height: auto;
-      padding-top: 56px; /* отступ под фикс. навигацию */
+      margin-top: 30px; /* 30px ниже hero-index */
       z-index: 1;
-      cursor: default;
+      cursor: crosshair;
     }
     #heroCanvas {
       display: block;
@@ -164,7 +164,12 @@
     font-size: 11px;
     letter-spacing: 0.15em;
     color: rgba(240,237,230,0.3);
-    margin-bottom: 32px;
+    margin-bottom: 0;
+    width: 100%;
+    max-width: var(--page-max);
+    margin-left: auto;
+    margin-right: auto;
+    padding: 90px var(--page-px) 0;
   }
 
   /* ── HEATMAP TITLE ── */
@@ -838,7 +843,9 @@
     nav { padding: 16px var(--page-px); }
 
     /* hero */
+    .hero-index { padding: 68px var(--page-px) 0; }
     .hero-inner { padding: 32px var(--page-px) 60px; }
+    .heat-name { flex-direction: row; align-items: baseline; gap: 0.3em; }
     .hero-manifesto { max-width: 100%; font-size: 16px; margin-bottom: 40px; }
     .hero-meta { gap: 24px; }
     .hero-cta {
@@ -908,7 +915,8 @@
     /* hero name — меньше на маленьких экранах */
     .title-text { font-size: clamp(36px, 12vw, 64px); }
 
-    .hero-index { margin-bottom: 20px; }
+    .hero-index { padding: 64px var(--page-px) 0; }
+    .title-text { font-size: clamp(28px, 9.5vw, 48px); }
     .hero-role { font-size: 11px; margin-bottom: 28px; }
     .hero-manifesto { font-size: 15px; margin-bottom: 32px; }
     .hero-inner { padding: 24px var(--page-px) 48px; }
@@ -987,11 +995,11 @@
 
 <!-- HERO -->
 <section id="hero">
+  <div class="hero-index reveal">01 / SENIOR BRAND DESIGNER</div>
   <div class="hero-photo-wrap" id="heroPhotoWrap">
     <canvas id="heroCanvas"></canvas>
   </div>
   <div class="hero-inner">
-  <div class="hero-index reveal">01 / SENIOR BRAND DESIGNER</div>
 
   <div class="heat-name reveal reveal-delay-1">
     <div class="title-wrap" id="heatWrap1">
@@ -1601,7 +1609,8 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       W = window.innerWidth;
       const naturalH = Math.round(meImg.naturalHeight * W / meImg.naturalWidth);
       const maxH = Math.round(window.innerHeight * 0.72);
-      H = Math.min(naturalH, maxH);
+      H = Math.round(Math.min(naturalH, maxH) * 0.9);
+      W = Math.round(W * 0.9);
     } else {
       H = 548;
       W = Math.round(meImg.naturalWidth * H / meImg.naturalHeight);
@@ -1707,8 +1716,15 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   }
   window.addEventListener('load', () => { if (W === 0) start(); });
 
-  // Reinit при повороте экрана или изменении размера окна
-  window.addEventListener('resize', () => { if (W > 0) init(); });
+  // Reinit только при изменении ШИРИНЫ — iOS при скролле меняет только высоту
+  // (скрывает/показывает адресную строку), это вызвало бы сброс heat-массива
+  let _lastInnerWidth = window.innerWidth;
+  window.addEventListener('resize', () => {
+    const cw = window.innerWidth;
+    if (cw === _lastInnerWidth) return; // высота изменилась, ширина нет — игнорируем
+    _lastInnerWidth = cw;
+    if (W > 0) init(); else start();
+  });
 })();
 
 // ═══════════════════════════════════════
