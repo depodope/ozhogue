@@ -170,6 +170,7 @@
     position: absolute;
     top: 0; left: 0;
     pointer-events: none;
+    mix-blend-mode: linear-light;
   }
   @media (max-width: 768px) {
     .hero-photo-wrap { display: none; }
@@ -1451,6 +1452,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   function makeHeat(wrapEl, textEl, cvs) {
     let W = 0, H = 0;
     let heat = null;
+    let noise = null;     // статичная текстура шума — делает градиент неоднородным
     let mask = null;      // white text on black — defines letter pixels
     let offscreen = null;
     let started = false;
@@ -1464,6 +1466,8 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       cvs.width  = W;
       cvs.height = H;
       heat = new Float32Array(W * H);
+      noise = new Float32Array(W * H);
+      for (let i = 0; i < noise.length; i++) noise[i] = (Math.random() - 0.5) * 0.18;
 
       // Mask canvas: white letters, black background
       mask = document.createElement('canvas');
@@ -1509,7 +1513,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       const img = oc.createImageData(W, H);
       const d   = img.data;
       for (let i = 0; i < heat.length; i++) {
-        const c = stopColor(heat[i]);
+        const c = stopColor(heat[i] + (noise ? noise[i] : 0));
         const p = i * 4;
         d[p]   = c[0];
         d[p+1] = c[1];
@@ -1574,25 +1578,44 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 })();
 
 // ═══════════════════════════════════════
-// HERO PHOTO HEATMAP
+// HERO PHOTO HEATMAP — те же цветовые стопы что в заголовке,
+// mix-blend-mode: linear-light накладывается поверх me.png
 // ═══════════════════════════════════════
 (function() {
   const COOL_RATE = 0.0025;
   const BRUSH_R   = 130;
   const BRUSH_PWR = 0.75;
 
+  // Те же термальные стопы что и в заголовке
+  const STOPS = [
+    [56,  54,  51],
+    [0,   80, 220],
+    [0,  210, 100],
+    [240,210,   0],
+    [255,100,   0],
+    [255, 20,   0],
+    [255,230, 200],
+  ];
+  function stopColor(t) {
+    t = Math.max(0, Math.min(t, 1));
+    const n = STOPS.length - 1;
+    const pos = t * n;
+    const i = Math.min(Math.floor(pos), n - 1);
+    const f = pos - i;
+    const a = STOPS[i], b = STOPS[i + 1];
+    return [
+      (a[0] + (b[0]-a[0])*f) | 0,
+      (a[1] + (b[1]-a[1])*f) | 0,
+      (a[2] + (b[2]-a[2])*f) | 0,
+    ];
+  }
+
   const wrap   = document.getElementById('heroPhotoWrap');
   const cvs    = document.getElementById('heroPhotoCanvas');
   const baseEl = document.getElementById('heroPhotoBase');
   if (!wrap || !cvs || !baseEl) return;
 
-  let W = 0, H = 0;
-  let heat       = null; // Float32Array — тепловые значения пикселей
-  let heatPixels = null; // Uint8ClampedArray — me_heatmap_.png декодированный в W×H
-
-  const heatmapImg = new Image();
-  heatmapImg.crossOrigin = 'anonymous';
-  heatmapImg.src = 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me_heatmap_.png';
+  let W = 0, H = 0, heat = null, noise = null;
 
   function init() {
     const r = wrap.getBoundingClientRect();
@@ -1601,34 +1624,30 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     if (W === 0 || H === 0) return;
     cvs.width  = W;
     cvs.height = H;
-    heat = new Float32Array(W * H);
-    // Один раз декодируем heatmap-изображение в пиксельный буфер W×H
-    const tmp = document.createElement('canvas');
-    tmp.width  = W;
-    tmp.height = H;
-    const tc = tmp.getContext('2d');
-    tc.drawImage(heatmapImg, 0, 0, W, H);
-    heatPixels = tc.getImageData(0, 0, W, H).data;
+    heat  = new Float32Array(W * H);
+    noise = new Float32Array(W * H);
+    for (let i = 0; i < noise.length; i++) noise[i] = (Math.random() - 0.5) * 0.18;
   }
 
   function frame() {
     requestAnimationFrame(frame);
-    if (!heat || !heatPixels || W === 0 || H === 0) return;
+    if (!heat || W === 0 || H === 0) return;
 
-    // Остывание
     for (let i = 0; i < heat.length; i++)
       if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
 
-    // Рисуем: alpha каждого пикселя = исходный alpha × heat
     const ctx = cvs.getContext('2d');
     const out  = ctx.createImageData(W, H);
     const d    = out.data;
     for (let i = 0; i < heat.length; i++) {
+      const h = heat[i];
       const s = i * 4;
-      d[s]   = heatPixels[s];
-      d[s+1] = heatPixels[s+1];
-      d[s+2] = heatPixels[s+2];
-      d[s+3] = Math.round(heatPixels[s+3] * heat[i]);
+      if (h <= 0) { d[s+3] = 0; continue; }
+      const c = stopColor(h + (noise ? noise[i] : 0));
+      d[s]   = c[0];
+      d[s+1] = c[1];
+      d[s+2] = c[2];
+      d[s+3] = Math.round(h * 255);
     }
     ctx.putImageData(out, 0, 0);
   }
@@ -1650,11 +1669,10 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     }
   });
 
-  // Запускаем только когда оба изображения загружены
   let started = false;
   function tryStart() {
     if (started) return;
-    if (baseEl.naturalWidth === 0 || heatmapImg.naturalWidth === 0) return;
+    if (baseEl.naturalWidth === 0) return;
     init();
     if (W === 0) return;
     started = true;
@@ -1662,8 +1680,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   }
 
   baseEl.addEventListener('load', tryStart);
-  heatmapImg.addEventListener('load', tryStart);
-  requestAnimationFrame(tryStart); // ловит уже закешированные картинки
+  requestAnimationFrame(tryStart);
 
   new ResizeObserver(() => { if (started) init(); else tryStart(); }).observe(wrap);
 })();
