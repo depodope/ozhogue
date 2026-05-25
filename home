@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Давлат Набиев — Senior Brand Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a1a;
+    --accent: #4a5e3a;
+    --surface: #f0ede6;
+    --surface-dim: rgba(240,237,230,0.08);
+    --surface-border: rgba(240,237,230,0.12);
+    --mono: 'Space Mono', monospace;
+    --body: 'Inter', sans-serif;
+    --page-max: 1280px;
+    --page-px: 48px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--surface);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* ── CURSOR ── */
+  #cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--surface);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+    transition: width 0.22s, height 0.22s, background 0.22s, border-radius 0.22s;
+  }
+  #cursor.hover {
+    width: 40px; height: 40px;
+    background: transparent;
+    border: 1.5px solid var(--surface);
+    mix-blend-mode: difference;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px var(--page-px);
+    backdrop-filter: blur(12px);
+    background: rgba(26,26,26,0.8);
+    border-bottom: 1px solid var(--surface-border);
+  }
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--surface);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.45);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--surface); }
+
+  /* ── PAGE GRID ── */
+  .page-section {
+    padding: 120px var(--page-px);
+    max-width: var(--page-max);
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 48px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1; max-width: 80px;
+    height: 1px; background: var(--accent); opacity: 0.5;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 160px var(--page-px) 80px;
+    max-width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-index {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: rgba(240,237,230,0.3);
+    margin-bottom: 32px;
+  }
+
+  /* ── HEATMAP TITLE ── */
+  .heat-name {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 0;
+  }
+  .title-wrap {
+    position: relative;
+    display: inline-block;
+    cursor: crosshair;
+    line-height: 1;
+  }
+  .title-text {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(52px, 8vw, 112px);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    line-height: 1.05;
+    /* dim but visible — canvas paints heat colour on top */
+    color: rgba(240,237,230,0.18);
+    user-select: none;
+    white-space: nowrap;
+    padding: 0; margin: 0;
+  }
+  .title-wrap canvas {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+  }
+
+  /* ── HERO CTA ── */
+  .hero-cta {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--surface);
+    background: transparent;
+    border: 1px solid rgba(240,237,230,0.35);
+    padding: 14px 32px;
+    cursor: none;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .hero-cta:hover {
+    background: var(--surface);
+    color: var(--bg);
+    border-color: var(--surface);
+  }
+
+  .hero-role {
+    font-family: var(--body);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.45);
+    margin-top: 20px;
+    margin-bottom: 48px;
+  }
+
+  .hero-manifesto {
+    font-size: 17px;
+    line-height: 1.65;
+    color: rgba(240,237,230,0.7);
+    max-width: 520px;
+    margin-bottom: 64px;
+  }
+
+  .hero-meta {
+    display: flex; gap: 48px; align-items: center;
+    border-top: 1px solid var(--surface-border);
+    padding-top: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item { display: flex; flex-direction: column; gap: 4px; }
+  .hero-meta-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.3);
+  }
+  .hero-meta-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--surface);
+  }
+
+
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    overflow: hidden;
+    border-top: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--surface-border);
+    padding: 20px 0;
+    margin-top: 80px;
+  }
+  .marquee-track {
+    display: flex; gap: 64px; align-items: center;
+    animation: marquee 20s linear infinite;
+    white-space: nowrap;
+    width: max-content;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+  .marquee-item {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.35);
+    display: flex; align-items: center; gap: 24px;
+  }
+  .marquee-item::after { content: '✦'; font-size: 8px; color: var(--accent); }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── ABOUT ── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .about-text p {
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(240,237,230,0.72);
+    margin-bottom: 24px;
+  }
+  .about-text p:first-child {
+    font-size: 20px;
+    line-height: 1.6;
+    color: rgba(240,237,230,0.88);
+  }
+  .strengths-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--surface-border);
+    border: 1px solid var(--surface-border);
+  }
+  .strength-card {
+    background: var(--bg);
+    padding: 28px 24px;
+    transition: background 0.2s;
+  }
+  .strength-card:hover { background: var(--surface-dim); }
+  .strength-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--surface); }
+  .strength-desc { font-size: 13px; line-height: 1.6; color: rgba(240,237,230,0.45); }
+
+  /* ── EXPERIENCE ── */
+  .exp-list { display: flex; flex-direction: column; }
+  .exp-item {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 48px;
+    padding: 40px 0;
+    border-bottom: 1px solid var(--surface-border);
+  }
+  .exp-item:first-child { border-top: 1px solid var(--surface-border); }
+  .exp-company {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--surface);
+    margin-bottom: 6px;
+  }
+  .exp-period {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(240,237,230,0.3);
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .exp-role { font-size: 12px; color: var(--accent); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+  .exp-desc { font-size: 15px; line-height: 1.7; color: rgba(240,237,230,0.65); margin-bottom: 20px; }
+  .exp-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .exp-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.4);
+    border: 1px solid rgba(240,237,230,0.15);
+    padding: 4px 10px;
+  }
+  .exp-highlight {
+    font-size: 13px;
+    color: rgba(240,237,230,0.5);
+    margin-top: 16px;
+    padding-left: 16px;
+    border-left: 2px solid var(--accent);
+    line-height: 1.6;
+  }
+
+  /* ── PROJECTS (horizontal scroll) ── */
+  #projects-section {
+    padding: 120px 0 120px var(--page-px);
+    max-width: 100%;
+  }
+  #projects-section .section-label {
+    max-width: calc(var(--page-max) - var(--page-px) * 2);
+    margin-left: 0;
+    padding-right: var(--page-px);
+  }
+  .projects-scroll-wrapper {
+    overflow-x: auto;
+    scrollbar-width: none;
+    cursor: grab;
+    padding-bottom: 24px;
+  }
+  .projects-scroll-wrapper::-webkit-scrollbar { display: none; }
+  .projects-scroll-wrapper:active { cursor: grabbing; }
+  .projects-track { display: flex; gap: 24px; padding-right: var(--page-px); width: max-content; }
+
+  .project-card {
+    width: 420px;
+    flex-shrink: 0;
+    border: 1px solid var(--surface-border);
+    background: var(--surface-dim);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: none;
+  }
+  .project-card:hover { border-color: rgba(240,237,230,0.3); transform: translateY(-2px); }
+
+  .project-card-visual {
+    height: 240px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .project-card:nth-child(1) .project-card-visual { background: linear-gradient(135deg, #1e2d1a, #2a3d24); }
+  .project-card:nth-child(2) .project-card-visual { background: linear-gradient(135deg, #1a1f2e, #242a3d); }
+  .project-card:nth-child(3) .project-card-visual { background: linear-gradient(135deg, #2d1a1a, #3d2424); }
+  .project-card:nth-child(4) .project-card-visual { background: linear-gradient(135deg, #1a2a2d, #24383d); }
+
+  .viz-text {
+    font-family: var(--mono);
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    opacity: 0.06;
+    color: var(--surface);
+    position: absolute;
+    white-space: nowrap;
+  }
+  .project-card-open-hint {
+    position: absolute;
+    bottom: 16px; right: 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.3);
+    transition: color 0.2s;
+  }
+  .project-card:hover .project-card-open-hint { color: var(--surface); }
+
+  .project-card-body { padding: 28px; }
+  .project-client {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .project-title { font-size: 18px; font-weight: 600; color: var(--surface); margin-bottom: 12px; line-height: 1.3; }
+  .project-desc { font-size: 13px; color: rgba(240,237,230,0.5); line-height: 1.6; }
+  .project-result {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--surface-border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(240,237,230,0.3);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── PROJECT OVERLAY ── */
+  #project-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    background: var(--bg);
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.16,1,0.3,1);
+  }
+  #project-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .overlay-inner {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 80px var(--page-px) 120px;
+  }
+  .overlay-close {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 64px;
+    border-bottom: 1px solid var(--surface-border);
+    padding-bottom: 24px;
+  }
+  .overlay-close-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.35);
+  }
+  .overlay-close-btn {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--surface);
+    background: none;
+    border: 1px solid var(--surface-border);
+    padding: 10px 20px;
+    cursor: none;
+    letter-spacing: 0.08em;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .overlay-close-btn:hover { border-color: var(--surface); }
+
+  .overlay-client {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .overlay-title {
+    font-family: var(--mono);
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    color: var(--surface);
+    margin-bottom: 48px;
+  }
+  .overlay-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    margin-bottom: 64px;
+  }
+  .overlay-desc {
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(240,237,230,0.7);
+  }
+  .overlay-meta-list { display: flex; flex-direction: column; gap: 0; }
+  .overlay-meta-row {
+    display: flex; justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--surface-border);
+    font-size: 13px;
+  }
+  .overlay-meta-row:first-child { border-top: 1px solid var(--surface-border); }
+  .overlay-meta-key {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.3);
+    padding-top: 2px;
+  }
+  .overlay-meta-val { color: var(--surface); font-size: 13px; text-align: right; }
+
+  .overlay-images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .overlay-img-placeholder {
+    background: rgba(240,237,230,0.04);
+    border: 1px solid var(--surface-border);
+    aspect-ratio: 16/10;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .overlay-img-placeholder:first-child { grid-column: 1 / -1; aspect-ratio: 16/7; }
+  .overlay-img-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.15);
+  }
+
+  /* ── SERVICES ACCORDION ── */
+  .services-accordion { border-top: 1px solid var(--surface-border); }
+  .accordion-item { border-bottom: 1px solid var(--surface-border); }
+  .accordion-trigger {
+    width: 100%;
+    display: flex; align-items: baseline; gap: 0;
+    padding: 24px 0;
+    background: none;
+    border: none;
+    cursor: none;
+    text-align: left;
+    transition: background 0.15s;
+  }
+  .accordion-trigger:hover { background: none; }
+  .accordion-trigger:hover .acc-name { color: var(--surface); }
+  .acc-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(240,237,230,0.25);
+    width: 64px;
+    flex-shrink: 0;
+  }
+  .acc-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(240,237,230,0.8);
+    flex: 1;
+    transition: color 0.2s;
+  }
+  .acc-arrow {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: rgba(240,237,230,0.25);
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), color 0.2s;
+    flex-shrink: 0;
+    margin-left: 24px;
+  }
+  .accordion-item.open .acc-arrow {
+    transform: rotate(45deg);
+    color: var(--accent);
+  }
+  .accordion-item.open .acc-name { color: var(--surface); }
+
+  .accordion-body {
+    display: none;
+    padding: 0 0 28px 64px;
+  }
+  .accordion-item.open .accordion-body { display: block; }
+  .accordion-bullets { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .accordion-bullets li {
+    font-size: 14px;
+    color: rgba(240,237,230,0.55);
+    line-height: 1.6;
+    padding-left: 20px;
+    position: relative;
+  }
+  .accordion-bullets li::before {
+    content: '—';
+    position: absolute; left: 0;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  /* ── CONTACT ── */
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .contact-headline {
+    font-family: var(--mono);
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 700;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: var(--surface);
+    margin-bottom: 24px;
+  }
+  .contact-sub {
+    font-size: 15px;
+    color: rgba(240,237,230,0.5);
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+  .contact-links { display: flex; flex-direction: column; }
+  .contact-link-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--surface-border);
+    text-decoration: none;
+    color: var(--surface);
+    transition: padding-left 0.2s;
+  }
+  .contact-link-row:first-child { border-top: 1px solid var(--surface-border); }
+  .contact-link-row:hover { padding-left: 12px; }
+  .contact-link-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.3);
+    width: 80px;
+    flex-shrink: 0;
+  }
+  .contact-link-value { font-size: 14px; color: var(--surface); flex: 1; }
+  .contact-link-arrow {
+    font-size: 16px;
+    color: rgba(240,237,230,0.3);
+    transition: color 0.2s, transform 0.2s;
+  }
+  .contact-link-row:hover .contact-link-arrow { color: var(--accent); transform: translateX(4px); }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 32px var(--page-px);
+    border-top: 1px solid var(--surface-border);
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: var(--page-max);
+    margin: 0 auto;
+  }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(240,237,230,0.25);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(240,237,230,0.12); }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- PROJECT OVERLAY -->
+<div id="project-overlay" role="dialog" aria-modal="true" aria-label="Детали проекта">
+  <div class="overlay-inner">
+    <div class="overlay-close">
+      <span class="overlay-close-label" id="overlay-breadcrumb">Проекты</span>
+      <button class="overlay-close-btn" id="overlay-close-btn">✕ Закрыть</button>
+    </div>
+    <div class="overlay-client" id="overlay-client"></div>
+    <h2 class="overlay-title" id="overlay-title"></h2>
+    <div class="overlay-body">
+      <p class="overlay-desc" id="overlay-desc"></p>
+      <div class="overlay-meta-list" id="overlay-meta"></div>
+    </div>
+    <div class="overlay-images" id="overlay-images"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">ozhogue</a>
+  <ul class="nav-links">
+    <li><a href="#about">Обо мне</a></li>
+    <li><a href="#experience">Опыт</a></li>
+    <li><a href="#projects-section">Проекты</a></li>
+    <li><a href="#services">Услуги</a></li>
+    <li><a href="#contact">Контакт</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-index reveal">01 / SENIOR BRAND DESIGNER</div>
+
+  <div class="heat-name reveal reveal-delay-1">
+    <div class="title-wrap" id="heatWrap1">
+      <span class="title-text" id="heatGhost1">Давлат</span>
+      <canvas id="heatCanvas1"></canvas>
+    </div>
+    <div class="title-wrap" id="heatWrap2">
+      <span class="title-text" id="heatGhost2">Набиев</span>
+      <canvas id="heatCanvas2"></canvas>
+    </div>
+  </div>
+
+  <p class="hero-role reveal reveal-delay-2">Senior Brand Designer · Москва · 6 лет опыта</p>
+
+  <p class="hero-manifesto reveal reveal-delay-3">
+    Разрабатываю визуальные системы, айдентику и&nbsp;digital-коммуникации для крупных брендов — от&nbsp;концепции до&nbsp;внедрения.
+  </p>
+
+  <div class="hero-meta reveal reveal-delay-4">
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Локация</span>
+      <span class="hero-meta-value">Москва</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Формат</span>
+      <span class="hero-meta-value">Офис / Гибрид / Удалённая работа</span>
+    </div>
+    <a href="#contact" class="hero-cta">Связаться</a>
+  </div>
+
+  <div class="marquee-wrap reveal reveal-delay-4">
+    <div class="marquee-track">
+      <span class="marquee-item">ВТБ</span>
+      <span class="marquee-item">СИБУР</span>
+      <span class="marquee-item">НИПИГАЗ</span>
+      <span class="marquee-item">Зарубежнефть</span>
+      <span class="marquee-item">Российская Спортивная Индустрия</span>
+      <span class="marquee-item">BLOC</span>
+      <span class="marquee-item">Авиакомпания «Россия»</span>
+      <span class="marquee-item">ЮГМК</span>
+      <span class="marquee-item">ВТБ</span>
+      <span class="marquee-item">СИБУР</span>
+      <span class="marquee-item">НИПИГАЗ</span>
+      <span class="marquee-item">Зарубежнефть</span>
+      <span class="marquee-item">Российская Спортивная Индустрия</span>
+      <span class="marquee-item">BLOC</span>
+      <span class="marquee-item">Авиакомпания «Россия»</span>
+      <span class="marquee-item">ЮГМК</span>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="page-section" style="padding-top: 0;">
+  <div class="section-label reveal">02 · Обо мне</div>
+  <div class="about-grid">
+    <div class="about-text reveal reveal-delay-1">
+      <p>Я дизайнер, работающий в&nbsp;сфере брендинга, digital и&nbsp;корпоративных коммуникаций. Специализируюсь не&nbsp;на отдельных макетах, а&nbsp;на построении устойчивых визуальных систем, которые можно легко масштабировать внутри бизнеса.</p>
+      <p>Работал с&nbsp;промышленными, нефтегазовыми и&nbsp;корпоративными компаниями, где дизайн должен решать прикладные задачи: навигацию, внутренние коммуникации, маркетинг и&nbsp;бренд-консистентность.</p>
+      <p>Помимо графического дизайна — опыт в&nbsp;фотографии и&nbsp;визуальном продакшене. Мыслю весь цикл производства визуального продукта: от&nbsp;идеи до&nbsp;финальной коммуникации.</p>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <div class="strengths-grid">
+        <div class="strength-card">
+          <div class="strength-title">Системное мышление</div>
+          <div class="strength-desc">Создаю целостные дизайн-экосистемы, а не&nbsp;отдельные макеты.</div>
+        </div>
+        <div class="strength-card">
+          <div class="strength-title">Скорость работы</div>
+          <div class="strength-desc">Оптимизация процессов и стандартизация дизайн-подходов.</div>
+        </div>
+        <div class="strength-card">
+          <div class="strength-title">Универсальность</div>
+          <div class="strength-desc">Digital, офлайн, брендбуки, презентации, коммуникации.</div>
+        </div>
+        <div class="strength-card">
+          <div class="strength-title">Ответственность</div>
+          <div class="strength-desc">Руководство дизайн-командой и контроль качества решений.</div>
+        </div>
+        <div class="strength-card">
+          <div class="strength-title">Enterprise-среда</div>
+          <div class="strength-desc">Понимаю корпоративные процессы, согласования и требования.</div>
+        </div>
+        <div class="strength-card">
+          <div class="strength-title">Широкий бэкграунд</div>
+          <div class="strength-desc">Фотография, видеопродакшен, контент-производство.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="page-section" style="padding-top: 0;">
+  <div class="section-label reveal">03 · Опыт</div>
+  <div class="exp-list">
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <div class="exp-company">Belka Production</div>
+        <div class="exp-period">Дек 2024 — Фев 2026</div>
+        <div class="exp-role">Senior Designer</div>
+      </div>
+      <div class="exp-content">
+        <p class="exp-desc">Руководство дизайн-командой, разработка и сопровождение айдентики корпоративных клиентов федерального уровня, контроль вёрстки многостраничных изданий и презентаций для топ-менеджмента.</p>
+        <div class="exp-tags">
+          <span class="exp-tag">НИПИГАЗ</span>
+          <span class="exp-tag">СИБУР</span>
+          <span class="exp-tag">ЮГМК</span>
+          <span class="exp-tag">Авиакомпания «Россия»</span>
+          <span class="exp-tag">Зарубежнефть</span>
+        </div>
+        <p class="exp-highlight">5 корпоративных клиентов одновременно — нефтегаз, промышленность, авиация. Актуализация брендбуков сократила время согласования на ~25%.</p>
+      </div>
+    </div>
+
+    <div class="exp-item reveal reveal-delay-1">
+      <div class="exp-meta">
+        <div class="exp-company">BLOC</div>
+        <div class="exp-period">Окт 2023 — Ноя 2024</div>
+        <div class="exp-role">Brand Designer</div>
+      </div>
+      <div class="exp-content">
+        <p class="exp-desc">Формирование и развитие фирменного стиля бренда с нуля. Курирование разработки сайта, дизайн-система для digital и офлайн, 3D-туры объектов, навигация шоурумов.</p>
+        <div class="exp-tags">
+          <span class="exp-tag">Брендинг</span>
+          <span class="exp-tag">Дизайн-система</span>
+          <span class="exp-tag">Web</span>
+          <span class="exp-tag">3D-туры</span>
+          <span class="exp-tag">Навигация</span>
+        </div>
+        <p class="exp-highlight">Единая визуальная система: логотип, гайдлайны, дизайн-система от нуля.</p>
+      </div>
+    </div>
+
+    <div class="exp-item reveal reveal-delay-2">
+      <div class="exp-meta">
+        <div class="exp-company">Honey Bunny</div>
+        <div class="exp-period">Июл 2022 — Сен 2023</div>
+        <div class="exp-role">Designer / Photographer</div>
+      </div>
+      <div class="exp-content">
+        <p class="exp-desc">Разработка визуальных концепций и брендбука, фотосъёмки и продакшен, дизайн для всех носителей — сайт, соцсети, POSM, упаковка, полиграфия.</p>
+        <div class="exp-tags">
+          <span class="exp-tag">Айдентика</span>
+          <span class="exp-tag">SMM</span>
+          <span class="exp-tag">Фотография</span>
+          <span class="exp-tag">Упаковка</span>
+        </div>
+        <p class="exp-highlight">Конверсия рекламы: 0,2% → 1,7% (+850%). Reels набирали от 300 тыс. просмотров.</p>
+      </div>
+    </div>
+
+    <div class="exp-item reveal reveal-delay-3">
+      <div class="exp-meta">
+        <div class="exp-company">LaMark</div>
+        <div class="exp-period">Май 2020 — Апр 2022</div>
+        <div class="exp-role">Designer</div>
+      </div>
+      <div class="exp-content">
+        <p class="exp-desc">Рекламные кампании для концертных и коммерческих проектов. Афиши, digital-баннеры, наружная реклама для мероприятий федерального уровня. HoReCa-бренды.</p>
+        <div class="exp-tags">
+          <span class="exp-tag">Zivert</span>
+          <span class="exp-tag">Niletto</span>
+          <span class="exp-tag">Тима Белорусских</span>
+          <span class="exp-tag">HoReCa</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects-section">
+  <div class="section-label reveal">04 · Проекты</div>
+  <div class="projects-scroll-wrapper" id="projectsScroll">
+    <div class="projects-track">
+
+      <div class="project-card reveal" data-project="nipigaz">
+        <div class="project-card-visual">
+          <span class="viz-text">НИПИГАЗ</span>
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">НИПИГАЗ · Нефтегаз</div>
+          <div class="project-title">Медиасистема для сотрудников</div>
+          <p class="project-desc">Еженедельный видеодайджест с нуля, серия HTML-рассылок, корпоративный стиль в рамках действующего брендбука.</p>
+          <div class="project-result">Email / Video / Brand Guidelines</div>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-1" data-project="sibur">
+        <div class="project-card-visual">
+          <span class="viz-text">СИБУР</span>
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">СИБУР · Нефтехимия</div>
+          <div class="project-title">Маркетинговая поддержка федерального бренда</div>
+          <p class="project-desc">Digital-баннеры, email-коммуникации и рекламные материалы для федеральных кампаний.</p>
+          <div class="project-result">Digital / Email / OOH</div>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-2" data-project="bloc">
+        <div class="project-card-visual">
+          <span class="viz-text">BLOC</span>
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">BLOC · Real Estate</div>
+          <div class="project-title">Фирменный стиль с нуля</div>
+          <p class="project-desc">Логотип, гайдлайны, дизайн-система для digital и офлайн, курирование разработки сайта, 3D-туры, навигация шоурумов.</p>
+          <div class="project-result">Identity / Design System / Web</div>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-3" data-project="zarubezh">
+        <div class="project-card-visual">
+          <span class="viz-text">ЗАРУБЕЖНЕФТЬ</span>
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">Зарубежнефть · Нефтедобыча</div>
+          <div class="project-title">Корпоративные издания и брендбук</div>
+          <p class="project-desc">Квартальные отчётные презентации и корпоративные книги (от 50 страниц) для топ-менеджмента. Брендинг ежегодных событий.</p>
+          <div class="project-result">Editorial / Branding / Events</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="page-section" style="padding-top: 0;">
+  <div class="section-label reveal">05 · Услуги</div>
+
+  <div class="services-accordion reveal">
+
+    <div class="accordion-item">
+      <button class="accordion-trigger">
+        <span class="acc-num">01</span>
+        <span class="acc-name">Брендинг и фирменный стиль</span>
+        <span class="acc-arrow">+</span>
+      </button>
+      <div class="accordion-body">
+        <ul class="accordion-bullets">
+          <li>Разработка логотипа и знака — от концепции до финального файлового пакета</li>
+          <li>Создание фирменного стиля: цвет, шрифт, паттерны, графический язык</li>
+          <li>Брендбук и гайдлайны для внутренней команды и подрядчиков</li>
+          <li>Актуализация и редизайн существующего стиля</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-trigger">
+        <span class="acc-num">02</span>
+        <span class="acc-name">Дизайн-система</span>
+        <span class="acc-arrow">+</span>
+      </button>
+      <div class="accordion-body">
+        <ul class="accordion-bullets">
+          <li>Компонентная система для digital и офлайн-носителей</li>
+          <li>Токены: цвет, типографика, отступы, радиусы, тени</li>
+          <li>Документация и передача команде разработки</li>
+          <li>Синхронизация дизайна между маркетингом, продакшеном и IT</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-trigger">
+        <span class="acc-num">03</span>
+        <span class="acc-name">Корпоративные коммуникации</span>
+        <span class="acc-arrow">+</span>
+      </button>
+      <div class="accordion-body">
+        <ul class="accordion-bullets">
+          <li>Презентации и отчёты для уровня топ-менеджмента</li>
+          <li>Корпоративные книги и многостраничные издания (50+ страниц)</li>
+          <li>Email-рассылки: HTML-шаблоны для внутренних и внешних коммуникаций</li>
+          <li>Брендинг корпоративных мероприятий и спортивных событий</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-trigger">
+        <span class="acc-num">04</span>
+        <span class="acc-name">Digital-дизайн</span>
+        <span class="acc-arrow">+</span>
+      </button>
+      <div class="accordion-body">
+        <ul class="accordion-bullets">
+          <li>Веб-дизайн: лендинги, корпоративные сайты, e-commerce</li>
+          <li>Баннерные кампании: digital OOH, programmatic, social</li>
+          <li>SMM-контент: сетка, шаблоны, визуальная система для соцсетей</li>
+          <li>Адаптивный дизайн и передача в разработку</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-trigger">
+        <span class="acc-num">05</span>
+        <span class="acc-name">Навигация и среда</span>
+        <span class="acc-arrow">+</span>
+      </button>
+      <div class="accordion-body">
+        <ul class="accordion-bullets">
+          <li>Системы навигации для производственных и офисных объектов</li>
+          <li>Брендирование шоурумов, точек продаж, выставочных стендов</li>
+          <li>POSM: point-of-sale материалы, вывески, таблички, указатели</li>
+          <li>Разработка и согласование с производством</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <button class="accordion-trigger">
+        <span class="acc-num">06</span>
+        <span class="acc-name">Фото и визуальный продакшен</span>
+        <span class="acc-arrow">+</span>
+      </button>
+      <div class="accordion-body">
+        <ul class="accordion-bullets">
+          <li>Разработка визуальной концепции для съёмок</li>
+          <li>Продюсирование и проведение фотосессий</li>
+          <li>Создание контента для маркетинговых кампаний</li>
+          <li>Цветокоррекция, ретушь и финальная подготовка материалов</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="page-section" style="padding-top: 0; border-top: 1px solid var(--surface-border);">
+  <div class="section-label reveal" style="padding-top: 80px;">06 · Контакт</div>
+  <div class="contact-inner">
+    <div class="reveal">
+      <h2 class="contact-headline">Давайте<br>работать<br>вместе</h2>
+      <p class="contact-sub">Открыт к предложениям — агентство, in-house, проектная работа. Пишите напрямую или найдите меня в удобном канале.</p>
+    </div>
+    <div class="contact-links reveal reveal-delay-1">
+      <a href="mailto:davlatnub@gmail.com" class="contact-link-row">
+        <span class="contact-link-label">Email</span>
+        <span class="contact-link-value">davlatnub@gmail.com</span>
+        <span class="contact-link-arrow">→</span>
+      </a>
+      <a href="tel:+79996397547" class="contact-link-row">
+        <span class="contact-link-label">Телефон</span>
+        <span class="contact-link-value">+7 (999) 639-75-47</span>
+        <span class="contact-link-arrow">→</span>
+      </a>
+      <a href="https://t.me/ozhogue" target="_blank" rel="noopener" class="contact-link-row">
+        <span class="contact-link-label">Telegram</span>
+        <span class="contact-link-value">@ozhogue</span>
+        <span class="contact-link-arrow">→</span>
+      </a>
+      <a href="https://max.ru/u/f9LHodD0cOI5ajX_yy7iMVwh3yd05EPeGwLdUxPEjYQgtv5NZ3z6ACW7g3M" target="_blank" rel="noopener" class="contact-link-row">
+        <span class="contact-link-label">MAX</span>
+        <span class="contact-link-value">Профиль MAX</span>
+        <span class="contact-link-arrow">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-copy">© 2026 Давлат Набиев</span>
+  <span class="footer-copy">Senior Brand Designer · Москва</span>
+  <span class="footer-copy" id="footerTime"></span>
+</footer>
+
+<script>
+// ═══════════════════════════════════════
+// CURSOR
+// ═══════════════════════════════════════
+const cursor = document.getElementById('cursor');
+let mx = -200, my = -200, cx = -200, cy = -200;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animCursor() {
+  cx += (mx - cx) * 0.18;
+  cy += (my - cy) * 0.18;
+  cursor.style.left = cx + 'px';
+  cursor.style.top = cy + 'px';
+  requestAnimationFrame(animCursor);
+})();
+function addHover(selector) {
+  document.querySelectorAll(selector).forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+}
+addHover('a, button, .project-card, .accordion-trigger, .strength-card');
+
+// ═══════════════════════════════════════
+// HEATMAP — canvas sits over grey text,
+// mix-blend-mode:screen adds colour on hover
+// ═══════════════════════════════════════
+(function() {
+  const COOL_RATE   = 0.006;   // per frame cooldown
+  const BRUSH_R     = 90;      // heat brush radius px
+  const BRUSH_PWR   = 0.7;     // heat added per frame
+
+  // cold → blue → green → yellow → orange → red → white
+  const STOPS = [
+    [0,   0,   0],
+    [0,  80, 220],
+    [0, 210, 100],
+    [240,210,  0],
+    [255,100,  0],
+    [255, 20,  0],
+    [255,230,200],
+  ];
+
+  function stopColor(t) {
+    if (t < 0.002) return null;
+    t = Math.min(t, 1);
+    const n = STOPS.length - 1;
+    const pos = t * n;
+    const i = Math.min(Math.floor(pos), n - 1);
+    const f = pos - i;
+    const a = STOPS[i], b = STOPS[i + 1];
+    return [
+      (a[0] + (b[0]-a[0])*f) | 0,
+      (a[1] + (b[1]-a[1])*f) | 0,
+      (a[2] + (b[2]-a[2])*f) | 0,
+      Math.min(t * 2, 1),
+    ];
+  }
+
+  function makeHeat(wrapEl, textEl, cvs) {
+    let W = 0, H = 0;
+    let heat = null;
+    let mask = null;      // white text on black — defines letter pixels
+    let offscreen = null;
+    let started = false;
+
+    function buildMask() {
+      const cs  = getComputedStyle(textEl);
+      const r   = wrapEl.getBoundingClientRect();
+      W = Math.ceil(r.width);
+      H = Math.ceil(r.height);
+
+      cvs.width  = W;
+      cvs.height = H;
+      heat = new Float32Array(W * H);
+
+      // Mask canvas: white letters, black background
+      mask = document.createElement('canvas');
+      mask.width  = W;
+      mask.height = H;
+      const mc = mask.getContext('2d');
+
+      const fs = parseFloat(cs.fontSize);
+      const fw = cs.fontWeight;
+      const ff = cs.fontFamily;
+      mc.font = `${fw} ${fs}px ${ff}`;
+      if ('letterSpacing' in mc) mc.letterSpacing = cs.letterSpacing;
+      // transparent background — only letter pixels get alpha
+      mc.clearRect(0, 0, W, H);
+      mc.fillStyle    = '#fff';
+      mc.textBaseline = 'alphabetic';
+      const text = textEl.textContent.toUpperCase();
+      const m = mc.measureText(text);
+      // measure positions relative to wrapEl, not offsetParent
+      const wrapRect = wrapEl.getBoundingClientRect();
+      const textRect = textEl.getBoundingClientRect();
+      const relTop  = textRect.top  - wrapRect.top;
+      const relLeft = textRect.left - wrapRect.left;
+      const y = relTop + m.actualBoundingBoxAscent;
+      mc.fillText(text, relLeft, y);
+
+      offscreen = document.createElement('canvas');
+      offscreen.width  = W;
+      offscreen.height = H;
+    }
+
+    function frame() {
+      requestAnimationFrame(frame);
+      if (!heat || !mask) return;
+
+      // Cool down
+      for (let i = 0; i < heat.length; i++)
+        if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
+
+      // Build colour image
+      const oc  = offscreen.getContext('2d');
+      const img = oc.createImageData(W, H);
+      const d   = img.data;
+      for (let i = 0; i < heat.length; i++) {
+        const c = stopColor(heat[i]);
+        if (!c) continue;
+        const p = i * 4;
+        d[p]   = c[0];
+        d[p+1] = c[1];
+        d[p+2] = c[2];
+        d[p+3] = (c[3] * 255) | 0;
+      }
+      oc.putImageData(img, 0, 0);
+
+      // Clip colour to letter shapes only
+      oc.globalCompositeOperation = 'destination-in';
+      oc.drawImage(mask, 0, 0);
+      oc.globalCompositeOperation = 'source-over';
+
+      // Draw to visible canvas
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0, 0, W, H);
+      ctx.drawImage(offscreen, 0, 0);
+    }
+
+    wrapEl.addEventListener('mousemove', e => {
+      if (!heat) return;
+      const r  = wrapEl.getBoundingClientRect();
+      const mx = (e.clientX - r.left) | 0;
+      const my = (e.clientY - r.top)  | 0;
+      const R2 = BRUSH_R * BRUSH_R;
+      for (let y = Math.max(0, my-BRUSH_R); y <= Math.min(H-1, my+BRUSH_R); y++) {
+        for (let x = Math.max(0, mx-BRUSH_R); x <= Math.min(W-1, mx+BRUSH_R); x++) {
+          const d2 = (x-mx)**2 + (y-my)**2;
+          if (d2 < R2) {
+            const f = 1 - d2/R2;
+            const idx = y*W + x;
+            heat[idx] = Math.min(1, heat[idx] + BRUSH_PWR * f * f);
+          }
+        }
+      }
+    });
+
+    // Init after font loads
+    document.fonts.load(`700 1em "Space Mono"`).then(() => {
+      requestAnimationFrame(() => {
+        buildMask();
+        if (!started) { started = true; frame(); }
+      });
+    }).catch(() => setTimeout(() => {
+      buildMask();
+      if (!started) { started = true; frame(); }
+    }, 400));
+
+    new ResizeObserver(() => { if (heat) buildMask(); }).observe(wrapEl);
+  }
+
+  makeHeat(
+    document.getElementById('heatWrap1'),
+    document.getElementById('heatGhost1'),
+    document.getElementById('heatCanvas1')
+  );
+  makeHeat(
+    document.getElementById('heatWrap2'),
+    document.getElementById('heatGhost2'),
+    document.getElementById('heatCanvas2')
+  );
+})();
+
+// ═══════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ═══════════════════════════════════════
+// HORIZONTAL DRAG SCROLL
+// ═══════════════════════════════════════
+const scrollWrap = document.getElementById('projectsScroll');
+let isDown=false, startX, scrollLeft;
+scrollWrap.addEventListener('mousedown', e => {
+  isDown=true; startX=e.pageX-scrollWrap.offsetLeft; scrollLeft=scrollWrap.scrollLeft;
+});
+scrollWrap.addEventListener('mouseleave', ()=>isDown=false);
+scrollWrap.addEventListener('mouseup', ()=>isDown=false);
+scrollWrap.addEventListener('mousemove', e => {
+  if (!isDown) return;
+  e.preventDefault();
+  scrollWrap.scrollLeft = scrollLeft - (e.pageX-scrollWrap.offsetLeft-startX)*1.5;
+});
+
+// ═══════════════════════════════════════
+// PROJECT OVERLAY
+// ═══════════════════════════════════════
+const projects = {
+  nipigaz: {
+    client: 'НИПИГАЗ · Нефтегаз',
+    title: 'Медиасистема для сотрудников',
+    desc: 'В рамках работы с НИПИГАЗ был создан еженедельный видеодайджест с нуля — от концепции формата и визуальной системы до регулярного производственного цикла. Параллельно разработана серия HTML-рассылок для охвата широкой аудитории сотрудников. Вся коммуникация велась в строгом соответствии с действующим брендбуком компании, при этом были предложены современные решения для digital-среды.',
+    meta: [
+      ['Клиент', 'НИПИГАЗ'],
+      ['Индустрия', 'Нефтегаз'],
+      ['Период', 'Дек 2024 — Фев 2026'],
+      ['Формат', 'Email / Video / Brand'],
+    ],
+    images: 3,
+  },
+  sibur: {
+    client: 'СИБУР · Нефтехимия',
+    title: 'Маркетинговая поддержка федерального бренда',
+    desc: 'Маркетинговая поддержка фирменного стиля одного из крупнейших нефтехимических холдингов России. Разработка digital-баннеров для федеральных размещений, email-коммуникации для B2B и B2C аудиторий, рекламные материалы для масштабных кампаний. Работа в строгих рамках корпоративного дизайн-кода с сохранением целостности бренда на всех носителях.',
+    meta: [
+      ['Клиент', 'СИБУР'],
+      ['Индустрия', 'Нефтехимия'],
+      ['Период', 'Дек 2024 — Фев 2026'],
+      ['Формат', 'Digital / Email / OOH'],
+    ],
+    images: 3,
+  },
+  bloc: {
+    client: 'BLOC · Real Estate',
+    title: 'Фирменный стиль с нуля',
+    desc: 'Полный цикл создания визуальной идентичности бренда: от стратегии позиционирования до финального гайдлайна. Разработаны логотип и знак, цветовая система, типографика, паттерны и графический язык. Курирование разработки сайта и создание дизайн-системы для digital и офлайн-носителей. Контроль производства 3D-туров объектов, навигация и брендирование шоурумов.',
+    meta: [
+      ['Клиент', 'BLOC'],
+      ['Индустрия', 'Real Estate'],
+      ['Период', 'Окт 2023 — Ноя 2024'],
+      ['Формат', 'Identity / Design System / Web'],
+    ],
+    images: 4,
+  },
+  zarubezh: {
+    client: 'Зарубежнефть · Нефтедобыча',
+    title: 'Корпоративные издания и брендбук',
+    desc: 'Разработка квартальных отчётных презентаций и многостраничных корпоративных книг объёмом от 50 страниц для уровня топ-менеджмента. Каждое издание — комплексная верстка с инфографикой, диаграммами и фотоконтентом. Параллельно — брендинг ежегодных спортивных мероприятий компании и актуализация брендбука.',
+    meta: [
+      ['Клиент', 'Зарубежнефть'],
+      ['Индустрия', 'Нефтедобыча'],
+      ['Период', 'Дек 2024 — Фев 2026'],
+      ['Формат', 'Editorial / Branding / Events'],
+    ],
+    images: 3,
+  },
+};
+
+const overlay = document.getElementById('project-overlay');
+const overlayClient = document.getElementById('overlay-client');
+const overlayTitle = document.getElementById('overlay-title');
+const overlayDesc = document.getElementById('overlay-desc');
+const overlayMeta = document.getElementById('overlay-meta');
+const overlayImages = document.getElementById('overlay-images');
+
+function openOverlay(key) {
+  const p = projects[key];
+  if (!p) return;
+  overlayClient.textContent = p.client;
+  overlayTitle.textContent = p.title;
+  overlayDesc.textContent = p.desc;
+  overlayMeta.innerHTML = p.meta.map(([k,v]) =>
+    `<div class="overlay-meta-row"><span class="overlay-meta-key">${k}</span><span class="overlay-meta-val">${v}</span></div>`
+  ).join('');
+  // Generate placeholder images
+  overlayImages.innerHTML = '';
+  for (let i=0; i<p.images; i++) {
+    const ph = document.createElement('div');
+    ph.className = 'overlay-img-placeholder';
+    ph.innerHTML = `<span class="overlay-img-label">Изображение ${i+1}</span>`;
+    overlayImages.appendChild(ph);
+  }
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  overlay.scrollTop = 0;
+}
+
+function closeOverlay() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.querySelectorAll('.project-card').forEach(card => {
+  card.addEventListener('click', () => {
+    if (!isDragging) openOverlay(card.dataset.project);
+  });
+});
+
+document.getElementById('overlay-close-btn').addEventListener('click', closeOverlay);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlay(); });
+
+// Prevent overlay open when dragging
+let isDragging = false;
+let dragStartX = 0;
+scrollWrap.addEventListener('mousedown', e => { dragStartX = e.pageX; isDragging = false; });
+scrollWrap.addEventListener('mousemove', e => {
+  if (Math.abs(e.pageX - dragStartX) > 5) isDragging = true;
+});
+
+// ═══════════════════════════════════════
+// ACCORDION
+// ═══════════════════════════════════════
+document.querySelectorAll('.accordion-trigger').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.accordion-item');
+    const wasOpen = item.classList.contains('open');
+    // close all
+    document.querySelectorAll('.accordion-item.open').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+
+// ═══════════════════════════════════════
+// FOOTER CLOCK
+// ═══════════════════════════════════════
+function updateTime() {
+  const t = new Date().toLocaleTimeString('ru-RU', {
+    hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone:'Europe/Moscow'
+  });
+  const el = document.getElementById('footerTime');
+  if (el) el.textContent = 'MSK ' + t;
+}
+updateTime();
+setInterval(updateTime, 1000);
+</script>
+</body>
+</html>
