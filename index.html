@@ -18,7 +18,7 @@
     --surface-border: rgba(240,237,230,0.12);
     --mono: 'Space Mono', monospace;
     --body: 'Inter', sans-serif;
-    --page-max: 1280px;
+    --page-max: 1340px;
     --page-px: 48px;
   }
 
@@ -84,7 +84,7 @@
 
   /* ── PAGE GRID ── */
   .page-section {
-    padding: 120px var(--page-px);
+    padding: 80px var(--page-px);
     max-width: var(--page-max);
     margin: 0 auto;
   }
@@ -107,11 +107,20 @@
   /* ── HERO ── */
   #hero {
     min-height: 100vh;
-    display: flex; flex-direction: column; justify-content: flex-end;
-    padding: 160px var(--page-px) 80px;
-    max-width: 100%;
+    display: flex;
+    flex-direction: column;
     position: relative;
     overflow: hidden;
+  }
+  .hero-inner {
+    width: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 160px var(--page-px) 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex: 1;
   }
 
   .hero-index {
@@ -139,12 +148,11 @@
     display: block;
     font-family: 'Space Mono', monospace;
     font-weight: 700;
-    font-size: clamp(52px, 8vw, 112px);
+    font-size: clamp(47px, 7.2vw, 101px);
     letter-spacing: -0.02em;
     text-transform: uppercase;
-    line-height: 1.05;
-    /* dim but visible — canvas paints heat colour on top */
-    color: rgba(240,237,230,0.18);
+    line-height: 1.2;
+    color: transparent;
     user-select: none;
     white-space: nowrap;
     padding: 0; margin: 0;
@@ -330,11 +338,16 @@
 
   /* ── PROJECTS (horizontal scroll) ── */
   #projects-section {
-    padding: 120px 0 120px var(--page-px);
+    padding: 80px 0;
     max-width: 100%;
   }
+  .projects-section-inner {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding-left: var(--page-px);
+  }
   #projects-section .section-label {
-    max-width: calc(var(--page-max) - var(--page-px) * 2);
+    max-width: 100%;
     margin-left: 0;
     padding-right: var(--page-px);
   }
@@ -672,6 +685,219 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: rgba(240,237,230,0.12); }
+
+  /* ════════════════════════════════════════
+     BURGER MENU
+  ════════════════════════════════════════ */
+  .nav-burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px; height: 44px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    margin-right: -10px;
+  }
+  .nav-burger span {
+    display: block;
+    width: 22px; height: 1.5px;
+    background: var(--surface);
+    transition: transform 0.3s, opacity 0.3s;
+    transform-origin: center;
+  }
+  .nav-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .nav-burger.open span:nth-child(2) { opacity: 0; }
+  .nav-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  /* mobile nav drawer */
+  .nav-drawer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    top: 61px; /* nav height */
+    background: rgba(26,26,26,0.97);
+    backdrop-filter: blur(16px);
+    z-index: 499;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .nav-drawer.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .nav-drawer a {
+    font-family: var(--mono);
+    font-size: clamp(20px, 5vw, 28px);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.6);
+    text-decoration: none;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--surface-border);
+    width: 80%;
+    text-align: center;
+    transition: color 0.2s;
+    min-height: 44px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-drawer a:last-child { border-bottom: none; }
+  .nav-drawer a:hover { color: var(--surface); }
+
+  /* ════════════════════════════════════════
+     RESPONSIVE — небольшие десктопы ≤1024px
+  ════════════════════════════════════════ */
+  @media (max-width: 1024px) {
+    :root {
+      --page-px: 32px;
+    }
+    .about-grid {
+      gap: 48px;
+    }
+    .exp-item {
+      grid-template-columns: 180px 1fr;
+      gap: 32px;
+    }
+    .contact-inner {
+      gap: 48px;
+    }
+    .project-card {
+      width: 360px;
+    }
+  }
+
+  /* ════════════════════════════════════════
+     RESPONSIVE — планшеты ≤768px
+  ════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    :root {
+      --page-px: 24px;
+    }
+
+    /* курсор скрываем — на тач не нужен */
+    #cursor { display: none; }
+    body { cursor: auto; }
+    .hero-cta { cursor: pointer; }
+    .accordion-trigger { cursor: pointer; }
+    .overlay-close-btn { cursor: pointer; }
+    .project-card { cursor: pointer; }
+
+    /* nav → бургер */
+    .nav-links { display: none; }
+    .nav-burger { display: flex; }
+    .nav-drawer { display: flex; }
+    nav { padding: 16px var(--page-px); }
+
+    /* hero */
+    .hero-inner { padding: 120px var(--page-px) 60px; }
+    .hero-manifesto { max-width: 100%; font-size: 16px; margin-bottom: 40px; }
+    .hero-meta { gap: 24px; }
+    .hero-cta {
+      margin-left: 0;
+      margin-top: 16px;
+      width: 100%;
+      text-align: center;
+      padding: 16px;
+      min-height: 44px;
+    }
+    .marquee-wrap { margin-top: 48px; }
+
+    /* about */
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .about-text p:first-child { font-size: 18px; }
+
+    /* strengths */
+    .strengths-grid { grid-template-columns: 1fr 1fr; }
+
+    /* experience */
+    .exp-item {
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 32px 0;
+    }
+
+    /* projects */
+    .project-card { width: 300px; }
+    .project-card-visual { height: 180px; }
+
+    /* overlay */
+    .overlay-inner { padding: 60px var(--page-px) 80px; }
+    .overlay-body { grid-template-columns: 1fr; gap: 32px; }
+    .overlay-images { grid-template-columns: 1fr; }
+    .overlay-img-placeholder:first-child { grid-column: 1; aspect-ratio: 16/9; }
+
+    /* services */
+    .acc-name { font-size: 16px; }
+    .accordion-body { padding: 0 0 24px 32px; }
+
+    /* contact */
+    .contact-inner { grid-template-columns: 1fr; gap: 40px; }
+
+    /* footer */
+    footer {
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+      padding: 24px var(--page-px);
+    }
+    /* скрываем часы в мобильном футере */
+    #footerTime { display: none; }
+
+    /* секция проектов */
+    #projects-section { padding: 60px 0; }
+  }
+
+  /* ════════════════════════════════════════
+     RESPONSIVE — смартфоны ≤480px
+  ════════════════════════════════════════ */
+  @media (max-width: 480px) {
+    :root {
+      --page-px: 20px;
+    }
+
+    /* hero name — меньше на маленьких экранах */
+    .title-text { font-size: clamp(36px, 12vw, 64px); }
+
+    .hero-index { margin-bottom: 20px; }
+    .hero-role { font-size: 11px; margin-bottom: 28px; }
+    .hero-manifesto { font-size: 15px; margin-bottom: 32px; }
+    .hero-inner { padding: 100px var(--page-px) 48px; }
+
+    /* meta стекаем вертикально */
+    .hero-meta { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .hero-cta { width: 100%; }
+
+    /* about */
+    .about-text p:first-child { font-size: 17px; }
+    .strengths-grid { grid-template-columns: 1fr; }
+
+    /* project cards — почти полный экран */
+    .project-card { width: calc(100vw - var(--page-px) * 2 - 24px); }
+    .project-card-visual { height: 160px; }
+
+    /* accordion */
+    .acc-num { width: 40px; }
+    .acc-name { font-size: 14px; }
+    .accordion-body { padding: 0 0 20px 40px; }
+
+    /* contact */
+    .contact-link-value { font-size: 12px; word-break: break-all; }
+
+    /* overlay */
+    .overlay-close { flex-direction: row; gap: 12px; }
+    .overlay-close-btn { padding: 10px 16px; min-height: 44px; }
+    .overlay-title { font-size: clamp(22px, 6vw, 36px); }
+  }
 </style>
 </head>
 <body>
@@ -705,10 +931,23 @@
     <li><a href="#services">Услуги</a></li>
     <li><a href="#contact">Контакт</a></li>
   </ul>
+  <button class="nav-burger" id="navBurger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE DRAWER -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="#about"            class="drawer-link">Обо мне</a>
+  <a href="#experience"       class="drawer-link">Опыт</a>
+  <a href="#projects-section" class="drawer-link">Проекты</a>
+  <a href="#services"         class="drawer-link">Услуги</a>
+  <a href="#contact"          class="drawer-link">Контакт</a>
+</div>
 
 <!-- HERO -->
 <section id="hero">
+  <div class="hero-inner">
   <div class="hero-index reveal">01 / SENIOR BRAND DESIGNER</div>
 
   <div class="heat-name reveal reveal-delay-1">
@@ -739,6 +978,7 @@
     </div>
     <a href="#contact" class="hero-cta">Связаться</a>
   </div>
+  </div><!-- /.hero-inner -->
 
   <div class="marquee-wrap reveal reveal-delay-4">
     <div class="marquee-track">
@@ -763,7 +1003,7 @@
 </section>
 
 <!-- ABOUT -->
-<section id="about" class="page-section" style="padding-top: 0;">
+<section id="about" class="page-section">
   <div class="section-label reveal">02 · Обо мне</div>
   <div class="about-grid">
     <div class="about-text reveal reveal-delay-1">
@@ -803,7 +1043,7 @@
 </section>
 
 <!-- EXPERIENCE -->
-<section id="experience" class="page-section" style="padding-top: 0;">
+<section id="experience" class="page-section" >
   <div class="section-label reveal">03 · Опыт</div>
   <div class="exp-list">
 
@@ -885,7 +1125,10 @@
 
 <!-- PROJECTS -->
 <section id="projects-section">
-  <div class="section-label reveal">04 · Проекты</div>
+  <div class="projects-section-inner">
+    <div class="section-label reveal">04 · Проекты</div>
+  </div>
+  <div class="projects-section-inner">
   <div class="projects-scroll-wrapper" id="projectsScroll">
     <div class="projects-track">
 
@@ -943,10 +1186,9 @@
 
     </div>
   </div>
+  </div><!-- /.projects-section-inner -->
 </section>
-
-<!-- SERVICES -->
-<section id="services" class="page-section" style="padding-top: 0;">
+<section id="services" class="page-section" >
   <div class="section-label reveal">05 · Услуги</div>
 
   <div class="services-accordion reveal">
@@ -1051,8 +1293,8 @@
 </section>
 
 <!-- CONTACT -->
-<section id="contact" class="page-section" style="padding-top: 0; border-top: 1px solid var(--surface-border);">
-  <div class="section-label reveal" style="padding-top: 80px;">06 · Контакт</div>
+<section id="contact" class="page-section" style="border-top: 1px solid var(--surface-border);">
+  <div class="section-label reveal" >06 · Контакт</div>
   <div class="contact-inner">
     <div class="reveal">
       <h2 class="contact-headline">Давайте<br>работать<br>вместе</h2>
@@ -1117,24 +1359,23 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 // mix-blend-mode:screen adds colour on hover
 // ═══════════════════════════════════════
 (function() {
-  const COOL_RATE   = 0.006;   // per frame cooldown
+  const COOL_RATE   = 0.00216;
   const BRUSH_R     = 90;      // heat brush radius px
   const BRUSH_PWR   = 0.7;     // heat added per frame
 
-  // cold → blue → green → yellow → orange → red → white
+  // cold grey → blue → green → yellow → orange → red → white
   const STOPS = [
-    [0,   0,   0],
-    [0,  80, 220],
-    [0, 210, 100],
-    [240,210,  0],
-    [255,100,  0],
-    [255, 20,  0],
-    [255,230,200],
+    [56,  54,  51],   // холодный — rgba(240,237,230) * 0.23 ≈ этот серый
+    [0,   80, 220],
+    [0,  210, 100],
+    [240,210,   0],
+    [255,100,   0],
+    [255,  20,  0],
+    [255,230, 200],
   ];
 
   function stopColor(t) {
-    if (t < 0.002) return null;
-    t = Math.min(t, 1);
+    t = Math.max(0, Math.min(t, 1));
     const n = STOPS.length - 1;
     const pos = t * n;
     const i = Math.min(Math.floor(pos), n - 1);
@@ -1144,7 +1385,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       (a[0] + (b[0]-a[0])*f) | 0,
       (a[1] + (b[1]-a[1])*f) | 0,
       (a[2] + (b[2]-a[2])*f) | 0,
-      Math.min(t * 2, 1),
+      255, // always fully opaque — mask clips to letter shape
     ];
   }
 
@@ -1181,14 +1422,16 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       mc.fillStyle    = '#fff';
       mc.textBaseline = 'alphabetic';
       const text = textEl.textContent.toUpperCase();
-      const m = mc.measureText(text);
-      // measure positions relative to wrapEl, not offsetParent
-      const wrapRect = wrapEl.getBoundingClientRect();
-      const textRect = textEl.getBoundingClientRect();
-      const relTop  = textRect.top  - wrapRect.top;
-      const relLeft = textRect.left - wrapRect.left;
-      const y = relTop + m.actualBoundingBoxAscent;
-      mc.fillText(text, relLeft, y);
+      if ('letterSpacing' in mc) mc.letterSpacing = cs.letterSpacing;
+
+      // CSS places baseline at: (lineHeight - fontSize) / 2 + ascent
+      // We measure ascent from canvas metrics (same font, same size)
+      const m        = mc.measureText(text);
+      const fontSize = parseFloat(cs.fontSize);
+      const lineH    = parseFloat(cs.lineHeight) || fontSize * 1.2;
+      const leading  = (lineH - fontSize) / 2;
+      const y        = leading + m.actualBoundingBoxAscent;
+      mc.fillText(text, 0, y);
 
       offscreen = document.createElement('canvas');
       offscreen.width  = W;
@@ -1209,12 +1452,11 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       const d   = img.data;
       for (let i = 0; i < heat.length; i++) {
         const c = stopColor(heat[i]);
-        if (!c) continue;
         const p = i * 4;
         d[p]   = c[0];
         d[p+1] = c[1];
         d[p+2] = c[2];
-        d[p+3] = (c[3] * 255) | 0;
+        d[p+3] = c[3];
       }
       oc.putImageData(img, 0, 0);
 
@@ -1412,6 +1654,27 @@ document.querySelectorAll('.accordion-trigger').forEach(btn => {
     // close all
     document.querySelectorAll('.accordion-item.open').forEach(i => i.classList.remove('open'));
     if (!wasOpen) item.classList.add('open');
+  });
+});
+
+// ═══════════════════════════════════════
+// BURGER MENU
+// ═══════════════════════════════════════
+const burger = document.getElementById('navBurger');
+const drawer = document.getElementById('navDrawer');
+
+burger.addEventListener('click', () => {
+  const isOpen = burger.classList.toggle('open');
+  drawer.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+});
+
+// Закрываем drawer при клике на ссылку
+document.querySelectorAll('.drawer-link').forEach(link => {
+  link.addEventListener('click', () => {
+    burger.classList.remove('open');
+    drawer.classList.remove('open');
+    document.body.style.overflow = '';
   });
 });
 
