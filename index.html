@@ -163,13 +163,25 @@
     font-family: var(--mono);
     font-size: 11px;
     letter-spacing: 0.15em;
-    color: rgba(240,237,230,0.3);
+    text-transform: uppercase;
+    color: var(--accent);
     margin-bottom: 0;
     width: 100%;
     max-width: var(--page-max);
     margin-left: auto;
     margin-right: auto;
     padding: 90px var(--page-px) 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .hero-index::after {
+    content: '';
+    flex: 1;
+    max-width: 80px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.5;
   }
 
   /* ── HEATMAP TITLE ── */
@@ -401,7 +413,6 @@
   .projects-scroll-wrapper::-webkit-scrollbar { display: none; }
   .projects-scroll-wrapper:active { cursor: grabbing; }
   .projects-track { display: flex; gap: 24px; padding-right: var(--page-px); width: max-content; }
-  .projects-scroll-hint { display: none; } /* показывается только на мобилке */
 
   .project-card {
     width: 420px;
@@ -851,8 +862,6 @@
       align-items: baseline;
       gap: 0;
       justify-content: space-between;
-      margin-left: calc(-1 * var(--page-px));
-      width: calc(100% + 2 * var(--page-px));
     }
     .title-text { font-size: 13vw; }
     .hero-manifesto { max-width: 100%; font-size: 16px; margin-bottom: 40px; }
@@ -896,31 +905,6 @@
     .acc-name { font-size: 16px; }
     .accordion-body { padding: 0 0 24px 32px; }
 
-    /* projects — scroll hint + right fade */
-    .projects-scroll-hint {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(240,237,230,0.28);
-      margin-top: 14px;
-      padding: 0 var(--page-px);
-    }
-    .projects-section-inner { position: relative; }
-    .projects-section-inner::after {
-      content: '';
-      position: absolute;
-      right: 0; top: 0; bottom: 0;
-      width: 56px;
-      background: linear-gradient(to right, transparent, var(--bg));
-      pointer-events: none;
-      z-index: 2;
-    }
-
     /* contact */
     .contact-inner { grid-template-columns: 1fr; gap: 40px; }
 
@@ -945,9 +929,6 @@
     :root {
       --page-px: 20px;
     }
-
-    /* hero name — меньше на маленьких экранах */
-    .title-text { font-size: clamp(36px, 12vw, 64px); }
 
     .title-text { font-size: 13vw; }
     .hero-role { font-size: 11px; margin-bottom: 28px; }
@@ -1254,7 +1235,6 @@
 
     </div>
   </div>
-  <div class="projects-scroll-hint">← свайп →</div>
   </div><!-- /.projects-section-inner -->
 </section>
 <section id="services" class="page-section" >
@@ -1794,8 +1774,8 @@ scrollWrap.addEventListener('mousedown', e => {
   isDown=true; startX=e.pageX-scrollWrap.offsetLeft; scrollLeft=scrollWrap.scrollLeft;
   dragStartX=e.pageX; isDragging=false;
 });
-scrollWrap.addEventListener('mouseleave', ()=>isDown=false);
-scrollWrap.addEventListener('mouseup', ()=>isDown=false);
+scrollWrap.addEventListener('mouseleave', ()=>{ isDown=false; isDragging=false; });
+scrollWrap.addEventListener('mouseup',    ()=>{ isDown=false; isDragging=false; });
 scrollWrap.addEventListener('mousemove', e => {
   if (Math.abs(e.pageX - dragStartX) > 5) isDragging = true;
   if (!isDown) return;
@@ -1881,7 +1861,7 @@ const overlayImages = document.getElementById('overlay-images');
 
 function openOverlay(key) {
   const p = projects[key];
-  if (!p) return;
+  if (!p || !overlay) return;
   overlayClient.textContent = p.client;
   overlayTitle.textContent = p.title;
   overlayDesc.textContent = p.desc;
