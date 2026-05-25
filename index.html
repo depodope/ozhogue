@@ -121,6 +121,35 @@
     flex-direction: column;
     justify-content: flex-end;
     flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HERO PHOTO ── */
+  .hero-photo-wrap {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 52%;
+    overflow: hidden;
+    cursor: crosshair;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 18%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 18%);
+  }
+  .hero-photo-base {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+    pointer-events: none;
+  }
+  #heroPhotoCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+  }
+  @media (max-width: 768px) {
+    .hero-photo-wrap { display: none; }
   }
 
   .hero-index {
@@ -963,6 +992,11 @@
 
 <!-- HERO -->
 <section id="hero">
+  <div class="hero-photo-wrap" id="heroPhotoWrap">
+    <img src="https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me.png"
+         alt="Давлат Набиев" class="hero-photo-base">
+    <canvas id="heroPhotoCanvas"></canvas>
+  </div>
   <div class="hero-inner">
   <div class="hero-index reveal">01 / SENIOR BRAND DESIGNER</div>
 
@@ -1512,6 +1546,86 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     document.getElementById('heatGhost2'),
     document.getElementById('heatCanvas2')
   );
+})();
+
+// ═══════════════════════════════════════
+// HERO PHOTO HEATMAP
+// ═══════════════════════════════════════
+(function() {
+  const COOL_RATE = 0.0025;
+  const BRUSH_R   = 130;
+  const BRUSH_PWR = 0.75;
+
+  const wrap = document.getElementById('heroPhotoWrap');
+  const cvs  = document.getElementById('heroPhotoCanvas');
+  if (!wrap || !cvs) return;
+
+  let W = 0, H = 0, heat = null, offscreen = null;
+
+  const heatmapImg = new Image();
+  heatmapImg.src = 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me_heatmap_.png';
+
+  function init() {
+    const r = wrap.getBoundingClientRect();
+    W = Math.ceil(r.width);
+    H = Math.ceil(r.height);
+    cvs.width  = W;
+    cvs.height = H;
+    heat      = new Float32Array(W * H);
+    offscreen  = document.createElement('canvas');
+    offscreen.width  = W;
+    offscreen.height = H;
+  }
+
+  function frame() {
+    requestAnimationFrame(frame);
+    if (!heat || !offscreen) return;
+
+    // Cool down
+    for (let i = 0; i < heat.length; i++)
+      if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
+
+    // Build alpha mask from heat values
+    const oc = offscreen.getContext('2d');
+    oc.clearRect(0, 0, W, H);
+    const maskData = oc.createImageData(W, H);
+    for (let i = 0; i < heat.length; i++) {
+      const p = i * 4;
+      maskData.data[p] = maskData.data[p+1] = maskData.data[p+2] = 255;
+      maskData.data[p+3] = Math.round(heat[i] * 255);
+    }
+    oc.putImageData(maskData, 0, 0);
+
+    // Reveal me_heatmap_ clipped to the heat mask
+    oc.globalCompositeOperation = 'source-in';
+    oc.drawImage(heatmapImg, 0, 0, W, H);
+    oc.globalCompositeOperation = 'source-over';
+
+    const ctx = cvs.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(offscreen, 0, 0);
+  }
+
+  wrap.addEventListener('mousemove', e => {
+    if (!heat) return;
+    const r  = wrap.getBoundingClientRect();
+    const mx = (e.clientX - r.left) | 0;
+    const my = (e.clientY - r.top)  | 0;
+    const R2 = BRUSH_R * BRUSH_R;
+    for (let y = Math.max(0, my-BRUSH_R); y <= Math.min(H-1, my+BRUSH_R); y++) {
+      for (let x = Math.max(0, mx-BRUSH_R); x <= Math.min(W-1, mx+BRUSH_R); x++) {
+        const d2 = (x-mx)**2 + (y-my)**2;
+        if (d2 < R2) {
+          const f  = 1 - d2/R2;
+          const idx = y*W + x;
+          heat[idx] = Math.min(1, heat[idx] + BRUSH_PWR * f * f);
+        }
+      }
+    }
+  });
+
+  requestAnimationFrame(() => { init(); frame(); });
+  new ResizeObserver(() => { if (heat) init(); }).observe(wrap);
 })();
 
 // ═══════════════════════════════════════
