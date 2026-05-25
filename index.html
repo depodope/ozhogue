@@ -382,6 +382,9 @@
   .project-card:nth-child(2) .project-card-visual { background: linear-gradient(135deg, #1a1f2e, #242a3d); }
   .project-card:nth-child(3) .project-card-visual { background: linear-gradient(135deg, #2d1a1a, #3d2424); }
   .project-card:nth-child(4) .project-card-visual { background: linear-gradient(135deg, #1a2a2d, #24383d); }
+  .alldigital-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_1.webp') center/cover no-repeat !important;
+  }
 
   .viz-text {
     font-family: var(--mono);
@@ -525,6 +528,16 @@
     grid-template-columns: 1fr 1fr;
     gap: 16px;
   }
+  .overlay-images.many {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .overlay-images--stack {
+    grid-template-columns: 1fr;
+  }
+  .overlay-images--stack .overlay-img-real {
+    grid-column: 1 / -1;
+    aspect-ratio: 16/9;
+  }
   .overlay-img-placeholder {
     background: rgba(240,237,230,0.04);
     border: 1px solid var(--surface-border);
@@ -532,12 +545,18 @@
     display: flex; align-items: center; justify-content: center;
   }
   .overlay-img-placeholder:first-child { grid-column: 1 / -1; aspect-ratio: 16/7; }
-  .overlay-img-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(240,237,230,0.15);
+  .overlay-img-real {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    border: 1px solid var(--surface-border);
+  }
+  .overlay-img-real:first-child {
+    grid-column: 1 / -1;
+    aspect-ratio: 16/7;
+  }
+  .overlay-img-real:not(:first-child) {
+    aspect-ratio: 16/10;
   }
 
   /* ── SERVICES ACCORDION ── */
@@ -908,7 +927,7 @@
 <div id="project-overlay" role="dialog" aria-modal="true" aria-label="Детали проекта">
   <div class="overlay-inner">
     <div class="overlay-close">
-      <span class="overlay-close-label" id="overlay-breadcrumb">Проекты</span>
+      <span class="overlay-close-label">Проекты</span>
       <button class="overlay-close-btn" id="overlay-close-btn">✕ Закрыть</button>
     </div>
     <div class="overlay-client" id="overlay-client"></div>
@@ -1132,7 +1151,20 @@
   <div class="projects-scroll-wrapper" id="projectsScroll">
     <div class="projects-track">
 
-      <div class="project-card reveal" data-project="nipigaz">
+      <div class="project-card reveal" data-project="alldigital">
+        <div class="project-card-visual alldigital-visual">
+          <span class="viz-text">ALL.DIGITAL</span>
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">all.digital · Digital-агентство</div>
+          <div class="project-title">Брендинг digital-компании полного цикла</div>
+          <p class="project-desc">Нейминг, позиционирование, визуальная система — от точки как фундаментального элемента до полноценного бренда.</p>
+          <div class="project-result">Naming / Identity / Design System</div>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-1" data-project="nipigaz">
         <div class="project-card-visual">
           <span class="viz-text">НИПИГАЗ</span>
           <span class="project-card-open-hint">Открыть →</span>
@@ -1422,7 +1454,6 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       mc.fillStyle    = '#fff';
       mc.textBaseline = 'alphabetic';
       const text = textEl.textContent.toUpperCase();
-      if ('letterSpacing' in mc) mc.letterSpacing = cs.letterSpacing;
 
       // CSS places baseline at: (lineHeight - fontSize) / 2 + ascent
       // We measure ascent from canvas metrics (same font, same size)
@@ -1527,13 +1558,15 @@ document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 // HORIZONTAL DRAG SCROLL
 // ═══════════════════════════════════════
 const scrollWrap = document.getElementById('projectsScroll');
-let isDown=false, startX, scrollLeft;
+let isDown=false, startX, scrollLeft, isDragging=false, dragStartX=0;
 scrollWrap.addEventListener('mousedown', e => {
   isDown=true; startX=e.pageX-scrollWrap.offsetLeft; scrollLeft=scrollWrap.scrollLeft;
+  dragStartX=e.pageX; isDragging=false;
 });
 scrollWrap.addEventListener('mouseleave', ()=>isDown=false);
 scrollWrap.addEventListener('mouseup', ()=>isDown=false);
 scrollWrap.addEventListener('mousemove', e => {
+  if (Math.abs(e.pageX - dragStartX) > 5) isDragging = true;
   if (!isDown) return;
   e.preventDefault();
   scrollWrap.scrollLeft = scrollLeft - (e.pageX-scrollWrap.offsetLeft-startX)*1.5;
@@ -1543,6 +1576,29 @@ scrollWrap.addEventListener('mousemove', e => {
 // PROJECT OVERLAY
 // ═══════════════════════════════════════
 const projects = {
+  alldigital: {
+    client: 'all.digital · Digital-агентство',
+    title: 'Брендинг digital-компании полного цикла',
+    desc: 'Полный цикл — нейминг, позиционирование, визуальная система. В основе бренда точка: пиксель, единица коммуникации, начало любой формы. Из неё выстраивается всё — логотип, паттерны, типографика, визуальный язык. Палитра четырёх цветов от Electric Violet до глубокого Haiti позволяет строить как контрастные, так и сдержанные композиции. Геометричный шрифт Raptor V3 Premium завершает систему — работает на любом носителе, в любом масштабе.',
+    meta: [
+      ['Клиент', 'all.digital'],
+      ['Задача', 'Нейминг · Брендинг · Позиционирование'],
+      ['Формат', 'Identity / Design System / Web'],
+      ['Стек', 'Логотип · Палитра · Типографика · Сайт · Носители'],
+    ],
+    images: [
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_1.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_2.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_3.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_4.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_5.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_6.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_7.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_8.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_9.webp',
+    ],
+    imagesLayout: 'stack',
+  },
   nipigaz: {
     client: 'НИПИГАЗ · Нефтегаз',
     title: 'Медиасистема для сотрудников',
@@ -1609,14 +1665,33 @@ function openOverlay(key) {
   overlayMeta.innerHTML = p.meta.map(([k,v]) =>
     `<div class="overlay-meta-row"><span class="overlay-meta-key">${k}</span><span class="overlay-meta-val">${v}</span></div>`
   ).join('');
-  // Generate placeholder images
+
   overlayImages.innerHTML = '';
-  for (let i=0; i<p.images; i++) {
-    const ph = document.createElement('div');
-    ph.className = 'overlay-img-placeholder';
-    ph.innerHTML = `<span class="overlay-img-label">Изображение ${i+1}</span>`;
-    overlayImages.appendChild(ph);
+  overlayImages.className = 'overlay-images';
+  if (p.imagesLayout === 'stack') overlayImages.classList.add('overlay-images--stack');
+  else if (Array.isArray(p.images) && p.images.length >= 5) overlayImages.classList.add('many');
+
+  if (Array.isArray(p.images) && typeof p.images[0] === 'string') {
+    // Real image paths
+    p.images.forEach((src, i) => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = `${p.title} — изображение ${i+1}`;
+      img.className = 'overlay-img-real';
+      img.loading = 'lazy';
+      overlayImages.appendChild(img);
+    });
+  } else {
+    // Placeholder count
+    const count = typeof p.images === 'number' ? p.images : 3;
+    for (let i = 0; i < count; i++) {
+      const ph = document.createElement('div');
+      ph.className = 'overlay-img-placeholder';
+      ph.innerHTML = `<span class="overlay-img-label">Изображение ${i+1}</span>`;
+      overlayImages.appendChild(ph);
+    }
   }
+
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   overlay.scrollTop = 0;
@@ -1636,13 +1711,6 @@ document.querySelectorAll('.project-card').forEach(card => {
 document.getElementById('overlay-close-btn').addEventListener('click', closeOverlay);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlay(); });
 
-// Prevent overlay open when dragging
-let isDragging = false;
-let dragStartX = 0;
-scrollWrap.addEventListener('mousedown', e => { dragStartX = e.pageX; isDragging = false; });
-scrollWrap.addEventListener('mousemove', e => {
-  if (Math.abs(e.pageX - dragStartX) > 5) isDragging = true;
-});
 
 // ═══════════════════════════════════════
 // ACCORDION
