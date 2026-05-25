@@ -132,14 +132,12 @@
     top: calc(50% - 80px);
     transform: translateY(-50%);
     height: 548px;
+    cursor: crosshair;
     -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 22%);
     mask-image: linear-gradient(to top, transparent 0%, #000 22%);
   }
-  .hero-photo-base {
-    height: 548px;
-    width: auto;
+  #heroCanvas {
     display: block;
-    pointer-events: none;
   }
   @media (max-width: 768px) {
     .hero-photo-wrap { display: none; }
@@ -974,9 +972,8 @@
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-photo-wrap">
-    <img src="https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me.png"
-         alt="Давлат Набиев" class="hero-photo-base">
+  <div class="hero-photo-wrap" id="heroPhotoWrap">
+    <canvas id="heroCanvas"></canvas>
   </div>
   <div class="hero-inner">
   <div class="hero-index reveal">01 / SENIOR BRAND DESIGNER</div>
@@ -1529,6 +1526,123 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     document.getElementById('heatGhost2'),
     document.getElementById('heatCanvas2')
   );
+})();
+
+// ═══════════════════════════════════════
+// HERO PHOTO — один canvas рисует и фото и тепловой эффект
+// ═══════════════════════════════════════
+(function() {
+  const COOL_RATE = 0.0025;
+  const BRUSH_R   = 130;
+  const BRUSH_PWR = 0.75;
+
+  const STOPS = [
+    [56,  54,  51],
+    [0,   80, 220],
+    [0,  210, 100],
+    [240,210,   0],
+    [255,100,   0],
+    [255, 20,   0],
+    [255,230, 200],
+  ];
+  function stopColor(t) {
+    t = Math.max(0, Math.min(t, 1));
+    const n = STOPS.length - 1;
+    const pos = t * n;
+    const i   = Math.min(Math.floor(pos), n - 1);
+    const f   = pos - i;
+    const a   = STOPS[i], b = STOPS[i + 1];
+    return [
+      (a[0] + (b[0]-a[0])*f) | 0,
+      (a[1] + (b[1]-a[1])*f) | 0,
+      (a[2] + (b[2]-a[2])*f) | 0,
+    ];
+  }
+
+  const wrap = document.getElementById('heroPhotoWrap');
+  const cvs  = document.getElementById('heroCanvas');
+  if (!wrap || !cvs) return;
+
+  let W = 0, H = 548, heat = null, noise = null, offCanvas = null;
+
+  const meImg = new Image();
+  meImg.src = 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me.png';
+
+  function init() {
+    if (!meImg.naturalWidth || !meImg.naturalHeight) return;
+    H = 548;
+    W = Math.round(meImg.naturalWidth * H / meImg.naturalHeight);
+    cvs.width  = W;
+    cvs.height = H;
+    heat      = new Float32Array(W * H);
+    noise     = new Float32Array(W * H);
+    for (let i = 0; i < noise.length; i++) noise[i] = (Math.random() - 0.5) * 0.18;
+    offCanvas         = document.createElement('canvas');
+    offCanvas.width   = W;
+    offCanvas.height  = H;
+  }
+
+  function frame() {
+    requestAnimationFrame(frame);
+    if (!heat || !offCanvas || W === 0) return;
+
+    // Остывание
+    for (let i = 0; i < heat.length; i++)
+      if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
+
+    const ctx = cvs.getContext('2d');
+
+    // 1. Рисуем базовое фото
+    ctx.drawImage(meImg, 0, 0, W, H);
+
+    // 2. Тепловой оверлей в offCanvas через putImageData
+    const oc  = offCanvas.getContext('2d');
+    const out = oc.createImageData(W, H);
+    const d   = out.data;
+    for (let i = 0; i < heat.length; i++) {
+      const h = heat[i];
+      if (h <= 0) continue;
+      const s = i * 4;
+      const c = stopColor(h + noise[i]);
+      d[s]   = c[0];
+      d[s+1] = c[1];
+      d[s+2] = c[2];
+      d[s+3] = Math.round(h * 255);
+    }
+    oc.putImageData(out, 0, 0);
+
+    // 3. Накладываем оверлей поверх фото (source-over, уважает alpha)
+    ctx.drawImage(offCanvas, 0, 0);
+  }
+
+  wrap.addEventListener('mousemove', e => {
+    if (!heat) return;
+    const r  = wrap.getBoundingClientRect();
+    const mx = (e.clientX - r.left) | 0;
+    const my = (e.clientY - r.top)  | 0;
+    const R2 = BRUSH_R * BRUSH_R;
+    for (let y = Math.max(0, my - BRUSH_R); y <= Math.min(H-1, my + BRUSH_R); y++) {
+      for (let x = Math.max(0, mx - BRUSH_R); x <= Math.min(W-1, mx + BRUSH_R); x++) {
+        const d2 = (x-mx)**2 + (y-my)**2;
+        if (d2 < R2) {
+          const f = 1 - d2/R2;
+          heat[y*W + x] = Math.min(1, heat[y*W + x] + BRUSH_PWR * f * f);
+        }
+      }
+    }
+  });
+
+  function start() {
+    init();
+    if (W > 0) frame();
+  }
+
+  if (meImg.complete && meImg.naturalWidth) {
+    start();
+  } else {
+    meImg.addEventListener('load', start);
+  }
+  window.addEventListener('load', () => { if (W === 0) start(); });
 })();
 
 // ═══════════════════════════════════════
