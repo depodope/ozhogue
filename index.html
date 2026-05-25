@@ -116,7 +116,7 @@
     width: 100%;
     max-width: var(--page-max);
     margin: 0 auto;
-    padding: 0 var(--page-px) 80px;
+    padding: 160px var(--page-px) 80px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -166,14 +166,18 @@
     text-transform: uppercase;
     color: var(--accent);
     margin-bottom: 0;
-    width: 100%;
+    /* десктоп: абсолютно, как фото — не занимает места в потоке */
+    position: absolute;
+    top: 88px;
+    left: 0; right: 0;
+    padding: 0 var(--page-px);
     max-width: var(--page-max);
     margin-left: auto;
     margin-right: auto;
-    padding: 90px var(--page-px) 0;
     display: flex;
     align-items: center;
     gap: 16px;
+    z-index: 2;
   }
   .hero-index::after {
     content: '';
@@ -855,7 +859,12 @@
     nav { padding: 16px var(--page-px); }
 
     /* hero */
-    .hero-index { padding: 92px var(--page-px) 0; }
+    .hero-index {
+      position: static; /* вернуть в поток на мобилке */
+      top: auto; left: auto; right: auto;
+      padding: 92px var(--page-px) 0;
+      max-width: none;
+    }
     .hero-inner { padding: 32px var(--page-px) 60px; }
     .heat-name {
       flex-direction: row;
