@@ -128,8 +128,8 @@
   /* ── HERO PHOTO ── */
   .hero-photo-wrap {
     position: absolute;
-    right: 0;
-    top: 50%;
+    right: 56px;
+    top: calc(50% - 50px);
     transform: translateY(-50%);
     height: 518px;
     cursor: crosshair;
@@ -142,6 +142,30 @@
     display: block;
     pointer-events: none;
   }
+  /* ── HEAT SCALE ── */
+  .heat-scale {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 220px;
+    border-radius: 2px;
+    background: linear-gradient(to bottom,
+      #ffe6c8,
+      #ff1400,
+      #ff6400,
+      #f0d200,
+      #00d264,
+      #0050dc,
+      #383836
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+  @media (max-width: 768px) {
+    .heat-scale { display: none; }
+  }
   #heroPhotoCanvas {
     position: absolute;
     top: 0; left: 0;
@@ -150,6 +174,7 @@
   @media (max-width: 768px) {
     .hero-photo-wrap { display: none; }
   }
+
 
   .hero-index {
     font-family: var(--mono);
@@ -993,9 +1018,10 @@
 <section id="hero">
   <div class="hero-photo-wrap" id="heroPhotoWrap">
     <img src="https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me.png"
-         alt="Давлат Набиев" class="hero-photo-base">
+         alt="Давлат Набиев" class="hero-photo-base" id="heroPhotoBase">
     <canvas id="heroPhotoCanvas"></canvas>
   </div>
+  <div class="heat-scale"></div>
   <div class="hero-inner">
   <div class="hero-index reveal">01 / SENIOR BRAND DESIGNER</div>
 
@@ -1578,7 +1604,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 
   function frame() {
     requestAnimationFrame(frame);
-    if (!heat || !offscreen) return;
+    if (!heat || !offscreen || W === 0 || H === 0) return;
 
     // Cool down
     for (let i = 0; i < heat.length; i++)
@@ -1623,8 +1649,22 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     }
   });
 
-  requestAnimationFrame(() => { init(); frame(); });
-  new ResizeObserver(() => { if (heat) init(); }).observe(wrap);
+  // Стартуем loop сразу, init() — когда base-фото загрузится (даёт wrap ширину)
+  let loopStarted = false;
+  function start() {
+    init();
+    if (!loopStarted) { loopStarted = true; frame(); }
+  }
+
+  const baseEl = document.getElementById('heroPhotoBase');
+  if (baseEl.complete && baseEl.naturalWidth > 0) {
+    requestAnimationFrame(start);
+  } else {
+    if (!loopStarted) { loopStarted = true; frame(); }
+    baseEl.addEventListener('load', () => requestAnimationFrame(start));
+  }
+
+  new ResizeObserver(() => { if (W === 0) start(); }).observe(wrap);
 })();
 
 // ═══════════════════════════════════════
