@@ -1565,8 +1565,10 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   if (!wrap || !cvs) return;
 
   let W = 0, H = 548, heat = null, noise = null, offCanvas = null;
+  let photoPixels = null; // пиксели me.png для linear light + маски
 
   const meImg = new Image();
+  meImg.crossOrigin = 'anonymous'; // нужен для getImageData (GitHub raw поддерживает CORS)
   meImg.src = 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me.png';
 
   function init() {
@@ -1575,44 +1577,64 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     W = Math.round(meImg.naturalWidth * H / meImg.naturalHeight);
     cvs.width  = W;
     cvs.height = H;
-    heat      = new Float32Array(W * H);
-    noise     = new Float32Array(W * H);
+    heat  = new Float32Array(W * H);
+    noise = new Float32Array(W * H);
     for (let i = 0; i < noise.length; i++) noise[i] = (Math.random() - 0.5) * 0.18;
-    offCanvas         = document.createElement('canvas');
-    offCanvas.width   = W;
-    offCanvas.height  = H;
+    offCanvas        = document.createElement('canvas');
+    offCanvas.width  = W;
+    offCanvas.height = H;
+
+    // Читаем пиксели фото один раз — для linear light и alpha-маски
+    try {
+      const tmp = document.createElement('canvas');
+      tmp.width = W; tmp.height = H;
+      const tc  = tmp.getContext('2d');
+      tc.drawImage(meImg, 0, 0, W, H);
+      photoPixels = tc.getImageData(0, 0, W, H).data;
+    } catch(e) {
+      photoPixels = null; // CORS недоступен, fallback без маски
+    }
   }
 
   function frame() {
     requestAnimationFrame(frame);
     if (!heat || !offCanvas || W === 0) return;
 
-    // Остывание
     for (let i = 0; i < heat.length; i++)
       if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
 
     const ctx = cvs.getContext('2d');
-
-    // 1. Рисуем базовое фото
     ctx.drawImage(meImg, 0, 0, W, H);
 
-    // 2. Тепловой оверлей в offCanvas через putImageData
     const oc  = offCanvas.getContext('2d');
     const out = oc.createImageData(W, H);
     const d   = out.data;
+
     for (let i = 0; i < heat.length; i++) {
       const h = heat[i];
       if (h <= 0) continue;
       const s = i * 4;
       const c = stopColor(h + noise[i]);
-      d[s]   = c[0];
-      d[s+1] = c[1];
-      d[s+2] = c[2];
-      d[s+3] = Math.round(h * 255);
+
+      if (photoPixels) {
+        const pa = photoPixels[s + 3] / 255;
+        if (pa < 0.01) continue; // прозрачный фон — пропускаем
+
+        // Linear light: 2*blend + base - 255, зажато в [0,255]
+        const ll = (blend, base) => Math.min(255, Math.max(0, 2 * blend + base - 255));
+        d[s]   = ll(c[0], photoPixels[s]);
+        d[s+1] = ll(c[1], photoPixels[s + 1]);
+        d[s+2] = ll(c[2], photoPixels[s + 2]);
+        d[s+3] = Math.round(pa * h * 255); // alpha = маска фото × тепло
+      } else {
+        // Fallback если CORS не работает
+        d[s]   = c[0];
+        d[s+1] = c[1];
+        d[s+2] = c[2];
+        d[s+3] = Math.round(h * 255);
+      }
     }
     oc.putImageData(out, 0, 0);
-
-    // 3. Накладываем оверлей поверх фото (source-over, уважает alpha)
     ctx.drawImage(offCanvas, 0, 0);
   }
 
