@@ -1581,11 +1581,14 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   const BRUSH_R   = 130;
   const BRUSH_PWR = 0.75;
 
-  const wrap = document.getElementById('heroPhotoWrap');
-  const cvs  = document.getElementById('heroPhotoCanvas');
-  if (!wrap || !cvs) return;
+  const wrap   = document.getElementById('heroPhotoWrap');
+  const cvs    = document.getElementById('heroPhotoCanvas');
+  const baseEl = document.getElementById('heroPhotoBase');
+  if (!wrap || !cvs || !baseEl) return;
 
-  let W = 0, H = 0, heat = null, offscreen = null, maskCanvas = null;
+  let W = 0, H = 0;
+  let heat       = null; // Float32Array — тепловые значения пикселей
+  let heatPixels = null; // Uint8ClampedArray — me_heatmap_.png декодированный в W×H
 
   const heatmapImg = new Image();
   heatmapImg.crossOrigin = 'anonymous';
@@ -1595,49 +1598,39 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     const r = wrap.getBoundingClientRect();
     W = Math.ceil(r.width);
     H = Math.ceil(r.height);
+    if (W === 0 || H === 0) return;
     cvs.width  = W;
     cvs.height = H;
-    heat       = new Float32Array(W * H);
-    offscreen  = document.createElement('canvas');
-    offscreen.width  = W;
-    offscreen.height = H;
-    maskCanvas = document.createElement('canvas');
-    maskCanvas.width  = W;
-    maskCanvas.height = H;
+    heat = new Float32Array(W * H);
+    // Один раз декодируем heatmap-изображение в пиксельный буфер W×H
+    const tmp = document.createElement('canvas');
+    tmp.width  = W;
+    tmp.height = H;
+    const tc = tmp.getContext('2d');
+    tc.drawImage(heatmapImg, 0, 0, W, H);
+    heatPixels = tc.getImageData(0, 0, W, H).data;
   }
 
   function frame() {
     requestAnimationFrame(frame);
-    if (!heat || !offscreen || !maskCanvas || W === 0 || H === 0) return;
+    if (!heat || !heatPixels || W === 0 || H === 0) return;
 
-    // Cool down
+    // Остывание
     for (let i = 0; i < heat.length; i++)
       if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
 
-    // 1. Write heat alpha values into maskCanvas via putImageData
-    const mc = maskCanvas.getContext('2d');
-    const maskData = mc.createImageData(W, H);
-    for (let i = 0; i < heat.length; i++) {
-      const p = i * 4;
-      maskData.data[p] = maskData.data[p+1] = maskData.data[p+2] = 255;
-      maskData.data[p+3] = Math.round(heat[i] * 255);
-    }
-    mc.putImageData(maskData, 0, 0);
-
-    // 2. Draw heatmapImg to offscreen, then clip it with maskCanvas via destination-in
-    const oc = offscreen.getContext('2d');
-    oc.clearRect(0, 0, W, H);
-    if (heatmapImg.naturalWidth > 0) {
-      oc.drawImage(heatmapImg, 0, 0, W, H);
-    }
-    oc.globalCompositeOperation = 'destination-in';
-    oc.drawImage(maskCanvas, 0, 0);
-    oc.globalCompositeOperation = 'source-over';
-
-    // 3. Blit to visible canvas
+    // Рисуем: alpha каждого пикселя = исходный alpha × heat
     const ctx = cvs.getContext('2d');
-    ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(offscreen, 0, 0);
+    const out  = ctx.createImageData(W, H);
+    const d    = out.data;
+    for (let i = 0; i < heat.length; i++) {
+      const s = i * 4;
+      d[s]   = heatPixels[s];
+      d[s+1] = heatPixels[s+1];
+      d[s+2] = heatPixels[s+2];
+      d[s+3] = Math.round(heatPixels[s+3] * heat[i]);
+    }
+    ctx.putImageData(out, 0, 0);
   }
 
   wrap.addEventListener('mousemove', e => {
@@ -1646,34 +1639,33 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     const mx = (e.clientX - r.left) | 0;
     const my = (e.clientY - r.top)  | 0;
     const R2 = BRUSH_R * BRUSH_R;
-    for (let y = Math.max(0, my-BRUSH_R); y <= Math.min(H-1, my+BRUSH_R); y++) {
-      for (let x = Math.max(0, mx-BRUSH_R); x <= Math.min(W-1, mx+BRUSH_R); x++) {
-        const d2 = (x-mx)**2 + (y-my)**2;
+    for (let y = Math.max(0, my - BRUSH_R); y <= Math.min(H-1, my + BRUSH_R); y++) {
+      for (let x = Math.max(0, mx - BRUSH_R); x <= Math.min(W-1, mx + BRUSH_R); x++) {
+        const d2 = (x - mx)**2 + (y - my)**2;
         if (d2 < R2) {
-          const f  = 1 - d2/R2;
-          const idx = y*W + x;
-          heat[idx] = Math.min(1, heat[idx] + BRUSH_PWR * f * f);
+          const f = 1 - d2 / R2;
+          heat[y*W + x] = Math.min(1, heat[y*W + x] + BRUSH_PWR * f * f);
         }
       }
     }
   });
 
-  // Стартуем loop сразу, init() — когда base-фото загрузится (даёт wrap ширину)
-  let loopStarted = false;
-  function start() {
+  // Запускаем только когда оба изображения загружены
+  let started = false;
+  function tryStart() {
+    if (started) return;
+    if (baseEl.naturalWidth === 0 || heatmapImg.naturalWidth === 0) return;
     init();
-    if (!loopStarted) { loopStarted = true; frame(); }
+    if (W === 0) return;
+    started = true;
+    frame();
   }
 
-  const baseEl = document.getElementById('heroPhotoBase');
-  if (baseEl.complete && baseEl.naturalWidth > 0) {
-    requestAnimationFrame(start);
-  } else {
-    if (!loopStarted) { loopStarted = true; frame(); }
-    baseEl.addEventListener('load', () => requestAnimationFrame(start));
-  }
+  baseEl.addEventListener('load', tryStart);
+  heatmapImg.addEventListener('load', tryStart);
+  requestAnimationFrame(tryStart); // ловит уже закешированные картинки
 
-  new ResizeObserver(() => { if (W === 0) start(); }).observe(wrap);
+  new ResizeObserver(() => { if (started) init(); else tryStart(); }).observe(wrap);
 })();
 
 // ═══════════════════════════════════════
