@@ -141,7 +141,14 @@
     display: block;
   }
   @media (max-width: 768px) {
-    .hero-photo-wrap { display: none; }
+    .hero-photo-wrap {
+      right: -10px;
+      top: 56px;
+      transform: none;
+      height: 320px;
+      z-index: 0;
+      cursor: default;
+    }
   }
 
 
@@ -1573,7 +1580,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 
   function init() {
     if (!meImg.naturalWidth || !meImg.naturalHeight) return;
-    H = 548;
+    H = window.innerWidth <= 768 ? 320 : 548;
     W = Math.round(meImg.naturalWidth * H / meImg.naturalHeight);
     cvs.width  = W;
     cvs.height = H;
@@ -1638,11 +1645,11 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     ctx.drawImage(offCanvas, 0, 0);
   }
 
-  wrap.addEventListener('mousemove', e => {
+  function paintAt(clientX, clientY) {
     if (!heat) return;
     const r  = wrap.getBoundingClientRect();
-    const mx = (e.clientX - r.left) | 0;
-    const my = (e.clientY - r.top)  | 0;
+    const mx = (clientX - r.left) | 0;
+    const my = (clientY - r.top)  | 0;
     const R2 = BRUSH_R * BRUSH_R;
     for (let y = Math.max(0, my - BRUSH_R); y <= Math.min(H-1, my + BRUSH_R); y++) {
       for (let x = Math.max(0, mx - BRUSH_R); x <= Math.min(W-1, mx + BRUSH_R); x++) {
@@ -1653,7 +1660,16 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
         }
       }
     }
-  });
+  }
+
+  wrap.addEventListener('mousemove', e => paintAt(e.clientX, e.clientY));
+  wrap.addEventListener('touchmove', e => {
+    e.preventDefault();
+    paintAt(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: false });
+  wrap.addEventListener('touchstart', e => {
+    paintAt(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
 
   function start() {
     init();
@@ -1666,6 +1682,9 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     meImg.addEventListener('load', start);
   }
   window.addEventListener('load', () => { if (W === 0) start(); });
+
+  // Reinit при повороте экрана или изменении размера окна
+  window.addEventListener('resize', () => { if (W > 0) init(); });
 })();
 
 // ═══════════════════════════════════════
