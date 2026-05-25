@@ -401,6 +401,7 @@
   .projects-scroll-wrapper::-webkit-scrollbar { display: none; }
   .projects-scroll-wrapper:active { cursor: grabbing; }
   .projects-track { display: flex; gap: 24px; padding-right: var(--page-px); width: max-content; }
+  .projects-scroll-hint { display: none; } /* показывается только на мобилке */
 
   .project-card {
     width: 420px;
@@ -843,9 +844,17 @@
     nav { padding: 16px var(--page-px); }
 
     /* hero */
-    .hero-index { padding: 68px var(--page-px) 0; }
+    .hero-index { padding: 92px var(--page-px) 0; }
     .hero-inner { padding: 32px var(--page-px) 60px; }
-    .heat-name { flex-direction: row; align-items: baseline; gap: 0.3em; }
+    .heat-name {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 0;
+      justify-content: space-between;
+      margin-left: calc(-1 * var(--page-px));
+      width: calc(100% + 2 * var(--page-px));
+    }
+    .title-text { font-size: 13vw; }
     .hero-manifesto { max-width: 100%; font-size: 16px; margin-bottom: 40px; }
     .hero-meta { gap: 24px; }
     .hero-cta {
@@ -887,6 +896,31 @@
     .acc-name { font-size: 16px; }
     .accordion-body { padding: 0 0 24px 32px; }
 
+    /* projects — scroll hint + right fade */
+    .projects-scroll-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(240,237,230,0.28);
+      margin-top: 14px;
+      padding: 0 var(--page-px);
+    }
+    .projects-section-inner { position: relative; }
+    .projects-section-inner::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 56px;
+      background: linear-gradient(to right, transparent, var(--bg));
+      pointer-events: none;
+      z-index: 2;
+    }
+
     /* contact */
     .contact-inner { grid-template-columns: 1fr; gap: 40px; }
 
@@ -915,8 +949,7 @@
     /* hero name — меньше на маленьких экранах */
     .title-text { font-size: clamp(36px, 12vw, 64px); }
 
-    .hero-index { padding: 64px var(--page-px) 0; }
-    .title-text { font-size: clamp(28px, 9.5vw, 48px); }
+    .title-text { font-size: 13vw; }
     .hero-role { font-size: 11px; margin-bottom: 28px; }
     .hero-manifesto { font-size: 15px; margin-bottom: 32px; }
     .hero-inner { padding: 24px var(--page-px) 48px; }
@@ -1221,6 +1254,7 @@
 
     </div>
   </div>
+  <div class="projects-scroll-hint">← свайп →</div>
   </div><!-- /.projects-section-inner -->
 </section>
 <section id="services" class="page-section" >
@@ -1556,7 +1590,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 // ═══════════════════════════════════════
 (function() {
   const COOL_RATE = 0.00208;
-  const BRUSH_R   = 109;
+  let   BRUSH_R   = 109;
   const BRUSH_PWR = 0.75;
 
   const STOPS = [
@@ -1611,9 +1645,11 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       const maxH = Math.round(window.innerHeight * 0.72);
       H = Math.round(Math.min(naturalH, maxH) * 0.9);
       W = Math.round(W * 0.9);
+      BRUSH_R = Math.round(109 * 0.6); // −40% на мобилке = 65px
     } else {
       H = 548;
       W = Math.round(meImg.naturalWidth * H / meImg.naturalHeight);
+      BRUSH_R = 109;
     }
     cvs.width  = W;
     cvs.height = H;
@@ -1734,6 +1770,20 @@ const revealObs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// Карточки проектов внутри overflow-x контейнера не всегда триггерят
+// IntersectionObserver корректно — решаем это на уровне секции целиком
+(function() {
+  const section = document.getElementById('projects-section');
+  if (!section) return;
+  const sectionObs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      section.querySelectorAll('.project-card.reveal').forEach(c => c.classList.add('visible'));
+      sectionObs.disconnect();
+    }
+  }, { threshold: 0.05 });
+  sectionObs.observe(section);
+})();
 
 // ═══════════════════════════════════════
 // HORIZONTAL DRAG SCROLL
