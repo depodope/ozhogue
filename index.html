@@ -1661,7 +1661,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     frame();
   }
 
-  baseEl.addEventListener('load', tryStart);
+  baseEl.addEventListener('load', () => requestAnimationFrame(tryStart));
   requestAnimationFrame(tryStart);
   new ResizeObserver(() => { if (started) init(); else tryStart(); }).observe(wrap);
 })();
