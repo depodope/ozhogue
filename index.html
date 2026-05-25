@@ -142,12 +142,19 @@
   }
   @media (max-width: 768px) {
     .hero-photo-wrap {
-      right: -10px;
-      top: 56px;
+      position: relative;
+      right: auto;
+      top: auto;
       transform: none;
-      height: 320px;
-      z-index: 0;
+      width: 100%;
+      height: auto;
+      padding-top: 56px; /* отступ под фикс. навигацию */
+      z-index: 1;
       cursor: default;
+    }
+    #heroCanvas {
+      display: block;
+      margin: 0 auto;
     }
   }
 
@@ -831,7 +838,7 @@
     nav { padding: 16px var(--page-px); }
 
     /* hero */
-    .hero-inner { padding: 120px var(--page-px) 60px; }
+    .hero-inner { padding: 32px var(--page-px) 60px; }
     .hero-manifesto { max-width: 100%; font-size: 16px; margin-bottom: 40px; }
     .hero-meta { gap: 24px; }
     .hero-cta {
@@ -904,7 +911,7 @@
     .hero-index { margin-bottom: 20px; }
     .hero-role { font-size: 11px; margin-bottom: 28px; }
     .hero-manifesto { font-size: 15px; margin-bottom: 32px; }
-    .hero-inner { padding: 100px var(--page-px) 48px; }
+    .hero-inner { padding: 24px var(--page-px) 48px; }
 
     /* meta стекаем вертикально */
     .hero-meta { flex-direction: column; align-items: flex-start; gap: 16px; }
@@ -1578,10 +1585,27 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   meImg.crossOrigin = 'anonymous'; // нужен для getImageData (GitHub raw поддерживает CORS)
   meImg.src = 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/me.png';
 
+  // Cover-crop: масштабирует изображение чтобы заполнить cw×ch, обрезает центр
+  function drawCover(ctx, img, cw, ch) {
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    const scale = Math.max(cw / iw, ch / ih);
+    const sw = cw / scale, sh = ch / scale;
+    const sx = (iw - sw) / 2, sy = (ih - sh) / 2;
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+  }
+
   function init() {
     if (!meImg.naturalWidth || !meImg.naturalHeight) return;
-    H = window.innerWidth <= 768 ? 320 : 548;
-    W = Math.round(meImg.naturalWidth * H / meImg.naturalHeight);
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      W = window.innerWidth;
+      const naturalH = Math.round(meImg.naturalHeight * W / meImg.naturalWidth);
+      const maxH = Math.round(window.innerHeight * 0.72);
+      H = Math.min(naturalH, maxH);
+    } else {
+      H = 548;
+      W = Math.round(meImg.naturalWidth * H / meImg.naturalHeight);
+    }
     cvs.width  = W;
     cvs.height = H;
     heat  = new Float32Array(W * H);
@@ -1596,7 +1620,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       const tmp = document.createElement('canvas');
       tmp.width = W; tmp.height = H;
       const tc  = tmp.getContext('2d');
-      tc.drawImage(meImg, 0, 0, W, H);
+      drawCover(tc, meImg, W, H);
       photoPixels = tc.getImageData(0, 0, W, H).data;
     } catch(e) {
       photoPixels = null; // CORS недоступен, fallback без маски
@@ -1611,7 +1635,7 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
 
     const ctx = cvs.getContext('2d');
-    ctx.drawImage(meImg, 0, 0, W, H);
+    drawCover(ctx, meImg, W, H);
 
     const oc  = offCanvas.getContext('2d');
     const out = oc.createImageData(W, H);
