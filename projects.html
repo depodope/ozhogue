@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Проекты — Давлат Набиев</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a1a;
+    --accent: #4a5e3a;
+    --surface: #f0ede6;
+    --surface-dim: rgba(240,237,230,0.08);
+    --surface-border: rgba(240,237,230,0.12);
+    --mono: 'Space Mono', monospace;
+    --body: 'Inter', sans-serif;
+    --page-max: 1340px;
+    --page-px: 48px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--surface);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* ── CURSOR ── */
+  #cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--surface);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+    transition: width 0.22s, height 0.22s, background 0.22s, border-radius 0.22s;
+  }
+  #cursor.hover {
+    width: 40px; height: 40px;
+    background: transparent;
+    border: 1.5px solid var(--surface);
+    mix-blend-mode: difference;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px var(--page-px);
+    backdrop-filter: blur(12px);
+    background: rgba(26,26,26,0.8);
+    border-bottom: 1px solid var(--surface-border);
+  }
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--surface);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.45);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--surface); }
+  .nav-back {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.45);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--surface); }
+
+  /* ── PAGE ── */
+  main {
+    padding-top: 80px; /* nav height */
+  }
+  .page-section {
+    padding: 80px var(--page-px);
+    max-width: var(--page-max);
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 48px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1; max-width: 80px;
+    height: 1px; background: var(--accent); opacity: 0.5;
+  }
+
+  /* ── PROJECTS GRID ── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  /* ── PROJECT CARD ── */
+  .project-card {
+    border: 1px solid var(--surface-border);
+    background: var(--surface-dim);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: none;
+  }
+  .project-card:hover { border-color: rgba(240,237,230,0.3); transform: translateY(-2px); }
+  .project-card-visual {
+    height: 260px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .alldigital-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_1.webp') center/cover no-repeat;
+  }
+  .fitlead-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_2.webp') center/cover no-repeat;
+  }
+  .saint-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_1.webp') center/cover no-repeat;
+  }
+  .project-card-open-hint {
+    position: absolute;
+    bottom: 16px; right: 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.3);
+    transition: color 0.2s;
+  }
+  .project-card:hover .project-card-open-hint { color: var(--surface); }
+  .project-card-body { padding: 28px; }
+  .project-client {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .project-title { font-size: 18px; font-weight: 600; color: var(--surface); margin-bottom: 12px; line-height: 1.3; }
+  .project-desc { font-size: 13px; color: rgba(240,237,230,0.5); line-height: 1.6; }
+  .project-result {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--surface-border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(240,237,230,0.3);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── PROJECT OVERLAY ── */
+  #project-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    background: var(--bg);
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.16,1,0.3,1);
+  }
+  #project-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .overlay-inner {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 80px var(--page-px) 120px;
+  }
+  .overlay-close {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 64px;
+    border-bottom: 1px solid var(--surface-border);
+    padding-bottom: 24px;
+  }
+  .overlay-close-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.35);
+  }
+  .overlay-close-btn {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--surface);
+    background: none;
+    border: 1px solid var(--surface-border);
+    padding: 10px 20px;
+    cursor: none;
+    letter-spacing: 0.08em;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .overlay-close-btn:hover { border-color: var(--surface); }
+  .overlay-client {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .overlay-title {
+    font-family: var(--mono);
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    color: var(--surface);
+    margin-bottom: 48px;
+  }
+  .overlay-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    margin-bottom: 64px;
+  }
+  .overlay-desc {
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(240,237,230,0.7);
+  }
+  .overlay-meta-list { display: flex; flex-direction: column; gap: 0; }
+  .overlay-meta-row {
+    display: flex; justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--surface-border);
+    font-size: 13px;
+  }
+  .overlay-meta-row:first-child { border-top: 1px solid var(--surface-border); }
+  .overlay-meta-key {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.3);
+    padding-top: 2px;
+  }
+  .overlay-meta-val { color: var(--surface); font-size: 13px; text-align: right; }
+  .overlay-images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .overlay-images--stack { grid-template-columns: 1fr; }
+  .overlay-images--stack .overlay-img-real,
+  .overlay-images--stack .overlay-img-real:first-child,
+  .overlay-images--stack .overlay-img-real:not(:first-child) {
+    grid-column: 1 / -1;
+    aspect-ratio: 16/9;
+  }
+  .overlay-img-real {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    border: 1px solid var(--surface-border);
+  }
+  .overlay-img-real:first-child { grid-column: 1 / -1; aspect-ratio: 16/7; }
+  .overlay-img-real:not(:first-child) { aspect-ratio: 16/10; }
+
+  /* ── REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(240,237,230,0.12); }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 32px var(--page-px);
+    border-top: 1px solid var(--surface-border);
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: var(--page-max);
+    margin: 0 auto;
+  }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(240,237,230,0.25);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── BURGER ── */
+  .nav-burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px; height: 44px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    margin-right: -10px;
+  }
+  .nav-burger span {
+    display: block;
+    width: 22px; height: 1.5px;
+    background: var(--surface);
+    transition: transform 0.3s, opacity 0.3s;
+    transform-origin: center;
+  }
+  .nav-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .nav-burger.open span:nth-child(2) { opacity: 0; }
+  .nav-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+  .nav-drawer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    top: 61px;
+    background: rgba(26,26,26,0.97);
+    backdrop-filter: blur(16px);
+    z-index: 499;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .nav-drawer.open { opacity: 1; pointer-events: all; }
+  .nav-drawer a {
+    font-family: var(--mono);
+    font-size: clamp(20px, 5vw, 28px);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.6);
+    text-decoration: none;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--surface-border);
+    width: 80%;
+    text-align: center;
+    transition: color 0.2s;
+    min-height: 44px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-drawer a:last-child { border-bottom: none; }
+  .nav-drawer a:hover { color: var(--surface); }
+
+  /* ════════════════════════════════════════
+     RESPONSIVE ≤1024px
+  ════════════════════════════════════════ */
+  @media (max-width: 1024px) {
+    :root { --page-px: 32px; }
+    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ════════════════════════════════════════
+     RESPONSIVE ≤768px
+  ════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    :root { --page-px: 24px; }
+
+    #cursor { display: none; }
+    body { cursor: auto; }
+    .project-card { cursor: pointer; }
+    .overlay-close-btn { cursor: pointer; }
+
+    .nav-links { display: none; }
+    .nav-back { display: none; }
+    .nav-burger { display: flex; }
+    .nav-drawer { display: flex; }
+    nav { padding: 16px var(--page-px); }
+
+    .projects-grid { grid-template-columns: 1fr; }
+    .project-card-visual { height: 200px; }
+    .page-section { padding: 52px var(--page-px); }
+    .section-label { margin-bottom: 28px; }
+
+    .overlay-inner { padding: 60px var(--page-px) 80px; }
+    .overlay-body { grid-template-columns: 1fr; gap: 32px; }
+    .overlay-images { grid-template-columns: 1fr; }
+
+    footer { flex-direction: column; gap: 8px; text-align: center; padding: 24px var(--page-px); }
+    #footerTime { display: none; }
+  }
+
+  /* ════════════════════════════════════════
+     RESPONSIVE ≤480px
+  ════════════════════════════════════════ */
+  @media (max-width: 480px) {
+    :root { --page-px: 20px; }
+    .page-section { padding: 44px var(--page-px); }
+    .section-label { margin-bottom: 24px; }
+    .overlay-close { flex-direction: row; gap: 12px; }
+    .overlay-close-btn { padding: 10px 16px; min-height: 44px; }
+    .overlay-title { font-size: clamp(22px, 6vw, 36px); }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- PROJECT OVERLAY -->
+<div id="project-overlay" role="dialog" aria-modal="true" aria-label="Детали проекта">
+  <div class="overlay-inner">
+    <div class="overlay-close">
+      <span class="overlay-close-label">Проекты</span>
+      <button class="overlay-close-btn" id="overlay-close-btn">✕ Закрыть</button>
+    </div>
+    <div class="overlay-client" id="overlay-client"></div>
+    <h2 class="overlay-title" id="overlay-title"></h2>
+    <div class="overlay-body">
+      <p class="overlay-desc" id="overlay-desc"></p>
+      <div class="overlay-meta-list" id="overlay-meta"></div>
+    </div>
+    <div class="overlay-images" id="overlay-images"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">ozhogue</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">Обо мне</a></li>
+    <li><a href="index.html#experience">Опыт</a></li>
+    <li><a href="index.html#projects-section">Главная</a></li>
+    <li><a href="index.html#services">Услуги</a></li>
+    <li><a href="index.html#contact">Контакт</a></li>
+  </ul>
+  <a href="index.html" class="nav-back">← На главную</a>
+  <button class="nav-burger" id="navBurger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE DRAWER -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="index.html"             class="drawer-link">← На главную</a>
+  <a href="index.html#about"       class="drawer-link">Обо мне</a>
+  <a href="index.html#experience"  class="drawer-link">Опыт</a>
+  <a href="index.html#services"    class="drawer-link">Услуги</a>
+  <a href="index.html#contact"     class="drawer-link">Контакт</a>
+</div>
+
+<main>
+  <section class="page-section">
+    <div class="section-label reveal">04 · Проекты</div>
+    <div class="projects-grid">
+
+      <div class="project-card reveal" data-project="alldigital">
+        <div class="project-card-visual alldigital-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">all.digital · Digital-агентство</div>
+          <div class="project-title">Брендинг digital-компании полного цикла</div>
+          <p class="project-desc">Нейминг, позиционирование, визуальная система — от точки как фундаментального элемента до полноценного бренда.</p>
+          <div class="project-result">Naming / Identity / Design System</div>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-1" data-project="fitlead">
+        <div class="project-card-visual fitlead-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">Fit&amp;Lead · Sport &amp; Wellness</div>
+          <div class="project-title">Айдентика и контент-стратегия</div>
+          <p class="project-desc">Маркетинговая концепция, фирменный стиль и гайдлайны по производству фото и видео для цифровой платформы в сфере спорта и ЗОЖ.</p>
+          <div class="project-result">Identity / Marketing / Content</div>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-2" data-project="saint">
+        <div class="project-card-visual saint-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">Saint · Fashion &amp; Lifestyle</div>
+          <div class="project-title">Бренд-платформа и брендбук</div>
+          <p class="project-desc">Разработка бренд-платформы, маркетинговой концепции и брендбука — от ценностей и позиционирования до визуального языка.</p>
+          <div class="project-result">Brand Platform / Identity / Brandbook</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span class="footer-copy">© 2026 Давлат Набиев</span>
+  <span class="footer-copy">Senior Brand Designer · Москва</span>
+  <span class="footer-copy" id="footerTime"></span>
+</footer>
+
+<script>
+// ═══════════════════════════════════════
+// CURSOR
+// ═══════════════════════════════════════
+const cursor = document.getElementById('cursor');
+let mx = -200, my = -200, cx = -200, cy = -200;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animCursor() {
+  cx += (mx - cx) * 0.18;
+  cy += (my - cy) * 0.18;
+  cursor.style.left = cx + 'px';
+  cursor.style.top  = cy + 'px';
+  requestAnimationFrame(animCursor);
+})();
+function addHover(selector) {
+  document.querySelectorAll(selector).forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+}
+addHover('a, button, .project-card');
+
+// ═══════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ═══════════════════════════════════════
+// PROJECT DATA
+// ═══════════════════════════════════════
+const projects = {
+  alldigital: {
+    client: 'all.digital · Digital-агентство',
+    title: 'Брендинг digital-компании полного цикла',
+    desc: 'Полный цикл — нейминг, позиционирование, визуальная система. В основе бренда точка: пиксель, единица коммуникации, начало любой формы. Из неё выстраивается всё — логотип, паттерны, типографика, визуальный язык. Палитра четырёх цветов от Electric Violet до глубокого Haiti позволяет строить как контрастные, так и сдержанные композиции. Геометричный шрифт Raptor V3 Premium завершает систему — работает на любом носителе, в любом масштабе.',
+    meta: [
+      ['Клиент', 'all.digital'],
+      ['Задача', 'Нейминг · Брендинг · Позиционирование'],
+      ['Формат', 'Identity / Design System / Web'],
+      ['Стек', 'Логотип · Палитра · Типографика · Сайт · Носители'],
+    ],
+    images: [
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_1.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_2.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_3.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_4.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_5.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_6.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_7.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_8.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_9.webp',
+    ],
+    imagesLayout: 'stack',
+  },
+  fitlead: {
+    client: 'Fit&Lead · Sport & Wellness',
+    title: 'Айдентика и контент-стратегия',
+    desc: 'Fit&Lead — цифровая платформа для продвижения брендов в сфере спорта и здорового образа жизни. Работа охватила полный коммуникационный цикл: маркетинговую концепцию и позиционирование, разработку фирменного стиля и айдентики, а также детальные гайдлайны по производству фото- и видеоконтента. Визуальная система выстроена вокруг ценностей энергии, движения и прогресса — с чёткими правилами работы с изображениями, цветом и типографикой для команды контент-мейкеров.',
+    meta: [
+      ['Клиент', 'Fit&Lead'],
+      ['Индустрия', 'Sport & Wellness'],
+      ['Формат', 'Identity / Marketing / Content'],
+      ['Стек', 'Айдентика · Маркетинг · Контент-гайдлайны'],
+    ],
+    images: [
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_1.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_2.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_3.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_4.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_5.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_6.webp',
+    ],
+    imagesLayout: 'stack',
+  },
+  saint: {
+    client: 'Saint · Fashion & Lifestyle',
+    title: 'Бренд-платформа и брендбук',
+    desc: 'Saint — проект, в котором брендинг начинался с фундамента: ценностей, характера и позиционирования. Разработана полная бренд-платформа — от формулировки миссии и tone of voice до архитектуры визуального языка. На её основе создана маркетинговая концепция, определяющая точки контакта с аудиторией и логику коммуникации. Итогом стал брендбук: исчерпывающий документ с правилами работы с логотипом, цветом, типографикой, фотографией и паттернами — готовый инструмент для команды и подрядчиков.',
+    meta: [
+      ['Клиент', 'Saint'],
+      ['Задача', 'Бренд-платформа · Маркетинг · Брендбук'],
+      ['Формат', 'Brand Platform / Identity / Brandbook'],
+      ['Стек', 'Стратегия · Айдентика · Гайдлайны'],
+    ],
+    images: [
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_1.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_2.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_3.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_4.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_5.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_6.webp',
+    ],
+    imagesLayout: 'stack',
+  },
+};
+
+// ═══════════════════════════════════════
+// PROJECT OVERLAY
+// ═══════════════════════════════════════
+const overlay       = document.getElementById('project-overlay');
+const overlayClient = document.getElementById('overlay-client');
+const overlayTitle  = document.getElementById('overlay-title');
+const overlayDesc   = document.getElementById('overlay-desc');
+const overlayMeta   = document.getElementById('overlay-meta');
+const overlayImages = document.getElementById('overlay-images');
+
+function openOverlay(key) {
+  const p = projects[key];
+  if (!p || !overlay) return;
+  overlayClient.textContent = p.client;
+  overlayTitle.textContent  = p.title;
+  overlayDesc.textContent   = p.desc;
+  overlayMeta.innerHTML = p.meta.map(([k,v]) =>
+    `<div class="overlay-meta-row"><span class="overlay-meta-key">${k}</span><span class="overlay-meta-val">${v}</span></div>`
+  ).join('');
+  overlayImages.innerHTML = '';
+  overlayImages.className = 'overlay-images';
+  if (p.imagesLayout === 'stack') overlayImages.classList.add('overlay-images--stack');
+  p.images.forEach((src, i) => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = `${p.title} — изображение ${i+1}`;
+    img.className = 'overlay-img-real';
+    img.loading = 'lazy';
+    overlayImages.appendChild(img);
+  });
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  overlay.scrollTop = 0;
+}
+
+function closeOverlay() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.querySelectorAll('.project-card').forEach(card => {
+  card.addEventListener('click', () => openOverlay(card.dataset.project));
+});
+document.getElementById('overlay-close-btn').addEventListener('click', closeOverlay);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlay(); });
+
+// ═══════════════════════════════════════
+// BURGER MENU
+// ═══════════════════════════════════════
+const burger = document.getElementById('navBurger');
+const drawer = document.getElementById('navDrawer');
+burger.addEventListener('click', () => {
+  const isOpen = burger.classList.toggle('open');
+  drawer.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+});
+document.querySelectorAll('.drawer-link').forEach(link => {
+  link.addEventListener('click', () => {
+    burger.classList.remove('open');
+    drawer.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+
+// ═══════════════════════════════════════
+// FOOTER CLOCK
+// ═══════════════════════════════════════
+function updateTime() {
+  const t = new Date().toLocaleTimeString('ru-RU', {
+    hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone:'Europe/Moscow'
+  });
+  const el = document.getElementById('footerTime');
+  if (el) el.textContent = 'MSK ' + t;
+}
+updateTime();
+setInterval(updateTime, 1000);
+</script>
+</body>
+</html>

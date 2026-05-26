@@ -749,6 +749,8 @@
     border: 1px solid rgba(240,237,230,0.35);
     padding: 14px 32px;
     cursor: none;
+    text-decoration: none;
+    display: inline-block;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
   }
   .all-projects-btn:hover {
@@ -756,41 +758,6 @@
     color: var(--bg);
     border-color: var(--surface);
   }
-
-  /* ── ALL PROJECTS OVERLAY ── */
-  #all-projects-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 899;
-    background: var(--bg);
-    overflow-y: auto;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.35s cubic-bezier(0.16,1,0.3,1);
-  }
-  #all-projects-overlay.open {
-    opacity: 1;
-    pointer-events: all;
-  }
-  .all-projects-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-  .ap-card {
-    border: 1px solid var(--surface-border);
-    background: var(--surface-dim);
-    overflow: hidden;
-    transition: border-color 0.2s, transform 0.2s;
-    cursor: none;
-  }
-  .ap-card:hover { border-color: rgba(240,237,230,0.3); transform: translateY(-2px); }
-  .ap-card-visual {
-    height: 300px;
-    overflow: hidden;
-    position: relative;
-  }
-  .ap-card-body { padding: 28px; }
 
   /* ── REVEAL ── */
   .reveal {
@@ -993,8 +960,6 @@
     #projects-section { padding: 60px 0; }
 
     /* all projects */
-    .all-projects-grid { grid-template-columns: 1fr; }
-    .ap-card-visual { height: 200px; }
     .all-projects-footer { padding-top: 20px; }
     .all-projects-btn { cursor: pointer; width: 100%; text-align: center; padding: 16px; min-height: 44px; }
   }
@@ -1059,18 +1024,6 @@
       <div class="overlay-meta-list" id="overlay-meta"></div>
     </div>
     <div class="overlay-images" id="overlay-images"></div>
-  </div>
-</div>
-
-<!-- ALL PROJECTS OVERLAY -->
-<div id="all-projects-overlay" role="dialog" aria-modal="true" aria-label="Все проекты">
-  <div class="overlay-inner">
-    <div class="overlay-close">
-      <span class="overlay-close-label">04 · Проекты</span>
-      <button class="overlay-close-btn" id="all-overlay-close-btn">✕ Закрыть</button>
-    </div>
-    <h2 class="overlay-title">Все&nbsp;проекты</h2>
-    <div class="all-projects-grid" id="allProjectsGrid"></div>
   </div>
 </div>
 
@@ -1327,7 +1280,7 @@
     </div>
   </div>
   <div class="all-projects-footer">
-    <button class="all-projects-btn" id="allProjectsBtn">Все проекты</button>
+    <a href="projects.html" class="all-projects-btn">Все проекты</a>
   </div>
   </div><!-- /.projects-section-inner -->
 </section>
@@ -1495,7 +1448,7 @@ function addHover(selector) {
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
 }
-addHover('a, button, .project-card, .ap-card, .accordion-trigger, .strength-card');
+addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 
 // ═══════════════════════════════════════
 // HEATMAP TITLE — термальный эффект на буквах
@@ -2022,51 +1975,7 @@ document.querySelectorAll('.project-card').forEach(card => {
 });
 
 document.getElementById('overlay-close-btn').addEventListener('click', closeOverlay);
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeOverlay(); closeAllProjects(); } });
-
-// ═══════════════════════════════════════
-// ALL PROJECTS OVERLAY
-// ═══════════════════════════════════════
-const allProjectsOverlay = document.getElementById('all-projects-overlay');
-const allProjectsGrid = document.getElementById('allProjectsGrid');
-
-function openAllProjects() {
-  allProjectsGrid.innerHTML = Object.entries(projects).map(([key, p]) => {
-    const visClass = key + '-visual';
-    const preview = p.desc.length > 110 ? p.desc.substring(0, 110) + '…' : p.desc;
-    const tags = p.meta[2] ? p.meta[2][1] : '';
-    return `<div class="ap-card" data-project="${key}">
-      <div class="ap-card-visual ${visClass}">
-        <span class="project-card-open-hint">Открыть →</span>
-      </div>
-      <div class="ap-card-body">
-        <div class="project-client">${p.client}</div>
-        <div class="project-title">${p.title}</div>
-        <p class="project-desc">${preview}</p>
-        <div class="project-result">${tags}</div>
-      </div>
-    </div>`;
-  }).join('');
-
-  allProjectsGrid.querySelectorAll('.ap-card').forEach(card => {
-    card.addEventListener('click', () => {
-      closeAllProjects();
-      openOverlay(card.dataset.project);
-    });
-  });
-
-  allProjectsOverlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  allProjectsOverlay.scrollTop = 0;
-}
-
-function closeAllProjects() {
-  allProjectsOverlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-document.getElementById('allProjectsBtn').addEventListener('click', openAllProjects);
-document.getElementById('all-overlay-close-btn').addEventListener('click', closeAllProjects);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlay(); });
 
 
 // ═══════════════════════════════════════
