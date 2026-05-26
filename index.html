@@ -435,10 +435,6 @@
     overflow: hidden;
     position: relative;
   }
-  .project-card:nth-child(1) .project-card-visual { background: linear-gradient(135deg, #1e2d1a, #2a3d24); }
-  .project-card:nth-child(2) .project-card-visual { background: linear-gradient(135deg, #1a1f2e, #242a3d); }
-  .project-card:nth-child(3) .project-card-visual { background: linear-gradient(135deg, #2d1a1a, #3d2424); }
-  .project-card:nth-child(4) .project-card-visual { background: linear-gradient(135deg, #1a2a2d, #24383d); }
   .alldigital-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_1.webp') center/cover no-repeat !important;
   }
@@ -577,30 +573,15 @@
 
   .overlay-images {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .overlay-images--stack {
     grid-template-columns: 1fr;
-  }
-  .overlay-images--stack .overlay-img-real,
-  .overlay-images--stack .overlay-img-real:first-child,
-  .overlay-images--stack .overlay-img-real:not(:first-child) {
-    grid-column: 1 / -1;
-    aspect-ratio: 16/9;
+    gap: 16px;
   }
   .overlay-img-real {
     width: 100%;
     display: block;
     object-fit: cover;
     border: 1px solid var(--surface-border);
-  }
-  .overlay-img-real:first-child {
-    grid-column: 1 / -1;
-    aspect-ratio: 16/7;
-  }
-  .overlay-img-real:not(:first-child) {
-    aspect-ratio: 16/10;
+    aspect-ratio: 16/9;
   }
 
   /* ── SERVICES ACCORDION ── */
@@ -1524,6 +1505,34 @@ function addHover(selector) {
 addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 
 // ═══════════════════════════════════════
+// HEAT PALETTE — общий LUT 256×RGB для title и photo
+// ═══════════════════════════════════════
+const HEAT_LUT = (function() {
+  // cold grey → blue → green → yellow → orange → red → white
+  const STOPS = [
+    [56,  54,  51],
+    [0,   80, 220],
+    [0,  210, 100],
+    [240,210,   0],
+    [255,100,   0],
+    [255, 20,   0],
+    [255,230, 200],
+  ];
+  const lut = new Uint8Array(256 * 3);
+  const n = STOPS.length - 1;
+  for (let i = 0; i < 256; i++) {
+    const pos = (i / 255) * n;
+    const idx = Math.min(Math.floor(pos), n - 1);
+    const f   = pos - idx;
+    const a   = STOPS[idx], b = STOPS[idx + 1];
+    lut[i*3  ] = (a[0] + (b[0]-a[0])*f) | 0;
+    lut[i*3+1] = (a[1] + (b[1]-a[1])*f) | 0;
+    lut[i*3+2] = (a[2] + (b[2]-a[2])*f) | 0;
+  }
+  return lut;
+})();
+
+// ═══════════════════════════════════════
 // HEATMAP TITLE — термальный эффект на буквах
 // ═══════════════════════════════════════
 (function() {
@@ -1531,38 +1540,15 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   const BRUSH_R     = 75;      // heat brush radius px
   const BRUSH_PWR   = 0.7;     // heat added per frame
 
-  // cold grey → blue → green → yellow → orange → red → white
-  const STOPS = [
-    [56,  54,  51],   // холодный — rgba(240,237,230) * 0.23 ≈ этот серый
-    [0,   80, 220],
-    [0,  210, 100],
-    [240,210,   0],
-    [255,100,   0],
-    [255,  20,  0],
-    [255,230, 200],
-  ];
-
-  function stopColor(t) {
-    t = Math.max(0, Math.min(t, 1));
-    const n = STOPS.length - 1;
-    const pos = t * n;
-    const i = Math.min(Math.floor(pos), n - 1);
-    const f = pos - i;
-    const a = STOPS[i], b = STOPS[i + 1];
-    return [
-      (a[0] + (b[0]-a[0])*f) | 0,
-      (a[1] + (b[1]-a[1])*f) | 0,
-      (a[2] + (b[2]-a[2])*f) | 0,
-      255, // always fully opaque — mask clips to letter shape
-    ];
-  }
-
   function makeHeat(wrapEl, textEl, cvs) {
     let W = 0, H = 0;
     let heat = null;
     let noise = null;     // статичная текстура шума — делает градиент неоднородным
     let mask = null;      // white text on black — defines letter pixels
     let offscreen = null;
+    let offscreenCtx = null;
+    let outerCtx = null;
+    let imageData = null;  // переиспользуется между кадрами
     let started = false;
 
     function buildMask() {
@@ -1607,6 +1593,9 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       offscreen = document.createElement('canvas');
       offscreen.width  = W;
       offscreen.height = H;
+      offscreenCtx = offscreen.getContext('2d');
+      outerCtx = cvs.getContext('2d');
+      imageData = offscreenCtx.createImageData(W, H);
 
       // Случайные пятна при загрузке
       const blobs = 2 + Math.floor(Math.random() * 2); // 2–3 на слово
@@ -1630,35 +1619,41 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 
     function frame() {
       requestAnimationFrame(frame);
-      if (!heat || !mask) return;
+      if (!heat || !mask || !imageData) return;
+
+      const lut = HEAT_LUT;
+      const len = heat.length;
 
       // Cool down
-      for (let i = 0; i < heat.length; i++)
+      for (let i = 0; i < len; i++)
         if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
 
-      // Build colour image
-      const oc  = offscreen.getContext('2d');
-      const img = oc.createImageData(W, H);
-      const d   = img.data;
-      for (let i = 0; i < heat.length; i++) {
-        const c = stopColor(heat[i] > 0 ? heat[i] + noise[i] : 0);
-        const p = i * 4;
-        d[p]   = c[0];
-        d[p+1] = c[1];
-        d[p+2] = c[2];
-        d[p+3] = c[3];
+      // Build colour image — переиспользуем imageData, читаем из LUT
+      const d = imageData.data;
+      for (let i = 0, p = 0; i < len; i++, p += 4) {
+        const h = heat[i];
+        let ti;
+        if (h > 0) {
+          ti = ((h + noise[i]) * 255) | 0;
+          if (ti < 0) ti = 0;
+          else if (ti > 255) ti = 255;
+        } else ti = 0;
+        const li = ti * 3;
+        d[p]   = lut[li];
+        d[p+1] = lut[li+1];
+        d[p+2] = lut[li+2];
+        d[p+3] = 255;
       }
-      oc.putImageData(img, 0, 0);
+      offscreenCtx.putImageData(imageData, 0, 0);
 
       // Clip colour to letter shapes only
-      oc.globalCompositeOperation = 'destination-in';
-      oc.drawImage(mask, 0, 0);
-      oc.globalCompositeOperation = 'source-over';
+      offscreenCtx.globalCompositeOperation = 'destination-in';
+      offscreenCtx.drawImage(mask, 0, 0);
+      offscreenCtx.globalCompositeOperation = 'source-over';
 
       // Draw to visible canvas
-      const ctx = cvs.getContext('2d');
-      ctx.clearRect(0, 0, W, H);
-      ctx.drawImage(offscreen, 0, 0);
+      outerCtx.clearRect(0, 0, W, H);
+      outerCtx.drawImage(offscreen, 0, 0);
     }
 
     let _pmx = null, _pmy = null, _spd = 0;
@@ -1734,34 +1729,15 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
   let   BRUSH_R   = 109;
   const BRUSH_PWR = 0.75;
 
-  const STOPS = [
-    [56,  54,  51],
-    [0,   80, 220],
-    [0,  210, 100],
-    [240,210,   0],
-    [255,100,   0],
-    [255, 20,   0],
-    [255,230, 200],
-  ];
-  function stopColor(t) {
-    t = Math.max(0, Math.min(t, 1));
-    const n = STOPS.length - 1;
-    const pos = t * n;
-    const i   = Math.min(Math.floor(pos), n - 1);
-    const f   = pos - i;
-    const a   = STOPS[i], b = STOPS[i + 1];
-    return [
-      (a[0] + (b[0]-a[0])*f) | 0,
-      (a[1] + (b[1]-a[1])*f) | 0,
-      (a[2] + (b[2]-a[2])*f) | 0,
-    ];
-  }
-
   const wrap = document.getElementById('heroPhotoWrap');
   const cvs  = document.getElementById('heroCanvas');
   if (!wrap || !cvs) return;
 
   let W = 0, H = 548, heat = null, noise = null, offCanvas = null;
+  let offCanvasCtx = null;
+  let mainCtx = null;
+  let photoCache = null;     // фото отрендерено один раз, переиспользуется
+  let imageData = null;      // буфер для heat overlay, переиспользуется между кадрами
   let photoPixels = null;
   let drawYAlign = 0.5; // 0 = верх фото, 0.5 = центр (десктоп)
   let _dynR = 109; // текущий радиус с учётом скорости
@@ -1807,14 +1783,19 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     offCanvas        = document.createElement('canvas');
     offCanvas.width  = W;
     offCanvas.height = H;
+    offCanvasCtx     = offCanvas.getContext('2d');
+    mainCtx          = cvs.getContext('2d');
+    imageData        = offCanvasCtx.createImageData(W, H);
+
+    // Кешируем фото в offscreen canvas — drawCover один раз, не на каждый кадр
+    photoCache        = document.createElement('canvas');
+    photoCache.width  = W;
+    photoCache.height = H;
+    drawCover(photoCache.getContext('2d'), meImg, W, H);
 
     // Читаем пиксели фото один раз — для linear light и alpha-маски
     try {
-      const tmp = document.createElement('canvas');
-      tmp.width = W; tmp.height = H;
-      const tc  = tmp.getContext('2d');
-      drawCover(tc, meImg, W, H);
-      photoPixels = tc.getImageData(0, 0, W, H).data;
+      photoPixels = photoCache.getContext('2d').getImageData(0, 0, W, H).data;
     } catch(e) {
       photoPixels = null; // CORS недоступен, fallback без маски
     }
@@ -1841,44 +1822,54 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
 
   function frame() {
     requestAnimationFrame(frame);
-    if (!heat || !offCanvas || W === 0) return;
+    if (!heat || !offCanvas || W === 0 || !imageData) return;
 
-    for (let i = 0; i < heat.length; i++)
+    const lut = HEAT_LUT;
+    const len = heat.length;
+
+    // Cool down
+    for (let i = 0; i < len; i++)
       if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
 
-    const ctx = cvs.getContext('2d');
-    drawCover(ctx, meImg, W, H);
+    // Базовое фото из кеша — без drawCover на каждый кадр
+    mainCtx.drawImage(photoCache, 0, 0);
 
-    const oc  = offCanvas.getContext('2d');
-    const out = oc.createImageData(W, H);
-    const d   = out.data;
+    // Заполняем overlay буфер (переиспользуем imageData)
+    const d = imageData.data;
+    d.fill(0);
 
-    for (let i = 0; i < heat.length; i++) {
-      const h = heat[i];
-      if (h <= 0) continue;
-      const s = i * 4;
-      const c = stopColor(h + noise[i]);
-
-      if (photoPixels) {
-        const pa = photoPixels[s + 3] / 255;
-        if (pa < 0.01) continue; // прозрачный фон — пропускаем
-
-        // Linear light: 2*blend + base - 255, зажато в [0,255]
-        const ll = (blend, base) => Math.min(255, Math.max(0, 2 * blend + base - 255));
-        d[s]   = ll(c[0], photoPixels[s]);
-        d[s+1] = ll(c[1], photoPixels[s + 1]);
-        d[s+2] = ll(c[2], photoPixels[s + 2]);
-        d[s+3] = Math.round(pa * h * 255); // alpha = маска фото × тепло
-      } else {
-        // Fallback если CORS не работает
-        d[s]   = c[0];
-        d[s+1] = c[1];
-        d[s+2] = c[2];
-        d[s+3] = Math.round(h * 255);
+    if (photoPixels) {
+      for (let i = 0, s = 0; i < len; i++, s += 4) {
+        const h = heat[i];
+        if (h <= 0) continue;
+        const pa255 = photoPixels[s + 3];
+        if (pa255 < 3) continue; // прозрачный фон — пропускаем
+        let ti = ((h + noise[i]) * 255) | 0;
+        if (ti < 0) ti = 0; else if (ti > 255) ti = 255;
+        const li = ti * 3;
+        const cr = lut[li], cg = lut[li+1], cb = lut[li+2];
+        // Linear light: 2*blend + base - 255, инлайн без closure
+        let v;
+        v = 2*cr + photoPixels[s]   - 255; d[s]   = v < 0 ? 0 : v > 255 ? 255 : v;
+        v = 2*cg + photoPixels[s+1] - 255; d[s+1] = v < 0 ? 0 : v > 255 ? 255 : v;
+        v = 2*cb + photoPixels[s+2] - 255; d[s+2] = v < 0 ? 0 : v > 255 ? 255 : v;
+        d[s+3] = (pa255 * h + 0.5) | 0; // alpha = маска фото × тепло
+      }
+    } else {
+      // Fallback если CORS недоступен
+      for (let i = 0, s = 0; i < len; i++, s += 4) {
+        const h = heat[i];
+        if (h <= 0) continue;
+        let ti = ((h + noise[i]) * 255) | 0;
+        if (ti < 0) ti = 0; else if (ti > 255) ti = 255;
+        const li = ti * 3;
+        d[s] = lut[li]; d[s+1] = lut[li+1]; d[s+2] = lut[li+2];
+        d[s+3] = (h * 255 + 0.5) | 0;
       }
     }
-    oc.putImageData(out, 0, 0);
-    ctx.drawImage(offCanvas, 0, 0);
+
+    offCanvasCtx.putImageData(imageData, 0, 0);
+    mainCtx.drawImage(offCanvas, 0, 0);
   }
 
   function paintAt(clientX, clientY) {
@@ -2011,7 +2002,6 @@ const projects = {
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_9.webp',
     ],
     tags: ['Naming', 'Identity', 'Design System'],
-    imagesLayout: 'stack',
   },
   fitlead: {
     client: 'Fit&Lead · Sport & Wellness',
@@ -2032,7 +2022,6 @@ const projects = {
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_6.webp',
     ],
     tags: ['Identity', 'Marketing', 'Content'],
-    imagesLayout: 'stack',
   },
   saint: {
     client: 'Saint · Fashion & Lifestyle',
@@ -2053,7 +2042,6 @@ const projects = {
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_6.webp',
     ],
     tags: ['Brand Platform', 'Identity', 'Brandbook'],
-    imagesLayout: 'stack',
   },
 };
 
@@ -2155,8 +2143,6 @@ function openOverlay(key, push = true) {
     `<div class="overlay-meta-row"><span class="overlay-meta-key">${k}</span><span class="overlay-meta-val">${v}</span></div>`
   ).join('');
   overlayImages.innerHTML = '';
-  overlayImages.className = 'overlay-images';
-  if (p.imagesLayout === 'stack') overlayImages.classList.add('overlay-images--stack');
   p.images.forEach((src, i) => {
     const img = document.createElement('img');
     img.src = src; img.alt = `${p.title} — изображение ${i+1}`;
@@ -2263,17 +2249,33 @@ document.querySelectorAll('.drawer-link').forEach(link => {
 });
 
 // ═══════════════════════════════════════
-// FOOTER CLOCK
 // ═══════════════════════════════════════
-function updateTime() {
-  const t = new Date().toLocaleTimeString('ru-RU', {
-    hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone:'Europe/Moscow'
-  });
+// MARQUEE — пауза анимации когда полоса вне вьюпорта
+// ═══════════════════════════════════════
+(function() {
+  const track = document.querySelector('.marquee-track');
+  if (!track) return;
+  new IntersectionObserver(entries => {
+    track.style.animationPlayState = entries[0].isIntersecting ? 'running' : 'paused';
+  }, { threshold: 0 }).observe(track);
+})();
+
+// FOOTER CLOCK — на мобиле скрыт, не тикаем; при свёрнутой вкладке — пауза
+// ═══════════════════════════════════════
+(function() {
   const el = document.getElementById('footerTime');
-  if (el) el.textContent = 'MSK ' + t;
-}
-updateTime();
-setInterval(updateTime, 1000);
+  if (!el || window.matchMedia('(max-width: 768px)').matches) return;
+  let timer = null;
+  function tick() {
+    el.textContent = 'MSK ' + new Date().toLocaleTimeString('ru-RU', {
+      hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone:'Europe/Moscow'
+    });
+  }
+  function start() { if (!timer) { tick(); timer = setInterval(tick, 1000); } }
+  function stop()  { if (timer)  { clearInterval(timer); timer = null; } }
+  document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+  start();
+})();
 </script>
 </body>
 </html>
