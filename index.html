@@ -2096,9 +2096,12 @@ function openAllProjects(push = true) {
 
 // ── Закрыть «Все проекты» ────────────────────────────────────
 function closeAllProjects(viaHistory = false) {
+  if (!viaHistory && location.hash === '#/projects') {
+    history.back(); // popstate сам закроет оверлей и проскроллит к проектам
+    return;
+  }
   apoEl.classList.remove('open');
   if (!overlay.classList.contains('open')) document.body.style.overflow = '';
-  if (!viaHistory && location.hash === '#/projects') history.back();
 }
 
 // ── PROJECT OVERLAY ──────────────────────────────────────────
@@ -2130,32 +2133,36 @@ function openOverlay(key, push = true) {
 }
 
 function closeOverlay(viaHistory = false) {
+  if (!viaHistory && location.hash.startsWith('#/project/')) {
+    history.back(); // popstate сам закроет оверлей
+    return;
+  }
   overlay.classList.remove('open');
   if (!apoEl.classList.contains('open')) document.body.style.overflow = '';
-  if (!viaHistory && location.hash.startsWith('#/project/')) history.back();
 }
 
 // ── Hash-роутинг (кнопка назад браузера) ─────────────────────
 window.addEventListener('popstate', e => {
   const hash = location.hash;
   if (!hash || hash === '#') {
-    // вернулись на главную
+    // вернулись на главную — APO ещё open, раз мы не закрыли его раньше
     const wasApo = apoEl.classList.contains('open');
     overlay.classList.remove('open');
     apoEl.classList.remove('open');
     document.body.style.overflow = '';
     if (wasApo) {
+      // ждём окончания transition оверлея, затем скроллим к проектам
       setTimeout(() => {
         document.getElementById('projects-section').scrollIntoView({ behavior: 'smooth' });
       }, 380);
     }
   } else if (hash === '#/projects') {
-    // вернулись в «Все проекты» из карточки проекта
+    // вернулись в «Все проекты» из детальной карточки
     overlay.classList.remove('open');
     if (!apoEl.classList.contains('open')) openAllProjects(false);
     document.body.style.overflow = 'hidden';
   } else if (hash.startsWith('#/project/')) {
-    // forward nav
+    // forward nav (кнопка вперёд)
     const key = hash.slice(10);
     if (projects[key]) openOverlay(key, false);
   }
