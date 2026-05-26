@@ -1615,14 +1615,22 @@ addHover('a, button, .project-card, .ap-card, .accordion-trigger, .strength-card
       ctx.drawImage(offscreen, 0, 0);
     }
 
+    let _pmx = null, _pmy = null, _spd = 0;
     wrapEl.addEventListener('mousemove', e => {
       if (!heat) return;
       const r  = wrapEl.getBoundingClientRect();
       const mx = (e.clientX - r.left) | 0;
       const my = (e.clientY - r.top)  | 0;
-      const R2 = BRUSH_R * BRUSH_R;
-      for (let y = Math.max(0, my-BRUSH_R); y <= Math.min(H-1, my+BRUSH_R); y++) {
-        for (let x = Math.max(0, mx-BRUSH_R); x <= Math.min(W-1, mx+BRUSH_R); x++) {
+      // velocity → dynamic radius ±25%
+      if (_pmx !== null) {
+        const dx = mx - _pmx, dy = my - _pmy;
+        _spd += (Math.sqrt(dx*dx + dy*dy) - _spd) * 0.3;
+      }
+      _pmx = mx; _pmy = my;
+      const dynR = Math.round(BRUSH_R * (0.75 + 0.5 * Math.min(1, _spd / 50)));
+      const R2 = dynR * dynR;
+      for (let y = Math.max(0, my-dynR); y <= Math.min(H-1, my+dynR); y++) {
+        for (let x = Math.max(0, mx-dynR); x <= Math.min(W-1, mx+dynR); x++) {
           const d2 = (x-mx)**2 + (y-my)**2;
           if (d2 < R2) {
             const f = 1 - d2/R2;
@@ -1697,6 +1705,7 @@ addHover('a, button, .project-card, .ap-card, .accordion-trigger, .strength-card
   let W = 0, H = 548, heat = null, noise = null, offCanvas = null;
   let photoPixels = null;
   let drawYAlign = 0.5; // 0 = верх фото, 0.5 = центр (десктоп)
+  let _dynR = 109; // текущий радиус с учётом скорости
 
   const meImg = new Image();
   meImg.crossOrigin = 'anonymous'; // нужен для getImageData (GitHub raw поддерживает CORS)
@@ -1729,6 +1738,7 @@ addHover('a, button, .project-card, .ap-card, .accordion-trigger, .strength-card
       BRUSH_R = 109;
       drawYAlign = 0.5; // центр (десктоп не трогаем)
     }
+    _dynR = BRUSH_R;
     cvs.width  = W;
     cvs.height = H;
     heat  = new Float32Array(W * H);
@@ -1797,9 +1807,9 @@ addHover('a, button, .project-card, .ap-card, .accordion-trigger, .strength-card
     const r  = wrap.getBoundingClientRect();
     const mx = (clientX - r.left) | 0;
     const my = (clientY - r.top)  | 0;
-    const R2 = BRUSH_R * BRUSH_R;
-    for (let y = Math.max(0, my - BRUSH_R); y <= Math.min(H-1, my + BRUSH_R); y++) {
-      for (let x = Math.max(0, mx - BRUSH_R); x <= Math.min(W-1, mx + BRUSH_R); x++) {
+    const R2 = _dynR * _dynR;
+    for (let y = Math.max(0, my - _dynR); y <= Math.min(H-1, my + _dynR); y++) {
+      for (let x = Math.max(0, mx - _dynR); x <= Math.min(W-1, mx + _dynR); x++) {
         const d2 = (x-mx)**2 + (y-my)**2;
         if (d2 < R2) {
           const f = 1 - d2/R2;
@@ -1809,12 +1819,27 @@ addHover('a, button, .project-card, .ap-card, .accordion-trigger, .strength-card
     }
   }
 
-  wrap.addEventListener('mousemove', e => paintAt(e.clientX, e.clientY));
+  let _ppx = null, _ppy = null, _vspd = 0;
+  function _updateDynR(cx, cy) {
+    if (_ppx !== null) {
+      const dx = cx - _ppx, dy = cy - _ppy;
+      _vspd += (Math.sqrt(dx*dx + dy*dy) - _vspd) * 0.3;
+      _dynR = Math.round(BRUSH_R * (0.75 + 0.5 * Math.min(1, _vspd / 50)));
+    }
+    _ppx = cx; _ppy = cy;
+  }
+
+  wrap.addEventListener('mousemove', e => {
+    _updateDynR(e.clientX, e.clientY);
+    paintAt(e.clientX, e.clientY);
+  });
   wrap.addEventListener('touchmove', e => {
     e.preventDefault();
+    _updateDynR(e.touches[0].clientX, e.touches[0].clientY);
     paintAt(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: false });
   wrap.addEventListener('touchstart', e => {
+    _ppx = e.touches[0].clientX; _ppy = e.touches[0].clientY; // сброс истории при новом касании
     paintAt(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: true });
 
