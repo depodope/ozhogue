@@ -794,6 +794,14 @@
     overflow: hidden;
     position: relative;
   }
+  .ap-card-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .ap-card:hover .ap-card-visual img { transform: scale(1.03); }
   .ap-card-body { padding: 28px; }
 
   /* ── REVEAL ── */
@@ -1056,7 +1064,7 @@
 <div id="all-projects-overlay" role="dialog" aria-modal="true" aria-label="Все проекты">
   <div class="overlay-inner">
     <div class="overlay-close">
-      <span class="overlay-close-label">04 · Проекты</span>
+      <span class="overlay-close-label">03 · Проекты</span>
       <button class="overlay-close-btn" id="all-overlay-close-btn">✕ Закрыть</button>
     </div>
     <h2 class="overlay-title">Все&nbsp;проекты</h2>
@@ -1550,6 +1558,7 @@ const HEAT_LUT = (function() {
     let outerCtx = null;
     let imageData = null;  // переиспользуется между кадрами
     let started = false;
+    let _lastTs = 0;
 
     function buildMask() {
       const cs  = getComputedStyle(textEl);
@@ -1617,16 +1626,21 @@ const HEAT_LUT = (function() {
       }
     }
 
-    function frame() {
+    function frame(ts) {
       requestAnimationFrame(frame);
       if (!heat || !mask || !imageData) return;
+
+      // Delta-time: нормализуем к 60fps чтобы скорость остывания не зависела от fps
+      const dt   = _lastTs ? Math.min(ts - _lastTs, 50) : 16.67;
+      _lastTs    = ts;
+      const cool = COOL_RATE * dt * 0.06; // 0.06 ≈ 1/16.67
 
       const lut = HEAT_LUT;
       const len = heat.length;
 
       // Cool down
       for (let i = 0; i < len; i++)
-        if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
+        if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - cool);
 
       // Build colour image — переиспользуем imageData, читаем из LUT
       const d = imageData.data;
@@ -1741,6 +1755,7 @@ const HEAT_LUT = (function() {
   let photoPixels = null;
   let drawYAlign = 0.5; // 0 = верх фото, 0.5 = центр (десктоп)
   let _dynR = 109; // текущий радиус с учётом скорости
+  let _lastTs = 0;
 
   const meImg = new Image();
   meImg.crossOrigin = 'anonymous'; // нужен для getImageData (GitHub raw поддерживает CORS)
@@ -1820,16 +1835,21 @@ const HEAT_LUT = (function() {
     }
   }
 
-  function frame() {
+  function frame(ts) {
     requestAnimationFrame(frame);
     if (!heat || !offCanvas || W === 0 || !imageData) return;
+
+    // Delta-time: нормализуем к 60fps
+    const dt   = _lastTs ? Math.min(ts - _lastTs, 50) : 16.67;
+    _lastTs    = ts;
+    const cool = COOL_RATE * dt * 0.06;
 
     const lut = HEAT_LUT;
     const len = heat.length;
 
     // Cool down
     for (let i = 0; i < len; i++)
-      if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - COOL_RATE);
+      if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - cool);
 
     // Базовое фото из кеша — без drawCover на каждый кадр
     mainCtx.drawImage(photoCache, 0, 0);
