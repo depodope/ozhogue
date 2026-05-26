@@ -1606,6 +1606,25 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       offscreen = document.createElement('canvas');
       offscreen.width  = W;
       offscreen.height = H;
+
+      // Случайные пятна при загрузке
+      const blobs = 2 + Math.floor(Math.random() * 2); // 2–3 на слово
+      for (let b = 0; b < blobs; b++) {
+        const mx = Math.floor(Math.random() * W);
+        const my = Math.floor(Math.random() * H);
+        const r0 = Math.round(BRUSH_R * (0.7 + Math.random() * 0.5));
+        const R2 = r0 * r0;
+        const intensity = 0.3 + Math.random() * 0.4;
+        for (let yy = Math.max(0, my - r0); yy <= Math.min(H - 1, my + r0); yy++) {
+          for (let xx = Math.max(0, mx - r0); xx <= Math.min(W - 1, mx + r0); xx++) {
+            const d2 = (xx - mx) ** 2 + (yy - my) ** 2;
+            if (d2 < R2) {
+              const f = 1 - d2 / R2;
+              heat[yy * W + xx] = Math.min(1, heat[yy * W + xx] + intensity * f * f);
+            }
+          }
+        }
+      }
     }
 
     function frame() {
@@ -1796,6 +1815,25 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
       photoPixels = tc.getImageData(0, 0, W, H).data;
     } catch(e) {
       photoPixels = null; // CORS недоступен, fallback без маски
+    }
+
+    // Случайные тепловые пятна при загрузке / ресайзе
+    const blobs = 3 + Math.floor(Math.random() * 3); // 3–5 пятен
+    for (let b = 0; b < blobs; b++) {
+      const mx = Math.floor(Math.random() * W);
+      const my = Math.floor(Math.random() * H);
+      const r0 = Math.round(BRUSH_R * (0.7 + Math.random() * 0.55));
+      const R2 = r0 * r0;
+      const intensity = 0.28 + Math.random() * 0.42;
+      for (let yy = Math.max(0, my - r0); yy <= Math.min(H - 1, my + r0); yy++) {
+        for (let xx = Math.max(0, mx - r0); xx <= Math.min(W - 1, mx + r0); xx++) {
+          const d2 = (xx - mx) ** 2 + (yy - my) ** 2;
+          if (d2 < R2) {
+            const f = 1 - d2 / R2;
+            heat[yy * W + xx] = Math.min(1, heat[yy * W + xx] + intensity * f * f);
+          }
+        }
+      }
     }
   }
 
