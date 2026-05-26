@@ -759,6 +759,62 @@
     border-color: var(--surface);
   }
 
+  /* ── ALL PROJECTS OVERLAY ── */
+  #all-projects-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 899;
+    background: var(--bg);
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.16,1,0.3,1);
+  }
+  #all-projects-overlay.open { opacity: 1; pointer-events: all; }
+
+  /* ── FILTERS ── */
+  .all-projects-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .filter-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,237,230,0.45);
+    background: transparent;
+    border: 1px solid rgba(240,237,230,0.15);
+    padding: 8px 16px;
+    cursor: none;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+  .filter-btn:hover { color: var(--surface); border-color: rgba(240,237,230,0.35); }
+  .filter-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(74,94,58,0.12); }
+
+  /* ── AP CARDS GRID ── */
+  .all-projects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .ap-card {
+    border: 1px solid var(--surface-border);
+    background: var(--surface-dim);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: none;
+  }
+  .ap-card:hover { border-color: rgba(240,237,230,0.3); transform: translateY(-2px); }
+  .ap-card-visual {
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+  }
+  .ap-card-body { padding: 28px; }
+
   /* ── REVEAL ── */
   .reveal {
     opacity: 0;
@@ -962,6 +1018,10 @@
     /* all projects */
     .all-projects-footer { padding-top: 20px; }
     .all-projects-btn { cursor: pointer; width: 100%; text-align: center; padding: 16px; min-height: 44px; }
+    .all-projects-grid { grid-template-columns: 1fr; }
+    .ap-card { cursor: pointer; }
+    .ap-card-visual { height: 200px; }
+    .filter-btn { cursor: pointer; min-height: 44px; }
   }
 
   /* ════════════════════════════════════════
@@ -1011,6 +1071,19 @@
 <div id="cursor"></div>
 
 <!-- PROJECT OVERLAY -->
+<!-- ALL PROJECTS OVERLAY -->
+<div id="all-projects-overlay" role="dialog" aria-modal="true" aria-label="Все проекты">
+  <div class="overlay-inner">
+    <div class="overlay-close">
+      <span class="overlay-close-label">04 · Проекты</span>
+      <button class="overlay-close-btn" id="all-overlay-close-btn">✕ Закрыть</button>
+    </div>
+    <h2 class="overlay-title">Все&nbsp;проекты</h2>
+    <div class="all-projects-filters" id="allProjectsFilters"></div>
+    <div class="all-projects-grid" id="allProjectsGrid"></div>
+  </div>
+</div>
+
 <div id="project-overlay" role="dialog" aria-modal="true" aria-label="Детали проекта">
   <div class="overlay-inner">
     <div class="overlay-close">
@@ -1280,7 +1353,7 @@
     </div>
   </div>
   <div class="all-projects-footer">
-    <a href="projects.html" class="all-projects-btn">Все проекты</a>
+    <button class="all-projects-btn" id="allProjectsBtn">Все проекты</button>
   </div>
   </div><!-- /.projects-section-inner -->
 </section>
@@ -1569,12 +1642,9 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
     }
 
     let _pmx = null, _pmy = null, _spd = 0;
-    wrapEl.addEventListener('mousemove', e => {
+
+    function _paintTitle(mx, my) {
       if (!heat) return;
-      const r  = wrapEl.getBoundingClientRect();
-      const mx = (e.clientX - r.left) | 0;
-      const my = (e.clientY - r.top)  | 0;
-      // velocity → dynamic radius ±25%
       if (_pmx !== null) {
         const dx = mx - _pmx, dy = my - _pmy;
         _spd += (Math.sqrt(dx*dx + dy*dy) - _spd) * 0.3;
@@ -1587,12 +1657,28 @@ addHover('a, button, .project-card, .accordion-trigger, .strength-card');
           const d2 = (x-mx)**2 + (y-my)**2;
           if (d2 < R2) {
             const f = 1 - d2/R2;
-            const idx = y*W + x;
-            heat[idx] = Math.min(1, heat[idx] + BRUSH_PWR * f * f);
+            heat[y*W + x] = Math.min(1, heat[y*W + x] + BRUSH_PWR * f * f);
           }
         }
       }
+    }
+
+    wrapEl.addEventListener('mousemove', e => {
+      const r = wrapEl.getBoundingClientRect();
+      _paintTitle((e.clientX - r.left) | 0, (e.clientY - r.top) | 0);
     });
+    wrapEl.addEventListener('touchstart', e => {
+      _pmx = null; _spd = 0; // сброс скорости при новом касании
+      const r = wrapEl.getBoundingClientRect();
+      const t = e.touches[0];
+      _paintTitle((t.clientX - r.left) | 0, (t.clientY - r.top) | 0);
+    }, { passive: true });
+    wrapEl.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const r = wrapEl.getBoundingClientRect();
+      const t = e.touches[0];
+      _paintTitle((t.clientX - r.left) | 0, (t.clientY - r.top) | 0);
+    }, { passive: false });
 
     // Init after font loads
     document.fonts.load(`700 1em "Space Mono"`).then(() => {
@@ -1884,6 +1970,7 @@ const projects = {
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_8.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_9.webp',
     ],
+    tags: ['Naming', 'Identity', 'Design System'],
     imagesLayout: 'stack',
   },
   fitlead: {
@@ -1904,6 +1991,7 @@ const projects = {
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_5.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_6.webp',
     ],
+    tags: ['Identity', 'Marketing', 'Content'],
     imagesLayout: 'stack',
   },
   saint: {
@@ -1924,6 +2012,7 @@ const projects = {
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_5.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_6.webp',
     ],
+    tags: ['Brand Platform', 'Identity', 'Brandbook'],
     imagesLayout: 'stack',
   },
 };
@@ -1935,47 +2024,161 @@ const overlayDesc = document.getElementById('overlay-desc');
 const overlayMeta = document.getElementById('overlay-meta');
 const overlayImages = document.getElementById('overlay-images');
 
-function openOverlay(key) {
+const apoEl  = document.getElementById('all-projects-overlay');
+const apoGrid    = document.getElementById('allProjectsGrid');
+const apoFilters = document.getElementById('allProjectsFilters');
+let   apoBuilt   = false; // grid строится один раз
+
+// ── Заполняем grid + фильтры (один раз) ─────────────────────
+function buildAPGrid() {
+  if (apoBuilt) return;
+  apoBuilt = true;
+
+  // Собираем уникальные теги
+  const allTags = [...new Set(Object.values(projects).flatMap(p => p.tags || []))];
+
+  // Фильтры
+  apoFilters.innerHTML =
+    `<button class="filter-btn active" data-filter="all">Все</button>` +
+    allTags.map(t => `<button class="filter-btn" data-filter="${t}">${t}</button>`).join('');
+
+  apoFilters.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      apoFilters.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      apoGrid.querySelectorAll('.ap-card').forEach(card => {
+        const tags = JSON.parse(card.dataset.tags);
+        card.style.display = (f === 'all' || tags.includes(f)) ? '' : 'none';
+      });
+    });
+    btn.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    btn.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+
+  // Карточки
+  apoGrid.innerHTML = Object.entries(projects).map(([key, p]) => {
+    const preview = p.desc.length > 110 ? p.desc.substring(0, 110) + '…' : p.desc;
+    const tagsStr = p.meta[2] ? p.meta[2][1] : '';
+    return `<div class="ap-card" data-project="${key}" data-tags='${JSON.stringify(p.tags||[])}'>
+      <div class="ap-card-visual ${key}-visual">
+        <span class="project-card-open-hint">Открыть →</span>
+      </div>
+      <div class="ap-card-body">
+        <div class="project-client">${p.client}</div>
+        <div class="project-title">${p.title}</div>
+        <p class="project-desc">${preview}</p>
+        <div class="project-result">${tagsStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  apoGrid.querySelectorAll('.ap-card').forEach(card => {
+    card.addEventListener('click', () => openOverlay(card.dataset.project));
+    card.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    card.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+}
+
+// ── Открыть «Все проекты» ────────────────────────────────────
+function openAllProjects(push = true) {
+  buildAPGrid();
+  // сбросить фильтр на «Все»
+  apoFilters.querySelectorAll('.filter-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.filter === 'all'));
+  apoGrid.querySelectorAll('.ap-card').forEach(c => c.style.display = '');
+
+  apoEl.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  apoEl.scrollTop = 0;
+  if (push) history.pushState({ nav: 'all-projects' }, '', '#/projects');
+}
+
+// ── Закрыть «Все проекты» ────────────────────────────────────
+function closeAllProjects(viaHistory = false) {
+  apoEl.classList.remove('open');
+  if (!overlay.classList.contains('open')) document.body.style.overflow = '';
+  if (!viaHistory && location.hash === '#/projects') history.back();
+}
+
+// ── PROJECT OVERLAY ──────────────────────────────────────────
+function openOverlay(key, push = true) {
   const p = projects[key];
   if (!p || !overlay) return;
   overlayClient.textContent = p.client;
-  overlayTitle.textContent = p.title;
-  overlayDesc.textContent = p.desc;
+  overlayTitle.textContent  = p.title;
+  overlayDesc.textContent   = p.desc;
   overlayMeta.innerHTML = p.meta.map(([k,v]) =>
     `<div class="overlay-meta-row"><span class="overlay-meta-key">${k}</span><span class="overlay-meta-val">${v}</span></div>`
   ).join('');
-
   overlayImages.innerHTML = '';
   overlayImages.className = 'overlay-images';
   if (p.imagesLayout === 'stack') overlayImages.classList.add('overlay-images--stack');
-
   p.images.forEach((src, i) => {
     const img = document.createElement('img');
-    img.src = src;
-    img.alt = `${p.title} — изображение ${i+1}`;
-    img.className = 'overlay-img-real';
-    img.loading = 'lazy';
+    img.src = src; img.alt = `${p.title} — изображение ${i+1}`;
+    img.className = 'overlay-img-real'; img.loading = 'lazy';
     overlayImages.appendChild(img);
   });
-
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   overlay.scrollTop = 0;
+  if (push) {
+    const from = apoEl.classList.contains('open') ? 'all-projects' : 'main';
+    history.pushState({ nav: 'project', key, from }, '', `#/project/${key}`);
+  }
 }
 
-function closeOverlay() {
+function closeOverlay(viaHistory = false) {
   overlay.classList.remove('open');
-  document.body.style.overflow = '';
+  if (!apoEl.classList.contains('open')) document.body.style.overflow = '';
+  if (!viaHistory && location.hash.startsWith('#/project/')) history.back();
 }
 
+// ── Hash-роутинг (кнопка назад браузера) ─────────────────────
+window.addEventListener('popstate', e => {
+  const hash = location.hash;
+  if (!hash || hash === '#') {
+    // вернулись на главную
+    const wasApo = apoEl.classList.contains('open');
+    overlay.classList.remove('open');
+    apoEl.classList.remove('open');
+    document.body.style.overflow = '';
+    if (wasApo) {
+      setTimeout(() => {
+        document.getElementById('projects-section').scrollIntoView({ behavior: 'smooth' });
+      }, 380);
+    }
+  } else if (hash === '#/projects') {
+    // вернулись в «Все проекты» из карточки проекта
+    overlay.classList.remove('open');
+    if (!apoEl.classList.contains('open')) openAllProjects(false);
+    document.body.style.overflow = 'hidden';
+  } else if (hash.startsWith('#/project/')) {
+    // forward nav
+    const key = hash.slice(10);
+    if (projects[key]) openOverlay(key, false);
+  }
+});
+
+// ── Кнопки закрытия ──────────────────────────────────────────
+document.getElementById('overlay-close-btn').addEventListener('click', () => closeOverlay());
+document.getElementById('all-overlay-close-btn').addEventListener('click', () => closeAllProjects());
+document.getElementById('allProjectsBtn').addEventListener('click', () => openAllProjects());
+
+// ── Клик на карточки в основном скролле ──────────────────────
 document.querySelectorAll('.project-card').forEach(card => {
   card.addEventListener('click', () => {
     if (!isDragging) openOverlay(card.dataset.project);
   });
 });
 
-document.getElementById('overlay-close-btn').addEventListener('click', closeOverlay);
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlay(); });
+// ── Escape ───────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (overlay.classList.contains('open'))   closeOverlay();
+  else if (apoEl.classList.contains('open')) closeAllProjects();
+});
 
 
 // ═══════════════════════════════════════
