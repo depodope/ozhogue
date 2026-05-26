@@ -1062,19 +1062,16 @@
      HUD — TECH MILITARY ДЕКОР
   ════════════════════════════════════════ */
 
-  /* Точечная сетка на секциях */
-  #hero { background-image: radial-gradient(circle, rgba(240,237,230,0.08) 1px, transparent 1px); background-size: 44px 44px; }
-  .page-section { background-image: radial-gradient(circle, rgba(240,237,230,0.055) 1px, transparent 1px); background-size: 44px 44px; }
-  #projects-section { background-image: radial-gradient(circle, rgba(240,237,230,0.055) 1px, transparent 1px); background-size: 44px 44px; position: relative; }
-
-  /* Медленная полоса сканирования */
-  @keyframes hud-scan { from { top: -80px; } to { top: 100vh; } }
-  #hud-scanline {
-    position: fixed; left: 0; right: 0; height: 80px;
-    background: linear-gradient(to bottom, transparent 0%, rgba(240,237,230,0.013) 50%, transparent 100%);
-    pointer-events: none; z-index: 2; top: -80px;
-    animation: hud-scan 11s linear infinite;
+  /* Точечная сетка — единая на всей странице через fixed-attachment */
+  #hero,
+  .page-section,
+  #projects-section {
+    background-image: radial-gradient(circle, rgba(240,237,230,0.07) 1px, transparent 1px);
+    background-size: 44px 44px;
+    background-attachment: fixed;
+    background-position: 0 0;
   }
+  #projects-section { position: relative; }
 
   /* Анимации */
   @keyframes hud-flicker {
@@ -1174,20 +1171,16 @@
     letter-spacing: 0.1em; color: rgba(240,237,230,0.2);
   }
 
-  /* На мобилке убираем HUD */
+  /* На мобилке убираем HUD и сетку */
   @media (max-width: 768px) {
     .hud-deco { display: none; }
-    #hud-scanline { display: none; }
-    #hero { background-image: none; }
-    .page-section { background-image: none; }
-    #projects-section { background-image: none; }
+    #hero, .page-section, #projects-section { background-image: none; background-attachment: scroll; }
   }
 </style>
 </head>
 <body>
 
 <div id="cursor"></div>
-<div id="hud-scanline" aria-hidden="true"></div>
 
 <!-- PROJECT OVERLAY -->
 <!-- ALL PROJECTS OVERLAY -->
@@ -1303,11 +1296,9 @@
   </div>
 
   <!-- HUD декор hero -->
-  <div class="hud-deco" aria-hidden="true">
+  <div class="hud-deco" aria-hidden="true" style="top:72px">
     <div class="hud-c hud-c-tl"></div>
     <div class="hud-c hud-c-tr"></div>
-    <div class="hud-c hud-c-bl"></div>
-    <div class="hud-c hud-c-br"></div>
     <!-- Данные верхний правый -->
     <div class="hud-readout hud-rt">
       <div>B0272B-009 · 5482Z<span class="hud-blink">_</span></div>
@@ -1317,27 +1308,14 @@
     <!-- Код верхний левый -->
     <div class="hud-readout hud-lt">
       <div>SYS.OML · LIVE</div>
-    </div>
-    <!-- Статус нижний левый -->
-    <div class="hud-readout hud-lb">
-      <div>INTERNAL_SYSTEM</div>
       <div id="hudStatus">PROCESS_FLG >> RUNNING</div>
     </div>
-    <!-- Штрих-код нижний правый -->
-    <div class="hud-barcode" id="hudBarcode" style="bottom:48px;right:28px"></div>
     <!-- Вертикальный текст левый край -->
     <div class="hud-vert" style="left:8px;top:50%;transform:translateY(-50%) rotate(180deg)">Senior Brand Designer · Portfolio</div>
     <!-- Прицел у фото -->
     <div class="hud-reticle" style="right:18%;top:38%"></div>
     <!-- Перекрестие справа -->
     <div class="hud-cross" style="right:26%;top:28%"></div>
-    <!-- Перекрестие слева -->
-    <div class="hud-cross" style="left:38%;top:65%"></div>
-    <!-- Горизонтальная линия -->
-    <div class="hud-hline" style="top:54%">
-      <span class="hud-hline-num" style="left:0">250_</span>
-      <span class="hud-hline-num" style="right:0">3D</span>
-    </div>
   </div>
 </section>
 
