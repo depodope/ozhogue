@@ -1059,101 +1059,21 @@
   }
 
   /* ════════════════════════════════════════
-     HUD — TECH MILITARY ДЕКОР
+     GRID — точечная сетка
   ════════════════════════════════════════ */
-
-  /* Единая точечная сетка — один фиксированный слой под всем */
   #hud-grid {
     position: fixed; inset: 0;
     background-image: radial-gradient(circle, rgba(240,237,230,0.07) 1px, transparent 1px);
     background-size: 44px 44px;
     pointer-events: none; user-select: none; z-index: 0;
   }
-
-  /* Вьюпорт-рамка — всегда одного размера, независимо от секции */
-  #hud-frame {
-    position: fixed; inset: 20px;
-    pointer-events: none; user-select: none; z-index: 3;
+  /* Сетка на оверлее «Все проекты» */
+  #all-projects-overlay {
+    background-image: radial-gradient(circle, rgba(240,237,230,0.07) 1px, transparent 1px);
+    background-size: 44px 44px;
   }
-
-  /* Нижняя строка данных — вне любого контента */
-  #hud-data {
-    position: fixed; bottom: 18px; left: 28px; right: 28px;
-    display: flex; justify-content: space-between; align-items: center;
-    font-family: var(--mono); font-size: 9px;
-    letter-spacing: 0.1em; color: rgba(240,237,230,0.2);
-    pointer-events: none; user-select: none; z-index: 3;
-    white-space: nowrap;
-  }
-
-  /* Анимации */
-  @keyframes hud-flicker {
-    0%, 85%, 100% { opacity: 1; }
-    87% { opacity: 0.08; }
-    89% { opacity: 1; }
-    91% { opacity: 0.45; }
-    93% { opacity: 1; }
-  }
-  @keyframes hud-blink  { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-  @keyframes hud-pulse  {
-    0%, 100% { opacity: 0.55; transform: scale(0.85); }
-    50%       { opacity: 0.18; transform: scale(1.15); }
-  }
-
-  /* Угловые скобки */
-  .hud-c {
-    position: absolute; width: 20px; height: 20px;
-    border-color: rgba(240,237,230,0.28); border-style: solid;
-    animation: hud-flicker 6s ease-in-out infinite;
-  }
-  .hud-c-tl { top: 0; left: 0; border-width: 1px 0 0 1px; }
-  .hud-c-tr { top: 0; right: 0; border-width: 1px 1px 0 0; animation-delay: 0.9s; }
-  .hud-c-bl { bottom: 0; left: 0; border-width: 0 0 1px 1px; animation-delay: 1.8s; }
-  .hud-c-br { bottom: 0; right: 0; border-width: 0 1px 1px 0; animation-delay: 2.7s; }
-
-  /* Контейнер декора внутри hero */
-  .hud-deco {
-    position: absolute; inset: 0;
-    pointer-events: none; user-select: none; z-index: 2; overflow: hidden;
-  }
-
-  /* Перекрестие */
-  .hud-cross {
-    position: absolute; width: 16px; height: 16px;
-  }
-  .hud-cross::before, .hud-cross::after {
-    content: ''; position: absolute; background: rgba(240,237,230,0.25);
-  }
-  .hud-cross::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
-  .hud-cross::after  { height: 1px; width: 100%; top: 50%; transform: translateY(-50%); }
-
-  /* Прицел-ретикл */
-  .hud-reticle {
-    position: absolute; width: 30px; height: 30px;
-    border: 1px solid rgba(240,237,230,0.18); border-radius: 50%;
-    animation: hud-pulse 3.5s ease-in-out infinite;
-  }
-  .hud-reticle::before, .hud-reticle::after {
-    content: ''; position: absolute; background: rgba(240,237,230,0.15);
-  }
-  .hud-reticle::before { width: 1px; height: 40px; left: 50%; top: -5px; transform: translateX(-50%); }
-  .hud-reticle::after  { height: 1px; width: 40px; top: 50%; left: -5px; transform: translateY(-50%); }
-
-  /* Вертикальный текст */
-  .hud-vert {
-    position: absolute;
-    writing-mode: vertical-rl; transform: rotate(180deg);
-    font-family: var(--mono); font-size: 8px;
-    letter-spacing: 0.2em; color: rgba(240,237,230,0.12);
-    text-transform: uppercase;
-  }
-
-  /* Мигающий курсор */
-  .hud-blink { animation: hud-blink 1.2s step-end infinite; }
-
-  /* На мобилке убираем весь HUD */
   @media (max-width: 768px) {
-    #hud-grid, #hud-frame, #hud-data, .hud-deco { display: none; }
+    #hud-grid { display: none; }
   }
 </style>
 </head>
@@ -1161,18 +1081,7 @@
 
 <div id="cursor"></div>
 
-<!-- HUD: единая сетка + вьюпорт-рамка + нижняя строка данных -->
 <div id="hud-grid" aria-hidden="true"></div>
-<div id="hud-frame" aria-hidden="true">
-  <div class="hud-c hud-c-tl"></div>
-  <div class="hud-c hud-c-tr"></div>
-  <div class="hud-c hud-c-bl"></div>
-  <div class="hud-c hud-c-br"></div>
-</div>
-<div id="hud-data" aria-hidden="true">
-  <span>SYS.OML · LIVE · <span id="hudStatus">PROCESS_FLG >> RUNNING</span></span>
-  <span><span id="hudTime">T:00:00:00</span> · 55.7558°N · 37.6176°E</span>
-</div>
 
 <!-- PROJECT OVERLAY -->
 <!-- ALL PROJECTS OVERLAY -->
@@ -1287,15 +1196,6 @@
     </div>
   </div>
 
-  <!-- HUD декор hero: только визуальные элементы в «пустом» пространстве -->
-  <div class="hud-deco" aria-hidden="true">
-    <!-- Прицел в пустом пространстве между текстом и фото -->
-    <div class="hud-reticle" style="right:32%;top:32%"></div>
-    <!-- Перекрестие в верхней правой части -->
-    <div class="hud-cross" style="right:20%;top:25%"></div>
-    <!-- Тихий вертикальный текст на самом краю страницы -->
-    <div class="hud-vert" style="left:6px;top:50%;transform:translateY(-50%) rotate(180deg)">Portfolio</div>
-  </div>
 </section>
 
 <!-- ABOUT -->
@@ -2406,44 +2306,6 @@ document.querySelectorAll('.drawer-link').forEach(link => {
   }, { threshold: 0 }).observe(track);
 })();
 
-// ═══════════════════════════════════════
-// HUD — таймкод + роллинг статус
-// ═══════════════════════════════════════
-(function() {
-  // Таймкод в нижней строке
-  const timeEl = document.getElementById('hudTime');
-  if (timeEl) {
-    const pad = v => String(v).padStart(2, '0');
-    const tick = () => {
-      const n = new Date();
-      timeEl.textContent = `T:${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
-    };
-    tick();
-    setInterval(tick, 1000);
-  }
-
-  // Роллинг статус в нижней строке
-  const statusLines = [
-    'PROCESS_FLG >> RUNNING',
-    'AUTH_LVL >> SENIOR_DESIGNER',
-    'VISUAL_SYS >> LIVE · 100%',
-    'LOCATION >> MSK · 55.76°N',
-    'PORTFOLIO_BUILD >> ACTIVE',
-  ];
-  let si = 0;
-  const sEl = document.getElementById('hudStatus');
-  if (sEl) {
-    setInterval(() => {
-      si = (si + 1) % statusLines.length;
-      sEl.style.transition = 'opacity 0.25s';
-      sEl.style.opacity = '0';
-      setTimeout(() => {
-        sEl.textContent = statusLines[si];
-        sEl.style.opacity = '1';
-      }, 260);
-    }, 3200);
-  }
-})();
 
 // FOOTER CLOCK — на мобиле скрыт, не тикаем; при свёрнутой вкладке — пауза
 // ═══════════════════════════════════════
