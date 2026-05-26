@@ -87,6 +87,7 @@
     padding: 80px var(--page-px);
     max-width: var(--page-max);
     margin: 0 auto;
+    position: relative;
   }
 
   .section-label {
@@ -747,6 +748,8 @@
     z-index: 899;
     background: var(--bg);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.35s cubic-bezier(0.16,1,0.3,1);
@@ -1007,9 +1010,10 @@
     /* all projects */
     .all-projects-footer { padding-top: 20px; }
     .all-projects-btn { cursor: pointer; width: 100%; text-align: center; padding: 16px; min-height: 44px; }
-    .all-projects-grid { grid-template-columns: 1fr; }
+    .all-projects-grid { grid-template-columns: 1fr; gap: 16px; }
     .ap-card { cursor: pointer; }
-    .ap-card-visual { height: 200px; }
+    .ap-card-visual { height: 240px; }
+    .ap-card-body { padding: 20px; }
     .filter-btn { cursor: pointer; min-height: 44px; }
   }
 
@@ -1053,11 +1057,137 @@
     .overlay-close-btn { padding: 10px 16px; min-height: 44px; }
     .overlay-title { font-size: clamp(22px, 6vw, 36px); }
   }
+
+  /* ════════════════════════════════════════
+     HUD — TECH MILITARY ДЕКОР
+  ════════════════════════════════════════ */
+
+  /* Точечная сетка на секциях */
+  #hero { background-image: radial-gradient(circle, rgba(240,237,230,0.08) 1px, transparent 1px); background-size: 44px 44px; }
+  .page-section { background-image: radial-gradient(circle, rgba(240,237,230,0.055) 1px, transparent 1px); background-size: 44px 44px; }
+  #projects-section { background-image: radial-gradient(circle, rgba(240,237,230,0.055) 1px, transparent 1px); background-size: 44px 44px; position: relative; }
+
+  /* Медленная полоса сканирования */
+  @keyframes hud-scan { from { top: -80px; } to { top: 100vh; } }
+  #hud-scanline {
+    position: fixed; left: 0; right: 0; height: 80px;
+    background: linear-gradient(to bottom, transparent 0%, rgba(240,237,230,0.013) 50%, transparent 100%);
+    pointer-events: none; z-index: 2; top: -80px;
+    animation: hud-scan 11s linear infinite;
+  }
+
+  /* Анимации */
+  @keyframes hud-flicker {
+    0%, 85%, 100% { opacity: 1; }
+    87% { opacity: 0.08; }
+    89% { opacity: 1; }
+    91% { opacity: 0.45; }
+    93% { opacity: 1; }
+  }
+  @keyframes hud-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  @keyframes hud-pulse {
+    0%, 100% { opacity: 0.55; transform: scale(0.85); }
+    50%       { opacity: 0.18; transform: scale(1.15); }
+  }
+
+  /* Контейнер HUD-декора */
+  .hud-deco {
+    position: absolute; inset: 0;
+    pointer-events: none; user-select: none;
+    z-index: 2; overflow: hidden;
+  }
+
+  /* Угловые скобки */
+  .hud-c {
+    position: absolute; width: 20px; height: 20px;
+    border-color: rgba(240,237,230,0.28); border-style: solid;
+    animation: hud-flicker 6s ease-in-out infinite;
+  }
+  .hud-c-tl { top: 20px; left: 20px; border-width: 1px 0 0 1px; }
+  .hud-c-tr { top: 20px; right: 20px; border-width: 1px 1px 0 0; animation-delay: 0.9s; }
+  .hud-c-bl { bottom: 20px; left: 20px; border-width: 0 0 1px 1px; animation-delay: 1.8s; }
+  .hud-c-br { bottom: 20px; right: 20px; border-width: 0 1px 1px 0; animation-delay: 2.7s; }
+
+  /* Текст-readout */
+  .hud-readout {
+    position: absolute;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.1em; line-height: 1.9;
+    color: rgba(240,237,230,0.22); white-space: nowrap;
+  }
+  .hud-rt  { top: 28px; right: 28px; text-align: right; }
+  .hud-lb  { bottom: 28px; left: 28px; }
+  .hud-lt  { top: 28px; left: 56px; }
+  .hud-rb  { bottom: 28px; right: 28px; text-align: right; }
+
+  /* Мигающий курсор */
+  .hud-blink { animation: hud-blink 1.2s step-end infinite; }
+
+  /* Перекрестие (+) */
+  .hud-cross {
+    position: absolute; width: 16px; height: 16px;
+  }
+  .hud-cross::before, .hud-cross::after {
+    content: ''; position: absolute; background: rgba(240,237,230,0.3);
+  }
+  .hud-cross::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
+  .hud-cross::after  { height: 1px; width: 100%; top: 50%; transform: translateY(-50%); }
+
+  /* Прицел-ретикл */
+  .hud-reticle {
+    position: absolute; width: 32px; height: 32px;
+    border: 1px solid rgba(240,237,230,0.2); border-radius: 50%;
+    animation: hud-pulse 3.5s ease-in-out infinite;
+  }
+  .hud-reticle::before, .hud-reticle::after {
+    content: ''; position: absolute; background: rgba(240,237,230,0.18);
+  }
+  .hud-reticle::before { width: 1px; height: 44px; left: 50%; top: -6px; transform: translateX(-50%); }
+  .hud-reticle::after  { height: 1px; width: 44px; top: 50%; left: -6px; transform: translateY(-50%); }
+
+  /* Штрих-код */
+  .hud-barcode { position: absolute; display: flex; gap: 1.5px; align-items: flex-end; opacity: 0.22; }
+  .hud-barcode .b { background: rgba(240,237,230,1); width: 1.5px; }
+
+  /* Вертикальный текст */
+  .hud-vert {
+    position: absolute;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    font-family: var(--mono); font-size: 8px;
+    letter-spacing: 0.2em; color: rgba(240,237,230,0.15);
+    text-transform: uppercase;
+  }
+
+  /* Горизонтальная линия-разделитель */
+  .hud-hline {
+    position: absolute; height: 1px; left: 20px; right: 20px;
+    background: linear-gradient(to right,
+      rgba(240,237,230,0) 0%,
+      rgba(240,237,230,0.1) 15%,
+      rgba(240,237,230,0.1) 85%,
+      rgba(240,237,230,0) 100%
+    );
+  }
+  .hud-hline-num {
+    position: absolute; top: 4px;
+    font-family: var(--mono); font-size: 8px;
+    letter-spacing: 0.1em; color: rgba(240,237,230,0.2);
+  }
+
+  /* На мобилке убираем HUD */
+  @media (max-width: 768px) {
+    .hud-deco { display: none; }
+    #hud-scanline { display: none; }
+    #hero { background-image: none; }
+    .page-section { background-image: none; }
+    #projects-section { background-image: none; }
+  }
 </style>
 </head>
 <body>
 
 <div id="cursor"></div>
+<div id="hud-scanline" aria-hidden="true"></div>
 
 <!-- PROJECT OVERLAY -->
 <!-- ALL PROJECTS OVERLAY -->
@@ -1171,6 +1301,44 @@
       <span class="marquee-item">ЮГМК</span>
     </div>
   </div>
+
+  <!-- HUD декор hero -->
+  <div class="hud-deco" aria-hidden="true">
+    <div class="hud-c hud-c-tl"></div>
+    <div class="hud-c hud-c-tr"></div>
+    <div class="hud-c hud-c-bl"></div>
+    <div class="hud-c hud-c-br"></div>
+    <!-- Данные верхний правый -->
+    <div class="hud-readout hud-rt">
+      <div>B0272B-009 · 5482Z<span class="hud-blink">_</span></div>
+      <div id="hudTime">T:00:00:00</div>
+      <div>55.7558°N · 37.6176°E</div>
+    </div>
+    <!-- Код верхний левый -->
+    <div class="hud-readout hud-lt">
+      <div>SYS.OML · LIVE</div>
+    </div>
+    <!-- Статус нижний левый -->
+    <div class="hud-readout hud-lb">
+      <div>INTERNAL_SYSTEM</div>
+      <div id="hudStatus">PROCESS_FLG >> RUNNING</div>
+    </div>
+    <!-- Штрих-код нижний правый -->
+    <div class="hud-barcode" id="hudBarcode" style="bottom:48px;right:28px"></div>
+    <!-- Вертикальный текст левый край -->
+    <div class="hud-vert" style="left:8px;top:50%;transform:translateY(-50%) rotate(180deg)">Senior Brand Designer · Portfolio</div>
+    <!-- Прицел у фото -->
+    <div class="hud-reticle" style="right:18%;top:38%"></div>
+    <!-- Перекрестие справа -->
+    <div class="hud-cross" style="right:26%;top:28%"></div>
+    <!-- Перекрестие слева -->
+    <div class="hud-cross" style="left:38%;top:65%"></div>
+    <!-- Горизонтальная линия -->
+    <div class="hud-hline" style="top:54%">
+      <span class="hud-hline-num" style="left:0">250_</span>
+      <span class="hud-hline-num" style="right:0">3D</span>
+    </div>
+  </div>
 </section>
 
 <!-- ABOUT -->
@@ -1210,6 +1378,17 @@
         </div>
       </div>
     </div>
+  </div>
+  <!-- HUD декор about -->
+  <div class="hud-deco" aria-hidden="true">
+    <div class="hud-c hud-c-tl"></div>
+    <div class="hud-c hud-c-tr"></div>
+    <div class="hud-readout hud-rt">
+      <div>02_SYS_ABOUT</div>
+      <div>SCAN >> OK</div>
+    </div>
+    <div class="hud-cross" style="right:8%;top:55%"></div>
+    <div class="hud-hline" style="top:0"></div>
   </div>
 </section>
 
@@ -1345,6 +1524,17 @@
     </div>
 
   </div>
+  <!-- HUD декор experience -->
+  <div class="hud-deco" aria-hidden="true">
+    <div class="hud-c hud-c-tl"></div>
+    <div class="hud-c hud-c-br"></div>
+    <div class="hud-readout hud-rt">
+      <div>04_EXP_AUDIT</div>
+      <div>PROCESS_LOG >> RUNNING<span class="hud-blink">_</span></div>
+    </div>
+    <div class="hud-cross" style="left:50%;bottom:20%"></div>
+    <div class="hud-hline" style="top:0"></div>
+  </div>
 </section>
 <section id="services" class="page-section" >
   <div class="section-label reveal">05 · Услуги</div>
@@ -1448,6 +1638,17 @@
     </div>
 
   </div>
+  <!-- HUD декор services -->
+  <div class="hud-deco" aria-hidden="true">
+    <div class="hud-c hud-c-tr"></div>
+    <div class="hud-c hud-c-bl"></div>
+    <div class="hud-readout hud-rt">
+      <div>05_SERVICES</div>
+      <div>ACCESS >> GRANTED</div>
+    </div>
+    <div class="hud-hline" style="top:0"></div>
+    <div class="hud-cross" style="right:15%;top:50%"></div>
+  </div>
 </section>
 
 <!-- CONTACT -->
@@ -1480,6 +1681,22 @@
         <span class="contact-link-arrow">→</span>
       </a>
     </div>
+  </div>
+  <!-- HUD декор contact -->
+  <div class="hud-deco" aria-hidden="true">
+    <div class="hud-c hud-c-tl"></div>
+    <div class="hud-c hud-c-tr"></div>
+    <div class="hud-c hud-c-bl"></div>
+    <div class="hud-c hud-c-br"></div>
+    <div class="hud-readout hud-lb">
+      <div>MSK · 55.7558°N 37.6176°E</div>
+      <div>CONTACT >> OPEN</div>
+    </div>
+    <div class="hud-readout hud-rt">
+      <div>06_CONTACT</div>
+    </div>
+    <div class="hud-cross" style="right:22%;top:40%"></div>
+    <div class="hud-hline" style="top:0"></div>
   </div>
 </section>
 
@@ -2109,7 +2326,8 @@ function buildAPGrid() {
     const preview = p.desc.length > 110 ? p.desc.substring(0, 110) + '…' : p.desc;
     const tagsStr = p.meta[2] ? p.meta[2][1] : '';
     return `<div class="ap-card" data-project="${key}" data-tags='${JSON.stringify(p.tags||[])}'>
-      <div class="ap-card-visual ${key}-visual">
+      <div class="ap-card-visual">
+        <img src="${p.images[0]}" alt="${p.title}" loading="lazy">
         <span class="project-card-open-hint">Открыть →</span>
       </div>
       <div class="ap-card-body">
@@ -2278,6 +2496,57 @@ document.querySelectorAll('.drawer-link').forEach(link => {
   new IntersectionObserver(entries => {
     track.style.animationPlayState = entries[0].isIntersecting ? 'running' : 'paused';
   }, { threshold: 0 }).observe(track);
+})();
+
+// ═══════════════════════════════════════
+// HUD — таймкод + барко + статус
+// ═══════════════════════════════════════
+(function() {
+  // Таймкод
+  const timeEl = document.getElementById('hudTime');
+  if (timeEl) {
+    const pad = v => String(v).padStart(2, '0');
+    const tick = () => {
+      const n = new Date();
+      timeEl.textContent = `T:${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  // Штрих-код (случайные полосы)
+  const bcEl = document.getElementById('hudBarcode');
+  if (bcEl) {
+    let html = '';
+    for (let i = 0; i < 34; i++) {
+      const h = 10 + Math.round(Math.random() * 22);
+      html += `<div class="b" style="height:${h}px"></div>`;
+    }
+    bcEl.innerHTML = html;
+  }
+
+  // Роллинг статус
+  const statusLines = [
+    'PROCESS_FLG >> RUNNING',
+    'AUTH_LVL >> SENIOR_DESIGNER',
+    'VISUAL_SYS >> LIVE · 100%',
+    'LOCATION >> MSK · 55.76°N',
+    'PORTFOLIO_BUILD >> ACTIVE',
+    'MIN_RISK >> COUNT · IN_PROGRESS',
+  ];
+  let si = 0;
+  const sEl = document.getElementById('hudStatus');
+  if (sEl) {
+    setInterval(() => {
+      si = (si + 1) % statusLines.length;
+      sEl.style.transition = 'opacity 0.25s';
+      sEl.style.opacity = '0';
+      setTimeout(() => {
+        sEl.textContent = statusLines[si];
+        sEl.style.opacity = '1';
+      }, 260);
+    }, 3200);
+  }
 })();
 
 // FOOTER CLOCK — на мобиле скрыт, не тикаем; при свёрнутой вкладке — пауза
