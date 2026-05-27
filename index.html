@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Давлат Набиев — Senior Brand Designer</title>
+<title>Давлат Набиев — Brand Designer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -523,7 +523,7 @@
     overflow-y: auto;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.35s cubic-bezier(0.16,1,0.3,1);
+    transition: opacity 0.35s cubic-bezier(0.22,0.95,0.38,1);
   }
   #project-overlay.open {
     opacity: 1;
@@ -801,7 +801,7 @@
     font-family: var(--mono);
     font-size: 18px;
     color: rgba(240,237,230,0.25);
-    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), color 0.2s;
+    transition: transform 0.3s cubic-bezier(0.22,0.95,0.38,1), color 0.2s;
     flex-shrink: 0;
     margin-left: 24px;
   }
@@ -935,7 +935,7 @@
     overscroll-behavior: contain;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.35s cubic-bezier(0.16,1,0.3,1);
+    transition: opacity 0.35s cubic-bezier(0.22,0.95,0.38,1);
   }
   #all-projects-overlay.open { opacity: 1; pointer-events: all; }
 
@@ -985,7 +985,7 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+    transition: transform 0.4s cubic-bezier(0.22,0.95,0.38,1);
   }
   .ap-card:hover .ap-card-visual img { transform: scale(1.03); }
   .ap-card-body { padding: 28px; }
@@ -994,7 +994,7 @@
   .reveal {
     opacity: 0;
     transform: translateY(24px);
-    transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+    transition: opacity 0.52s cubic-bezier(0.22,0.95,0.38,1), transform 0.52s cubic-bezier(0.22,0.95,0.38,1);
   }
   .reveal.visible { opacity: 1; transform: translateY(0); }
   .reveal-delay-1 { transition-delay: 0.1s; }
@@ -1195,7 +1195,7 @@
     .all-projects-btn { cursor: pointer; width: 100%; text-align: center; padding: 16px; min-height: 44px; }
     .all-projects-grid { grid-template-columns: 1fr; gap: 16px; }
     .ap-card { cursor: pointer; }
-    .ap-card-visual { height: 240px; }
+    .ap-card-visual { height: auto; aspect-ratio: 16/9; }
     .ap-card-body { padding: 20px; }
     .filter-btn { cursor: pointer; min-height: 44px; }
   }
@@ -1336,7 +1336,7 @@
     </div>
   </div>
 
-  <p class="hero-role reveal reveal-delay-2">Senior Brand Designer · Москва · 6 лет опыта</p>
+  <p class="hero-role reveal reveal-delay-2">Brand Designer · Москва · 6 лет опыта</p>
 
   <p class="hero-manifesto reveal reveal-delay-3">
     Разрабатываю визуальные системы, айдентику и&nbsp;digital-коммуникации для крупных брендов — от&nbsp;концепции до&nbsp;внедрения.
@@ -1384,14 +1384,14 @@
   <div class="about-grid">
     <div class="about-text reveal reveal-delay-1">
       <p>Я дизайнер, работающий в&nbsp;сфере брендинга, digital и&nbsp;корпоративных коммуникаций. Специализируюсь не&nbsp;на отдельных макетах, а&nbsp;на построении устойчивых визуальных систем, которые можно легко масштабировать внутри бизнеса.</p>
-      <p>Работал с&nbsp;промышленными, нефтегазовыми и&nbsp;корпоративными компаниями, где дизайн должен решать прикладные задачи: навигацию, внутренние коммуникации, маркетинг и&nbsp;бренд-консистентность.</p>
-      <p>Помимо графического дизайна — опыт в&nbsp;фотографии и&nbsp;визуальном продакшене. Мыслю весь цикл производства визуального продукта: от&nbsp;идеи до&nbsp;финальной коммуникации.</p>
+      <p>Работал с&nbsp;промышленными и&nbsp;нефтегазовыми компаниями, где дизайн должен решать прикладные задачи: навигацию, внутренние коммуникации, маркетинг и&nbsp;бренд-консистентность.</p>
+      <p>Помимо графического дизайна — опыт в&nbsp;фотографии и&nbsp;визуальном продакшене. Понимаю весь цикл производства визуального продукта: от&nbsp;идеи до&nbsp;финального результата.</p>
     </div>
     <div class="reveal reveal-delay-2">
       <div class="strengths-grid">
         <div class="strength-card">
           <div class="strength-title">Системное мышление</div>
-          <div class="strength-desc">Создаю целостные дизайн-экосистемы, а не&nbsp;отдельные макеты.</div>
+          <div class="strength-desc">Создаю целостные дизайн-экосистемы.</div>
         </div>
         <div class="strength-card">
           <div class="strength-title">Скорость работы</div>
@@ -1610,7 +1610,7 @@
           <span class="exp-tag">Авиакомпания «Россия»</span>
           <span class="exp-tag">Зарубежнефть</span>
         </div>
-        <p class="exp-highlight">5 корпоративных клиентов одновременно — нефтегаз, промышленность, авиация. Актуализация брендбуков сократила время согласования на ~25%.</p>
+        <p class="exp-highlight">Более 10 корпоративных клиентов одновременно — нефтегаз, промышленность, авиация.</p>
       </div>
     </div>
 
@@ -1621,7 +1621,7 @@
         <div class="exp-role">Brand Designer</div>
       </div>
       <div class="exp-content">
-        <p class="exp-desc">Формирование и развитие фирменного стиля бренда с нуля. Курирование разработки сайта, дизайн-система для digital и офлайн, 3D-туры объектов, навигация шоурумов.</p>
+        <p class="exp-desc">Формирование и развитие фирменного стиля бренда с нуля. Разработка сайта, дизайн-система для digital и офлайн, 3D-туры объектов, навигация шоурумов.</p>
         <div class="exp-tags">
           <span class="exp-tag">Брендинг</span>
           <span class="exp-tag">Дизайн-система</span>
@@ -1647,7 +1647,7 @@
           <span class="exp-tag">Фотография</span>
           <span class="exp-tag">Упаковка</span>
         </div>
-        <p class="exp-highlight">Конверсия рекламы: 0,2% → 1,7% (+850%). Reels набирали от 300 тыс. просмотров.</p>
+        <p class="exp-highlight">Конверсия рекламы выросла на 250%. Reels набирали от 300 тыс. просмотров.</p>
       </div>
     </div>
 
@@ -1779,7 +1779,7 @@
   <div class="section-label reveal" >06 · Контакт</div>
   <div class="contact-inner">
     <div class="reveal">
-      <h2 class="contact-headline">Давайте<br>работать<br>вместе</h2>
+      <h2 class="contact-headline">Следующий<br>проект<br>— ваш.</h2>
       <p class="contact-sub">Открыт к предложениям — агентство, in-house, проектная работа. Пишите напрямую или найдите меня в удобном канале.</p>
     </div>
     <div class="contact-links reveal reveal-delay-1">
@@ -1810,7 +1810,7 @@
 <!-- FOOTER -->
 <footer>
   <span class="footer-copy">© 2026 Давлат Набиев</span>
-  <span class="footer-copy">Senior Brand Designer · Москва</span>
+  <span class="footer-copy">Brand Designer · Москва</span>
   <span class="footer-copy" id="footerTime"></span>
 </footer>
 
@@ -2694,13 +2694,10 @@ function buildAPGrid() {
   if (apoBuilt) return;
   apoBuilt = true;
 
-  // Собираем уникальные теги
-  const allTags = [...new Set(Object.values(projects).flatMap(p => p.tags || []))];
-
-  // Фильтры
+  // Фильтры — фиксированный набор
   apoFilters.innerHTML =
     `<button class="filter-btn active" data-filter="all">Все</button>` +
-    allTags.map(t => `<button class="filter-btn" data-filter="${t}">${t}</button>`).join('');
+    ['Identity', 'Content'].map(t => `<button class="filter-btn" data-filter="${t}">${t}</button>`).join('');
 
   apoFilters.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
