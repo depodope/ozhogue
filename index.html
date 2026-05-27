@@ -460,6 +460,9 @@
   .photoproject-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_4.webp') center/cover no-repeat !important;
   }
+  .interiorbloc-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_17.webp') center/cover no-repeat !important;
+  }
   .marketplace-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_6.webp') center/cover no-repeat !important;
   }
@@ -1509,6 +1512,18 @@
         </div>
       </div>
 
+      <div class="project-card reveal reveal-delay-4" data-project="interiorbloc">
+        <div class="project-card-visual interiorbloc-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">BLOC · Интерьерная съёмка</div>
+          <div class="project-title">Интерьерные съёмки квартир</div>
+          <p class="project-desc">Коммерческая фотосъёмка ремонтов — детали, пространство, индивидуальность каждого проекта.</p>
+          <div class="project-result">Photography / Content</div>
+        </div>
+      </div>
+
       <div class="project-card reveal reveal-delay-4" data-project="photoproject">
         <div class="project-card-visual photoproject-visual">
           <span class="project-card-open-hint">Открыть →</span>
@@ -2337,6 +2352,49 @@ const projects = {
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_6.webp',
     ],
     tags: ['Identity', 'Marketing'],
+  },
+  interiorbloc: {
+    client: 'BLOC · Интерьерная съёмка',
+    title: 'Интерьерные съёмки квартир',
+    desc: 'Интерьерные съёмки ремонтов квартир с акцентом на деталях и уникальных решениях. Результат — чистые коммерческие фотографии, которые передают индивидуальность и качество каждого реализованного проекта.',
+    meta: [
+      ['Клиент', 'BLOC'],
+      ['Формат', 'Interior Photography'],
+      ['Задача', 'Съёмка · Обработка · Ретушь'],
+      ['Стек', 'Интерьер · Детали · Коммерческое фото'],
+    ],
+    cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_17.webp',
+    content: [
+      // row 1: wide(2) + normal(1)
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_1.webp', wide: true },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_2.webp' },
+      // row 2: normal(1+1+1)
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_3.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_4.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_5.webp' },
+      // row 3: normal(1) + wide(2)
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_6.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_7.webp', wide: true },
+      // row 4: normal(1+1+1)
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_8.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_9.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_10.webp' },
+      // row 5: wide(2) + normal(1)
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_11.webp', wide: true },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_12.webp' },
+      // row 6: normal(1+1+1)
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_13.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_14.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_15.webp' },
+      // row 7: normal(1) + wide(2)
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_16.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_17.webp', wide: true },
+      // row 8: normal(1+1+1)
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_18.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_19.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/interiorbloc_20.webp' },
+    ],
+    tags: ['Content'],
   },
   photoproject: {
     client: 'Творческая съёмка · Портфолио',
