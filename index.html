@@ -452,18 +452,31 @@
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fornorosso_0.webp') center/cover no-repeat !important;
   }
   .bloc-visual {
-    background: linear-gradient(135deg, #0e0e0e 0%, #1c1c1c 60%, #141414 100%) !important;
-    position: relative;
-  }
-  .bloc-visual::after {
-    content: '▶';
-    position: absolute;
-    inset: 0;
-    display: flex;
+    background: #000 !important;
+    display: flex !important;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
-    color: rgba(240,237,230,0.18);
+    gap: 10px;
+  }
+  .bloc-visual::before {
+    content: 'BLOC';
+    font-family: var(--sans);
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.12em;
+    line-height: 1;
+  }
+  .bloc-visual::after {
+    content: 'ЦЕНИ · СВОЁ · ВРЕМЯ';
+    font-family: var(--mono);
+    font-size: clamp(9px, 1vw, 12px);
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.35em;
+  }
+  .blocsite-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/bloc.webp') center top/cover no-repeat !important;
   }
   .ap-card-visual-dark {
     background: linear-gradient(135deg, #0e0e0e 0%, #1c1c1c 60%, #141414 100%);
@@ -611,6 +624,12 @@
     object-fit: cover;
     border: 1px solid var(--surface-border);
     aspect-ratio: 16/9;
+  }
+  .overlay-img-full {
+    width: 100%;
+    display: block;
+    height: auto;
+    border: 1px solid var(--surface-border);
   }
   .overlay-cover-video {
     position: relative;
@@ -1370,6 +1389,18 @@
           <div class="project-title">Видеоконтент для BLOC</div>
           <p class="project-desc">Серия видеороликов — от концепции до финального монтажа.</p>
           <div class="project-result">Content / Video</div>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-4" data-project="blocsite">
+        <div class="project-card-visual blocsite-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">BLOC · Продакшн</div>
+          <div class="project-title">Дизайн сайта</div>
+          <p class="project-desc">Проектирование и дизайн сайта — от структуры до финального макета.</p>
+          <div class="project-result">Web / UI Design</div>
         </div>
       </div>
 
@@ -2190,6 +2221,22 @@ const projects = {
     ],
     tags: ['Identity', 'Marketing'],
   },
+  blocsite: {
+    client: 'BLOC · Продакшн',
+    title: 'Дизайн сайта',
+    desc: 'Проектирование и дизайн корпоративного сайта для продакшн-компании BLOC. Работа включала разработку структуры, UX-логики и финального визуального макета — от главной страницы до всех ключевых разделов. Визуальный язык строится на чёрно-белой палитре и жёсткой типографике в духе бренда.',
+    meta: [
+      ['Клиент', 'BLOC'],
+      ['Задача', 'UX · UI · Web Design'],
+      ['Формат', 'Web / Corporate Site'],
+      ['Стек', 'Структура · Прототип · Макет'],
+    ],
+    images: [
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/bloc.webp',
+    ],
+    fullImages: true,
+    tags: ['Identity', 'Marketing'],
+  },
   bloc: {
     client: 'BLOC · Продакшн',
     title: 'Видеоконтент для BLOC',
@@ -2416,7 +2463,8 @@ function openOverlay(key, push = true) {
     (p.images || []).forEach((src, i) => {
       const img = document.createElement('img');
       img.src = src; img.alt = `${p.title} — изображение ${i+1}`;
-      img.className = 'overlay-img-real'; img.loading = 'lazy';
+      img.className = p.fullImages ? 'overlay-img-full' : 'overlay-img-real';
+      img.loading = 'lazy';
       overlayImages.appendChild(img);
     });
   }
