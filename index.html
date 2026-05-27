@@ -457,6 +457,9 @@
   .blocsite-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/web.webp') center/cover no-repeat !important;
   }
+  .marketplace-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_6.webp') center/cover no-repeat !important;
+  }
   .ap-card-visual-dark {
     background: linear-gradient(135deg, #0e0e0e 0%, #1c1c1c 60%, #141414 100%);
     display: flex;
@@ -650,6 +653,35 @@
     .overlay-images--video {
       grid-template-columns: repeat(2, 1fr);
     }
+  }
+
+  /* ── BENTO MIXED GRID ── */
+  .overlay-bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .bento-item { position: relative; overflow: hidden; }
+  .bento-wide { grid-column: span 2; }
+  .bento-item img {
+    width: 100%; height: 100%;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 1/1;
+  }
+  .bento-wide img { aspect-ratio: 2/1; }
+  .bento-video {
+    aspect-ratio: 9/16;
+  }
+  .bento-video iframe {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
+  @media (max-width: 768px) {
+    .overlay-bento { grid-template-columns: repeat(2, 1fr); }
+    .bento-wide { grid-column: span 2; }
   }
 
   /* ── SERVICES ACCORDION ── */
@@ -1380,6 +1412,18 @@
           <div class="project-title">Дизайн сайта</div>
           <p class="project-desc">Проектирование и дизайн сайта — от структуры до финального макета.</p>
           <div class="project-result">Web / UI Design</div>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-4" data-project="marketplace">
+        <div class="project-card-visual marketplace-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">Маркетплейсы · E-commerce</div>
+          <div class="project-title">Фото и видео для маркетплейсов</div>
+          <p class="project-desc">Продуктовые съёмки и видеоролики для размещения на маркетплейсах.</p>
+          <div class="project-result">Content / Marketing</div>
         </div>
       </div>
 
@@ -2200,6 +2244,37 @@ const projects = {
     ],
     tags: ['Identity', 'Marketing'],
   },
+  marketplace: {
+    client: 'Маркетплейсы · E-commerce',
+    title: 'Фото и видео для маркетплейсов',
+    desc: 'Продуктовые съёмки и видеоролики для размещения на маркетплейсах — Wildberries, Ozon и других площадках. Полный цикл: от концепции и съёмки до финальной обработки под требования платформ.',
+    meta: [
+      ['Задача', 'Фотосъёмка · Видеопроизводство'],
+      ['Формат', 'E-commerce / Marketplace Content'],
+      ['Площадки', 'Wildberries · Ozon'],
+      ['Стек', 'Фото · Видео · Ретушь · Монтаж'],
+    ],
+    cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_6.webp',
+    content: [
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_1.webp', wide: true },
+      { type: 'video', src: 'https://vk.com/video_ext.php?oid=-239126466&id=456239032&hd=2' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_2.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_3.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_4.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_5.webp', wide: true },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_6.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_7.webp' },
+      { type: 'video', src: 'https://vk.com/video_ext.php?oid=-239126466&id=456239033&hd=2' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_8.webp', wide: true },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_9.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_10.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_11.webp', wide: true },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_12.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_13.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_14.webp', wide: true },
+    ],
+    tags: ['Content', 'Marketing'],
+  },
   blocsite: {
     client: 'BLOC · Продакшн',
     title: 'Дизайн сайта',
@@ -2356,7 +2431,7 @@ function buildAPGrid() {
   apoGrid.innerHTML = Object.entries(projects).map(([key, p]) => {
     const preview = p.desc.length > 110 ? p.desc.substring(0, 110) + '…' : p.desc;
     const tagsStr = p.meta[2] ? p.meta[2][1] : '';
-    const coverImg = p.images?.[0] || p.cover || null;
+    const coverImg = p.cover || p.images?.[0] || p.content?.find(i => i.type === 'image')?.src || null;
     return `<div class="ap-card" data-project="${key}" data-tags='${JSON.stringify(p.tags||[])}'>
       <div class="ap-card-visual${!coverImg ? ' ap-card-visual-dark' : ''}">
         ${coverImg ? `<img src="${coverImg}" alt="${p.title}" loading="lazy">` : '<span>▶</span>'}
@@ -2424,8 +2499,32 @@ function openOverlay(key, push = true) {
     cover.appendChild(iframe);
     overlayImages.appendChild(cover);
   }
-  if (p.videos) {
+  if (p.content) {
+    overlayImages.classList.add('overlay-bento');
+    overlayImages.classList.remove('overlay-images--video');
+    p.content.forEach(item => {
+      const div = document.createElement('div');
+      if (item.type === 'video') {
+        div.className = 'bento-item bento-video';
+        const iframe = document.createElement('iframe');
+        iframe.src = item.src;
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen');
+        div.appendChild(iframe);
+      } else {
+        div.className = 'bento-item' + (item.wide ? ' bento-wide' : '');
+        const img = document.createElement('img');
+        img.src = item.src;
+        img.alt = p.title;
+        img.loading = 'lazy';
+        div.appendChild(img);
+      }
+      overlayImages.appendChild(div);
+    });
+  } else if (p.videos) {
     overlayImages.classList.add('overlay-images--video');
+    overlayImages.classList.remove('overlay-bento');
     p.videos.forEach(src => {
       const wrap = document.createElement('div');
       wrap.className = 'overlay-video-wrap';
@@ -2439,6 +2538,7 @@ function openOverlay(key, push = true) {
     });
   } else {
     overlayImages.classList.remove('overlay-images--video');
+    overlayImages.classList.remove('overlay-bento');
     (p.images || []).forEach((src, i) => {
       const img = document.createElement('img');
       img.src = src; img.alt = `${p.title} — изображение ${i+1}`;
@@ -2461,6 +2561,7 @@ function closeOverlay(viaHistory = false) {
   // Очищаем iframes — останавливаем видео и предотвращаем history pollution от VK-плееров
   overlayImages.innerHTML = '';
   overlayImages.classList.remove('overlay-images--video');
+  overlayImages.classList.remove('overlay-bento');
   if (!apoEl.classList.contains('open')) document.body.style.overflow = '';
   if (!viaHistory && location.hash.startsWith('#/project/')) {
     const from = history.state?.from;
@@ -2480,6 +2581,7 @@ window.addEventListener('popstate', e => {
     overlay.classList.remove('open');
     overlayImages.innerHTML = '';
     overlayImages.classList.remove('overlay-images--video');
+    overlayImages.classList.remove('overlay-bento');
     apoEl.classList.remove('open');
     document.body.style.overflow = '';
     if (wasApo) {
@@ -2491,6 +2593,7 @@ window.addEventListener('popstate', e => {
     overlay.classList.remove('open');
     overlayImages.innerHTML = '';
     overlayImages.classList.remove('overlay-images--video');
+    overlayImages.classList.remove('overlay-bento');
     if (!apoEl.classList.contains('open')) openAllProjects(false);
     document.body.style.overflow = 'hidden';
   } else if (hash.startsWith('#/project/')) {
