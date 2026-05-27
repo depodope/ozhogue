@@ -537,17 +537,12 @@
   .overlay-inner {
     max-width: var(--page-max);
     margin: 0 auto;
-    padding: 160px var(--page-px) 120px;
+    padding: 96px var(--page-px) 120px;
   }
   .overlay-close {
-    position: fixed;
-    top: 52px;
-    left: 0; right: 0;
-    z-index: 901;
     display: flex; align-items: center; justify-content: space-between;
-    max-width: var(--page-max);
-    margin: 0 auto;
-    padding: 16px var(--page-px);
+    margin-bottom: 64px;
+    padding: 16px 0;
     border-bottom: 1px solid var(--surface-border);
   }
   .overlay-close-label {
@@ -1198,10 +1193,10 @@
     .project-card-visual { height: 180px; }
 
     /* overlay */
-    .overlay-inner { padding: 136px var(--page-px) 80px; }
+    .overlay-inner { padding: 76px var(--page-px) 80px; }
     .overlay-body { grid-template-columns: 1fr; gap: 32px; }
     .overlay-images { grid-template-columns: 1fr; }
-    .overlay-close { top: 44px; padding: 12px var(--page-px); }
+    .overlay-close { margin-bottom: 32px; padding: 12px 0; }
     /* services */
     .acc-name { font-size: 16px; }
     .accordion-body { padding: 0 0 24px 32px; }
