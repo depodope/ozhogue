@@ -693,6 +693,68 @@
     .bento-wide { grid-column: span 2; }
   }
 
+  /* ── LIGHTBOX ── */
+  #lightbox {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.96);
+    z-index: 9500;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+    cursor: none;
+  }
+  #lightbox.open { opacity: 1; pointer-events: all; }
+  #lb-img-wrap {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%;
+    padding: 60px 100px;
+    box-sizing: border-box;
+  }
+  #lb-img {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain;
+    display: block;
+    transition: opacity 0.15s;
+    user-select: none;
+  }
+  #lb-img.switching { opacity: 0; }
+  #lb-close {
+    position: absolute; top: 24px; right: 28px;
+    background: none; border: none; cursor: none;
+    color: rgba(240,237,230,0.5);
+    font-size: 18px; font-family: var(--mono);
+    letter-spacing: 0.05em;
+    transition: color 0.15s;
+    padding: 8px;
+  }
+  #lb-close:hover { color: var(--surface); }
+  #lb-prev, #lb-next {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: none;
+    color: rgba(240,237,230,0.4);
+    font-size: 28px;
+    padding: 16px 20px;
+    transition: color 0.15s;
+    font-family: var(--mono);
+    line-height: 1;
+  }
+  #lb-prev { left: 16px; }
+  #lb-next { right: 16px; }
+  #lb-prev:hover, #lb-next:hover { color: var(--surface); }
+  #lb-counter {
+    position: absolute; bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono); font-size: 11px;
+    color: rgba(240,237,230,0.3);
+    letter-spacing: 0.1em;
+    pointer-events: none;
+  }
+  @media (max-width: 768px) {
+    #lb-img-wrap { padding: 60px 48px; }
+    #lb-prev { left: 4px; }
+    #lb-next { right: 4px; }
+  }
+
   /* ── SERVICES ACCORDION ── */
   .services-accordion { border-top: 1px solid var(--surface-border); }
   .accordion-item { border-bottom: 1px solid var(--surface-border); }
@@ -1342,6 +1404,17 @@
     </div>
   </div>
 </section>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" aria-modal="true" aria-label="Просмотр изображения">
+  <button id="lb-close" aria-label="Закрыть">✕</button>
+  <button id="lb-prev" aria-label="Предыдущее">&#8592;</button>
+  <button id="lb-next" aria-label="Следующее">&#8594;</button>
+  <div id="lb-img-wrap">
+    <img id="lb-img" src="" alt="">
+  </div>
+  <div id="lb-counter"></div>
+</div>
 
 <!-- PROJECTS -->
 <section id="projects-section">
@@ -2741,6 +2814,89 @@ document.querySelectorAll('.drawer-link').forEach(link => {
   function stop()  { if (timer)  { clearInterval(timer); timer = null; } }
   document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
   start();
+})();
+
+// ═══════════════════════════════════════
+// LIGHTBOX
+// ═══════════════════════════════════════
+(function() {
+  const lb       = document.getElementById('lightbox');
+  const lbImg    = document.getElementById('lb-img');
+  const lbPrev   = document.getElementById('lb-prev');
+  const lbNext   = document.getElementById('lb-next');
+  const lbClose  = document.getElementById('lb-close');
+  const lbCounter= document.getElementById('lb-counter');
+
+  let imgs = [], idx = 0;
+
+  function open(sources, i) {
+    imgs = sources; idx = i;
+    lbImg.src = imgs[idx];
+    lbCounter.textContent = imgs.length > 1 ? `${idx + 1} / ${imgs.length}` : '';
+    lbPrev.style.display = imgs.length > 1 ? '' : 'none';
+    lbNext.style.display = imgs.length > 1 ? '' : 'none';
+    lb.classList.add('open');
+  }
+
+  function close() {
+    lb.classList.remove('open');
+    lbImg.src = '';
+  }
+
+  function go(dir) {
+    lbImg.classList.add('switching');
+    setTimeout(() => {
+      idx = (idx + dir + imgs.length) % imgs.length;
+      lbImg.src = imgs[idx];
+      lbCounter.textContent = `${idx + 1} / ${imgs.length}`;
+      lbImg.classList.remove('switching');
+    }, 120);
+  }
+
+  lbClose.addEventListener('click', close);
+  lbPrev.addEventListener('click', () => go(-1));
+  lbNext.addEventListener('click', () => go(1));
+  lb.addEventListener('click', e => { if (e.target === lb || e.target === document.getElementById('lb-img-wrap')) close(); });
+
+  // Клавиатура
+  document.addEventListener('keydown', e => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft')  go(-1);
+    if (e.key === 'ArrowRight') go(1);
+    if (e.key === 'Escape') close();
+  });
+
+  // Свайп на мобилке
+  let tx = 0;
+  lb.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) go(dx > 0 ? -1 : 1);
+  });
+
+  // Hover курсор
+  [lbPrev, lbNext, lbClose].forEach(btn => {
+    btn.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    btn.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+
+  // Клик на изображение в оверлее → открыть лайтбокс
+  const overlayImagesEl = document.getElementById('overlay-images');
+  overlayImagesEl.addEventListener('click', e => {
+    if (e.target.tagName !== 'IMG') return;
+    const allImgs = [...overlayImagesEl.querySelectorAll('img')];
+    const i = allImgs.indexOf(e.target);
+    if (i === -1) return;
+    open(allImgs.map(im => im.src), i);
+  });
+
+  // Курсор-указатель на фото в оверлее
+  overlayImagesEl.addEventListener('mouseover', e => {
+    if (e.target.tagName === 'IMG') cursor.classList.add('hover');
+  });
+  overlayImagesEl.addEventListener('mouseout', e => {
+    if (e.target.tagName === 'IMG') cursor.classList.remove('hover');
+  });
 })();
 </script>
 </body>
