@@ -612,10 +612,15 @@
     border: 1px solid var(--surface-border);
     aspect-ratio: 16/9;
   }
+  .overlay-images--video {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
   .overlay-video-wrap {
     position: relative;
     width: 100%;
-    aspect-ratio: 16/9;
+    aspect-ratio: 9/16;
     background: #000;
     border: 1px solid var(--surface-border);
     overflow: hidden;
@@ -626,6 +631,11 @@
     width: 100%;
     height: 100%;
     border: none;
+  }
+  @media (max-width: 768px) {
+    .overlay-images--video {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   /* ── SERVICES ACCORDION ── */
@@ -2357,6 +2367,7 @@ function openOverlay(key, push = true) {
   ).join('');
   overlayImages.innerHTML = '';
   if (p.videos) {
+    overlayImages.classList.add('overlay-images--video');
     p.videos.forEach(src => {
       const wrap = document.createElement('div');
       wrap.className = 'overlay-video-wrap';
@@ -2369,6 +2380,7 @@ function openOverlay(key, push = true) {
       overlayImages.appendChild(wrap);
     });
   } else {
+    overlayImages.classList.remove('overlay-images--video');
     (p.images || []).forEach((src, i) => {
       const img = document.createElement('img');
       img.src = src; img.alt = `${p.title} — изображение ${i+1}`;
