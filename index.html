@@ -2979,6 +2979,14 @@ window.addEventListener('popstate', e => {
 // ── Кнопки закрытия ──────────────────────────────────────────
 document.getElementById('overlay-close-btn').addEventListener('click', () => closeOverlay());
 document.getElementById('all-overlay-close-btn').addEventListener('click', () => closeAllProjects());
+
+// ── Нав-ссылки закрывают оверлеи перед переходом ─────────────
+document.querySelectorAll('.nav-links a, .drawer-link').forEach(link => {
+  link.addEventListener('click', () => {
+    if (overlay.classList.contains('open'))   closeOverlay();
+    if (apoEl.classList.contains('open'))     closeAllProjects();
+  });
+});
 document.getElementById('allProjectsBtn').addEventListener('click', () => openAllProjects());
 
 // ── Клик на карточки в основном скролле ──────────────────────
