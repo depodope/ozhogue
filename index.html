@@ -1007,6 +1007,32 @@
   .ap-card:hover .ap-card-visual img { transform: scale(1.03); }
   .ap-card-body { padding: 28px; }
 
+  /* ── AMBIENT GLOW ── */
+  #heroAmbient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .gspot {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0;
+    pointer-events: none;
+    will-change: opacity, background-color;
+    transition: opacity 0.18s ease, background-color 0.18s ease;
+  }
+  #gstrip-l {
+    position: absolute;
+    pointer-events: none;
+    will-change: opacity;
+    transition: opacity 0.12s ease;
+    filter: blur(30px);
+  }
+  @media (max-width: 768px) { #gstrip-l { display: none; } }
+
   /* ── REVEAL ── */
   .reveal {
     opacity: 0;
@@ -1901,7 +1927,7 @@ const HEAT_LUT = (function() {
   const BRUSH_R     = 75;      // heat brush radius px
   const BRUSH_PWR   = 0.7;     // heat added per frame
 
-  function makeHeat(wrapEl, textEl, cvs) {
+  function makeHeat(wrapEl, textEl, cvs, key) {
     let W = 0, H = 0;
     let heat = null;
     let noise = null;     // статичная текстура шума — делает градиент неоднородным
@@ -1912,6 +1938,15 @@ const HEAT_LUT = (function() {
     let imageData = null;  // переиспользуется между кадрами
     let started = false;
     let _lastTs = 0;
+
+    // Expose heat data to ambient glow system via closure getter
+    if (key) {
+      window._heatSources = window._heatSources || {};
+      Object.defineProperty(window._heatSources, key, {
+        get: () => ({ heat, W, H }),
+        configurable: true
+      });
+    }
 
     function buildMask() {
       const cs  = getComputedStyle(textEl);
@@ -2079,12 +2114,14 @@ const HEAT_LUT = (function() {
   makeHeat(
     document.getElementById('heatWrap1'),
     document.getElementById('heatGhost1'),
-    document.getElementById('heatCanvas1')
+    document.getElementById('heatCanvas1'),
+    'title1'
   );
   makeHeat(
     document.getElementById('heatWrap2'),
     document.getElementById('heatGhost2'),
-    document.getElementById('heatCanvas2')
+    document.getElementById('heatCanvas2'),
+    'title2'
   );
 })();
 
@@ -2109,6 +2146,13 @@ const HEAT_LUT = (function() {
   let drawYAlign = 0.5; // 0 = верх фото, 0.5 = центр (десктоп)
   let _dynR = 109; // текущий радиус с учётом скорости
   let _lastTs = 0;
+
+  // Expose heat data to ambient glow system via closure getter
+  window._heatSources = window._heatSources || {};
+  Object.defineProperty(window._heatSources, 'photo', {
+    get: () => ({ heat, W, H }),
+    configurable: true
+  });
 
   const meImg = new Image();
   meImg.crossOrigin = 'anonymous'; // нужен для getImageData (GitHub raw поддерживает CORS)
@@ -3119,6 +3163,123 @@ document.querySelectorAll('.drawer-link').forEach(link => {
   overlayImagesEl.addEventListener('mouseout', e => {
     if (e.target.tagName === 'IMG') cursor.classList.remove('hover');
   });
+})();
+
+// ═══════════════════════════════════════
+// AMBIENT BACKGROUND GLOW
+// Glow Blobs за заголовком + Edge Strip слева от фото
+// ═══════════════════════════════════════
+(function() {
+  const hero = document.getElementById('hero');
+  if (!hero) return;
+
+  // ── Создаём контейнер и элементы ──
+  const ambient = document.createElement('div');
+  ambient.id = 'heroAmbient';
+  ambient.setAttribute('aria-hidden', 'true');
+
+  const sT1   = document.createElement('div'); sT1.className = 'gspot';
+  const sT2   = document.createElement('div'); sT2.className = 'gspot';
+  const sPC   = document.createElement('div'); sPC.className = 'gspot';
+  const strip = document.createElement('div'); strip.id = 'gstrip-l';
+
+  ambient.append(sT1, sT2, sPC, strip);
+  hero.insertBefore(ambient, hero.firstChild);
+
+  // ── Утилиты ──
+  const lut = HEAT_LUT;
+
+  function sampleAvg(src, x0f, x1f, y0f, y1f) {
+    if (!src || !src.heat || !src.W || !src.H) return 0;
+    const { heat, W, H } = src;
+    const x0 = (x0f * W) | 0, x1 = (x1f * W) | 0;
+    const y0 = (y0f * H) | 0, y1 = (y1f * H) | 0;
+    // шаг: не более 12 сэмплов по x — дёшево и достаточно
+    const sx = Math.max(1, ((x1 - x0) / 12) | 0);
+    const sy = Math.max(1, ((y1 - y0) / 8)  | 0);
+    let sum = 0, n = 0;
+    for (let y = y0; y < y1; y += sy)
+      for (let x = x0; x < x1; x += sx) {
+        const v = heat[y * W + x];
+        if (v > 0.01) { sum += v; n++; }
+      }
+    return n > 0 ? sum / n : 0;
+  }
+
+  function toRgb(v) {
+    const ti = Math.min(255, (v * 255) | 0);
+    const li = ti * 3;
+    return `${lut[li]},${lut[li+1]},${lut[li+2]}`;
+  }
+
+  function setBlob(el, heroR, elR, offsetX, offsetY, size, v) {
+    const cx = elR.left - heroR.left + offsetX;
+    const cy = elR.top  - heroR.top  + offsetY;
+    el.style.cssText = [
+      `width:${size}px`,
+      `height:${size}px`,
+      `left:${(cx - size * 0.5).toFixed(1)}px`,
+      `top:${(cy  - size * 0.5).toFixed(1)}px`,
+      `background-color:rgb(${toRgb(v)})`,
+      `opacity:${v > 0 ? Math.min(0.52, v * 0.6).toFixed(3) : '0'}`,
+    ].join(';') + ';border-radius:50%;filter:blur(90px);position:absolute;pointer-events:none;will-change:opacity,background-color;transition:opacity .18s ease,background-color .18s ease';
+  }
+
+  let frameN = 0;
+  const src = window._heatSources || {};
+
+  function glowLoop() {
+    requestAnimationFrame(glowLoop);
+    if (++frameN % 3 !== 0) return; // ~20 fps — достаточно для плавных переходов
+
+    const heroR = hero.getBoundingClientRect();
+    const w1 = document.getElementById('heatWrap1');
+    const w2 = document.getElementById('heatWrap2');
+    const ph = document.getElementById('heroPhotoWrap');
+
+    // ── BLOB T1 — «Давлат» ──
+    if (w1 && src.title1) {
+      const r  = w1.getBoundingClientRect();
+      const v  = sampleAvg(src.title1, 0, 1, 0, 1);
+      setBlob(sT1, heroR, r, r.width * 0.42, r.height * 0.5, 480, v);
+    }
+
+    // ── BLOB T2 — «Набиев» ──
+    if (w2 && src.title2) {
+      const r  = w2.getBoundingClientRect();
+      const v  = sampleAvg(src.title2, 0, 1, 0, 1);
+      setBlob(sT2, heroR, r, r.width * 0.42, r.height * 0.5, 480, v);
+    }
+
+    // ── BLOB PHOTO CENTER ──
+    if (ph && src.photo) {
+      const r  = ph.getBoundingClientRect();
+      const v  = sampleAvg(src.photo, 0.2, 0.8, 0.1, 0.9);
+      setBlob(sPC, heroR, r, r.width * 0.5, r.height * 0.5, 540, v * 0.75);
+    }
+
+    // ── EDGE STRIP — левый край фото ──
+    if (ph && src.photo) {
+      const r   = ph.getBoundingClientRect();
+      const vL  = sampleAvg(src.photo, 0, 0.22, 0, 1); // левые ~22% фото
+      const stripW = Math.round(r.height * 0.55); // ширина полосы = ~55% высоты фото
+      const leftX  = r.left - heroR.left;          // x левого края фото в hero-coords
+
+      strip.style.left   = (leftX - stripW) + 'px';
+      strip.style.top    = (r.top - heroR.top) + 'px';
+      strip.style.width  = stripW + 'px';
+      strip.style.height = r.height + 'px';
+
+      if (vL > 0.01) {
+        strip.style.background = `linear-gradient(to right, transparent, rgb(${toRgb(vL)}))`;
+        strip.style.opacity    = Math.min(0.65, vL * 0.75).toFixed(3);
+      } else {
+        strip.style.opacity = '0';
+      }
+    }
+  }
+
+  glowLoop();
 })();
 </script>
 </body>
