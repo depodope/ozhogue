@@ -457,6 +457,9 @@
   .blocsite-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/web.webp') center/cover no-repeat !important;
   }
+  .photoproject-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_4.webp') center/cover no-repeat !important;
+  }
   .marketplace-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_6.webp') center/cover no-repeat !important;
   }
@@ -1427,6 +1430,18 @@
         </div>
       </div>
 
+      <div class="project-card reveal reveal-delay-4" data-project="photoproject">
+        <div class="project-card-visual photoproject-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">Творческая съёмка · Портфолио</div>
+          <div class="project-title">Уличный фотопроект</div>
+          <p class="project-desc">Творческая съёмка для портфолио — необычный образ, подобранная локация, улица.</p>
+          <div class="project-result">Photography / Content</div>
+        </div>
+      </div>
+
       <div class="project-card reveal reveal-delay-4" data-project="kontour">
         <div class="project-card-visual kontour-visual">
           <span class="project-card-open-hint">Открыть →</span>
@@ -2243,6 +2258,32 @@ const projects = {
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_6.webp',
     ],
     tags: ['Identity', 'Marketing'],
+  },
+  photoproject: {
+    client: 'Творческая съёмка · Портфолио',
+    title: 'Уличный фотопроект',
+    desc: 'Организовывал творческую съёмку для портфолио на улице — создал необычный образ и подобрал локацию.',
+    meta: [
+      ['Формат', 'Creative Photography'],
+      ['Локация', 'Улица'],
+      ['Задача', 'Образ · Локация · Съёмка · Обработка'],
+    ],
+    cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_4.webp',
+    content: [
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_1.webp', wide: true },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_2.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_3.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_4.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_5.webp', wide: true },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_6.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_7.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_8.webp', wide: true },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_9.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_10.webp' },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_11.webp', wide: true },
+      { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/photoproject_12.webp' },
+    ],
+    tags: ['Content'],
   },
   marketplace: {
     client: 'Маркетплейсы · E-commerce',
