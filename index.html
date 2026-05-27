@@ -662,18 +662,24 @@
   .overlay-bento {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    gap: 8px;
     align-items: start;
   }
-  .bento-item { position: relative; overflow: hidden; }
-  .bento-wide { grid-column: span 2; }
+  .bento-item {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1/1;
+  }
+  .bento-wide {
+    grid-column: span 2;
+    aspect-ratio: 2/1;
+  }
   .bento-item img {
+    position: absolute; inset: 0;
     width: 100%; height: 100%;
     display: block;
     object-fit: cover;
-    aspect-ratio: 1/1;
   }
-  .bento-wide img { aspect-ratio: 2/1; }
   .bento-video {
     aspect-ratio: 9/16;
   }
@@ -2298,14 +2304,12 @@ const projects = {
     cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_6.webp',
     content: [
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_1.webp', wide: true },
-      { type: 'video', src: 'https://vk.com/video_ext.php?oid=-239126466&id=456239032&hd=2' },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_2.webp' },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_3.webp' },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_4.webp' },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_5.webp', wide: true },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_6.webp' },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_7.webp' },
-      { type: 'video', src: 'https://vk.com/video_ext.php?oid=-239126466&id=456239033&hd=2' },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_8.webp', wide: true },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_9.webp' },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_10.webp' },
@@ -2313,6 +2317,8 @@ const projects = {
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_12.webp' },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_13.webp' },
       { type: 'image', src: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_14.webp', wide: true },
+      { type: 'video', src: 'https://vk.com/video_ext.php?oid=-239126466&id=456239035&hd=2' },
+      { type: 'video', src: 'https://vk.com/video_ext.php?oid=-239126466&id=456239036&hd=2' },
     ],
     tags: ['Content', 'Marketing'],
   },
