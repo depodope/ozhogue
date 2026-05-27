@@ -612,6 +612,22 @@
     border: 1px solid var(--surface-border);
     aspect-ratio: 16/9;
   }
+  .overlay-cover-video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    border: 1px solid var(--surface-border);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .overlay-cover-video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
   .overlay-images--video {
     grid-template-columns: repeat(5, 1fr);
     gap: 12px;
@@ -2184,6 +2200,7 @@ const projects = {
       ['Задача', 'Видеопроизводство · Монтаж · Постпродакшн'],
       ['Формат', 'Video Content'],
     ],
+    coverVideo: 'https://vk.com/video_ext.php?oid=-239126466&id=456239031&hd=2',
     videos: [
       'https://vk.com/video_ext.php?oid=-239126466&id=456239026&hd=2',
       'https://vk.com/video_ext.php?oid=-239126466&id=456239025&hd=2',
@@ -2370,6 +2387,17 @@ function openOverlay(key, push = true) {
     `<div class="overlay-meta-row"><span class="overlay-meta-key">${k}</span><span class="overlay-meta-val">${v}</span></div>`
   ).join('');
   overlayImages.innerHTML = '';
+  if (p.coverVideo) {
+    const cover = document.createElement('div');
+    cover.className = 'overlay-cover-video';
+    const iframe = document.createElement('iframe');
+    iframe.src = p.coverVideo;
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen');
+    cover.appendChild(iframe);
+    overlayImages.appendChild(cover);
+  }
   if (p.videos) {
     overlayImages.classList.add('overlay-images--video');
     p.videos.forEach(src => {
