@@ -537,19 +537,18 @@
   .overlay-inner {
     max-width: var(--page-max);
     margin: 0 auto;
-    /* padding-top равен sticky-позиции close, чтобы он не «подпрыгивал» */
-    padding: 52px var(--page-px) 120px;
+    padding: 160px var(--page-px) 120px;
   }
   .overlay-close {
-    position: sticky;
-    top: 52px; /* вплотную под фиксированным nav */
-    z-index: 10;
+    position: fixed;
+    top: 52px;
+    left: 0; right: 0;
+    z-index: 901;
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 64px;
-    padding: 16px 0;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 16px var(--page-px);
     border-bottom: 1px solid var(--surface-border);
-    background: rgba(26,26,26,0.85);
-    backdrop-filter: blur(12px);
   }
   .overlay-close-label {
     font-family: var(--mono);
@@ -1198,11 +1197,11 @@
     .project-card { width: 300px; }
     .project-card-visual { height: 180px; }
 
-    /* overlay — padding-top равен sticky-позиции close (под nav 44px) */
-    .overlay-inner { padding: 44px var(--page-px) 80px; }
+    /* overlay */
+    .overlay-inner { padding: 136px var(--page-px) 80px; }
     .overlay-body { grid-template-columns: 1fr; gap: 32px; }
     .overlay-images { grid-template-columns: 1fr; }
-    .overlay-close { top: 44px; margin-bottom: 32px; padding: 12px 0; }
+    .overlay-close { top: 44px; padding: 12px var(--page-px); }
     /* services */
     .acc-name { font-size: 16px; }
     .accordion-body { padding: 0 0 24px 32px; }
