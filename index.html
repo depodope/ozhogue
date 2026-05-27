@@ -469,6 +469,9 @@
   .marketplace-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/marketplace_6.webp') center/cover no-repeat !important;
   }
+  .sport-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/sport.webp') center/cover no-repeat !important;
+  }
   .ap-card-visual-dark {
     background: linear-gradient(135deg, #0e0e0e 0%, #1c1c1c 60%, #141414 100%);
     display: flex;
@@ -693,6 +696,10 @@
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     border: none;
+  }
+  .bento-video.bento-horizontal {
+    aspect-ratio: 16/9;
+    grid-column: 1 / -1;
   }
   @media (max-width: 768px) {
     .overlay-bento { grid-template-columns: repeat(2, 1fr); }
@@ -1551,6 +1558,18 @@
         </div>
       </div>
 
+      <div class="project-card reveal reveal-delay-4" data-project="sport">
+        <div class="project-card-visual sport-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">Уличный спорт · Event</div>
+          <div class="project-title">Съёмка спортивных событий</div>
+          <p class="project-desc">Видеосъёмка уличных спортивных мероприятий — динамика, атмосфера, момент.</p>
+          <div class="project-result">Video / Content</div>
+        </div>
+      </div>
+
       <div class="project-card reveal reveal-delay-4" data-project="kontour">
         <div class="project-card-visual kontour-visual">
           <span class="project-card-open-hint">Открыть →</span>
@@ -2338,6 +2357,7 @@ const projects = {
       ['Формат', 'Identity / Marketing / Content'],
       ['Стек', 'Айдентика · Маркетинг · Контент-гайдлайны'],
     ],
+    cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_2.webp',
     images: [
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_6.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_5.webp',
@@ -2460,6 +2480,22 @@ const projects = {
     ],
     tags: ['Content'],
   },
+  sport: {
+    client: 'Уличный спорт · Event',
+    title: 'Съёмка спортивных событий',
+    desc: 'Видеосъёмка уличных спортивных мероприятий — динамика, атмосфера и момент в одном кадре. Съёмка на месте событий: живые эмоции участников, энергия соревнований, городская среда как фон.',
+    meta: [
+      ['Формат', 'Event Video'],
+      ['Задача', 'Съёмка · Монтаж · Обработка'],
+      ['Стек', 'Видео · Цветокоррекция'],
+    ],
+    cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/sport.webp',
+    content: [
+      { type: 'video', src: 'https://vk.com/video_ext.php?oid=-239126466&id=456239039&hd=2', horizontal: true },
+      { type: 'video', src: 'https://vk.com/video_ext.php?oid=-239126466&id=456239040&hd=2', horizontal: true },
+    ],
+    tags: ['Content'],
+  },
   photoproject: {
     client: 'Творческая съёмка · Портфолио',
     title: 'Уличный фотопроект',
@@ -2536,6 +2572,7 @@ const projects = {
       ['Формат', 'Web / Corporate Site'],
       ['Стек', 'Структура · Прототип · Макет'],
     ],
+    cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/web.webp',
     images: [
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/bloc.webp',
     ],
@@ -2757,7 +2794,7 @@ function openOverlay(key, push = true) {
     p.content.forEach(item => {
       const div = document.createElement('div');
       if (item.type === 'video') {
-        div.className = 'bento-item bento-video';
+        div.className = 'bento-item bento-video' + (item.horizontal ? ' bento-horizontal' : '');
         const iframe = document.createElement('iframe');
         iframe.src = item.src;
         iframe.setAttribute('frameborder', '0');
