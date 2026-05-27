@@ -628,6 +628,14 @@
     height: auto;
     border: 1px solid var(--surface-border);
   }
+  #overlay-trailing { margin-top: 24px; }
+  .overlay-trailing-img {
+    display: block;
+    width: calc(100% + var(--page-px) * 2);
+    margin-left: calc(-1 * var(--page-px));
+    height: auto;
+  }
+
   .overlay-images--grid5 {
     grid-template-columns: repeat(5, 1fr);
     gap: 8px;
@@ -1333,6 +1341,7 @@
       <div class="overlay-meta-list" id="overlay-meta"></div>
     </div>
     <div class="overlay-images" id="overlay-images"></div>
+    <div id="overlay-trailing"></div>
   </div>
 </div>
 
@@ -2565,7 +2574,6 @@ const projects = {
     ],
     cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_1.webp',
     images: [
-      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_1.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_2.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_3.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_4.webp',
@@ -2581,8 +2589,8 @@ const projects = {
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_14.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_15.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_16.webp',
-      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_.gif',
     ],
+    trailingImage: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_.gif',
     imageGrid: 5,
     tags: ['Identity', 'Content'],
   },
@@ -2942,6 +2950,18 @@ function openOverlay(key, push = true) {
       overlayImages.appendChild(img);
     });
   }
+  // Trailing full-width image (e.g. animated GIF after the grid)
+  const trailingEl = document.getElementById('overlay-trailing');
+  trailingEl.innerHTML = '';
+  if (p.trailingImage) {
+    const img = document.createElement('img');
+    img.src = p.trailingImage;
+    img.alt = p.title;
+    img.className = 'overlay-trailing-img';
+    img.loading = 'lazy';
+    trailingEl.appendChild(img);
+  }
+
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   overlay.scrollTop = 0;
@@ -2958,6 +2978,7 @@ function closeOverlay(viaHistory = false) {
   overlayImages.classList.remove('overlay-images--video');
   overlayImages.classList.remove('overlay-bento');
   overlayImages.className = overlayImages.className.replace(/\boverlay-images--grid\d+\b/g, '');
+  document.getElementById('overlay-trailing').innerHTML = '';
   if (!apoEl.classList.contains('open')) document.body.style.overflow = '';
   if (!viaHistory && location.hash.startsWith('#/project/')) {
     const from = history.state?.from;
