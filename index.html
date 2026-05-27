@@ -55,7 +55,7 @@
   /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0;
-    z-index: 500;
+    z-index: 901;
     display: flex; align-items: center; justify-content: space-between;
     padding: 20px var(--page-px);
     backdrop-filter: blur(12px);
@@ -1014,11 +1014,6 @@
   .ap-card:hover .ap-card-visual img { transform: scale(1.03); }
   .ap-card-body { padding: 28px; }
 
-  /* ── EDGE GLOW — drop-shadow от краёв хитмапа на фон ── */
-  .hero-photo-wrap { transition: filter 0.25s ease; }
-  #heatCanvas1,
-  #heatCanvas2    { transition: filter 0.2s ease; }
-
   /* ── REVEAL ── */
   .reveal {
     opacity: 0;
@@ -1325,7 +1320,7 @@
 
 <!-- NAV -->
 <nav>
-  <a href="#hero" class="nav-logo">ozhogue</a>
+  <a href="#hero" class="nav-logo">Давлат Набиев</a>
   <ul class="nav-links">
     <li><a href="#about">Обо мне</a></li>
     <li><a href="#projects-section">Проекты</a></li>
@@ -1926,15 +1921,6 @@ const HEAT_LUT = (function() {
     let started = false;
     let _lastTs = 0;
 
-    // Expose heat data to ambient glow system via closure getter
-    if (key) {
-      window._heatSources = window._heatSources || {};
-      Object.defineProperty(window._heatSources, key, {
-        get: () => ({ heat, W, H }),
-        configurable: true
-      });
-    }
-
     function buildMask() {
       const cs  = getComputedStyle(textEl);
       const r   = wrapEl.getBoundingClientRect();
@@ -2133,13 +2119,6 @@ const HEAT_LUT = (function() {
   let drawYAlign = 0.5; // 0 = верх фото, 0.5 = центр (десктоп)
   let _dynR = 109; // текущий радиус с учётом скорости
   let _lastTs = 0;
-
-  // Expose heat data to ambient glow system via closure getter
-  window._heatSources = window._heatSources || {};
-  Object.defineProperty(window._heatSources, 'photo', {
-    get: () => ({ heat, W, H }),
-    configurable: true
-  });
 
   const meImg = new Image();
   meImg.crossOrigin = 'anonymous'; // нужен для getImageData (GitHub raw поддерживает CORS)
@@ -3164,89 +3143,6 @@ document.querySelectorAll('.drawer-link').forEach(link => {
   });
 })();
 
-// ═══════════════════════════════════════
-// EDGE GLOW — drop-shadow от краёв хитмапа на фон
-// Тень испускается ОТ самого элемента в цвет его нагретого края
-// ═══════════════════════════════════════
-(function() {
-  const src      = window._heatSources || {};
-  const lut      = HEAT_LUT;
-  const photoWrap = document.getElementById('heroPhotoWrap');
-  const cvs1     = document.getElementById('heatCanvas1');
-  const cvs2     = document.getElementById('heatCanvas2');
-
-  // Сэмплируем зону heat-массива, возвращаем средний heat [0..1]
-  function sample(heat, W, H, x0f, x1f, y0f, y1f) {
-    if (!heat || !W || !H) return 0;
-    const x0 = (x0f * W) | 0,  x1 = Math.max(x0 + 1, (x1f * W) | 0);
-    const y0 = (y0f * H) | 0,  y1 = Math.max(y0 + 1, (y1f * H) | 0);
-    const sx = Math.max(1, ((x1 - x0) / 10) | 0);
-    const sy = Math.max(1, ((y1 - y0) / 8)  | 0);
-    let sum = 0, n = 0;
-    for (let y = y0; y < y1; y += sy)
-      for (let x = x0; x < x1; x += sx) {
-        const v = heat[y * W + x];
-        if (v > 0.01) { sum += v; n++; }
-      }
-    return n > 0 ? sum / n : 0;
-  }
-
-  // Текущий цвет из LUT по среднему heat
-  function rgb(v) {
-    const ti = Math.min(255, (v * 255) | 0);
-    const li = ti * 3;
-    return `${lut[li]},${lut[li+1]},${lut[li+2]}`;
-  }
-
-  let frameN = 0;
-
-  function loop() {
-    requestAnimationFrame(loop);
-    if (++frameN % 3 !== 0) return; // ~20 fps — CSS transition сглаживает
-
-    // ── ФОТО: направленные тени от нагретых краёв ──
-    // drop-shadow уважает mask-image на обёртке → тень от формы фото, не прямоугольника
-    const ps = src.photo;
-    if (photoWrap && ps && ps.heat) {
-      const { heat, W, H } = ps;
-      const vL = sample(heat, W, H, 0,   0.2,  0, 1);   // левый край (~20% ширины)
-      const vR = sample(heat, W, H, 0.8, 1,    0, 1);   // правый край
-      const vT = sample(heat, W, H, 0,   1,    0, 0.15); // верхний край (~15% высоты)
-      const THRESH = 0.04;
-      const parts = [];
-      if (vL > THRESH)
-        parts.push(`drop-shadow(-${(15 + vL*40)|0}px 0 ${(40 + vL*70)|0}px rgb(${rgb(vL)}))`);
-      if (vR > THRESH)
-        parts.push(`drop-shadow(${(10 + vR*25)|0}px 0 ${(25 + vR*45)|0}px rgb(${rgb(vR)}))`);
-      if (vT > THRESH)
-        parts.push(`drop-shadow(0 -${(10 + vT*25)|0}px ${(30 + vT*50)|0}px rgb(${rgb(vT)}))`);
-      photoWrap.style.filter = parts.length ? parts.join(' ') : '';
-    }
-
-    // ── ЗАГОЛОВОК «Давлат»: свечение от формы букв ──
-    // canvas имеет прозрачный фон, буквы — непрозрачны → drop-shadow обводит буквы
-    const t1 = src.title1;
-    if (cvs1 && t1 && t1.heat) {
-      const { heat, W, H } = t1;
-      const v = sample(heat, W, H, 0, 1, 0, 1);
-      cvs1.style.filter = v > 0.03
-        ? `drop-shadow(0 0 ${(20 + v * 60)|0}px rgb(${rgb(v)}))`
-        : '';
-    }
-
-    // ── ЗАГОЛОВОК «Набиев»: то же самое ──
-    const t2 = src.title2;
-    if (cvs2 && t2 && t2.heat) {
-      const { heat, W, H } = t2;
-      const v = sample(heat, W, H, 0, 1, 0, 1);
-      cvs2.style.filter = v > 0.03
-        ? `drop-shadow(0 0 ${(20 + v * 60)|0}px rgb(${rgb(v)}))`
-        : '';
-    }
-  }
-
-  loop();
-})();
 </script>
 </body>
 </html>
