@@ -64,12 +64,14 @@
   }
   .nav-logo {
     font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--surface);
     text-decoration: none;
+    transition: color 0.2s;
   }
+  .nav-logo:hover { color: rgba(240,237,230,0.7); }
   .nav-links { display: flex; gap: 36px; list-style: none; }
   .nav-links a {
     font-family: var(--mono);
@@ -538,10 +540,15 @@
     padding: 80px var(--page-px) 120px;
   }
   .overlay-close {
+    position: sticky;
+    top: 52px; /* вплотную под фиксированным nav */
+    z-index: 10;
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 64px;
+    padding: 16px 0;
     border-bottom: 1px solid var(--surface-border);
-    padding-bottom: 24px;
+    background: rgba(26,26,26,0.85);
+    backdrop-filter: blur(12px);
   }
   .overlay-close-label {
     font-family: var(--mono);
@@ -1064,7 +1071,7 @@
     top: 61px; /* nav height */
     background: rgba(26,26,26,0.97);
     backdrop-filter: blur(16px);
-    z-index: 499;
+    z-index: 902; /* выше оверлеев */
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -1190,10 +1197,11 @@
     .project-card { width: 300px; }
     .project-card-visual { height: 180px; }
 
-    /* overlay */
-    .overlay-inner { padding: 60px var(--page-px) 80px; }
+    /* overlay — отступ сверху учитывает фиксированный nav (~52px) + воздух */
+    .overlay-inner { padding: 76px var(--page-px) 80px; }
     .overlay-body { grid-template-columns: 1fr; gap: 32px; }
     .overlay-images { grid-template-columns: 1fr; }
+    .overlay-close { top: 44px; margin-bottom: 32px; padding: 12px 0; }
     /* services */
     .acc-name { font-size: 16px; }
     .accordion-body { padding: 0 0 24px 32px; }
@@ -1344,7 +1352,7 @@
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-index reveal">01 / SENIOR BRAND DESIGNER</div>
+  <div class="hero-index reveal">01 / BRAND DESIGNER</div>
   <div class="hero-photo-wrap" id="heroPhotoWrap">
     <canvas id="heroCanvas"></canvas>
   </div>
@@ -1666,7 +1674,7 @@
           <span class="exp-tag">3D-туры</span>
           <span class="exp-tag">Навигация</span>
         </div>
-        <p class="exp-highlight">Единая визуальная система: логотип, гайдлайны, дизайн-система от нуля.</p>
+        <p class="exp-highlight">С нуля построил визуальную систему: логотип, гайдлайны, носители — единая среда от digital до офлайн.</p>
       </div>
     </div>
 
@@ -1816,7 +1824,7 @@
   <div class="section-label reveal" >06 · Контакт</div>
   <div class="contact-inner">
     <div class="reveal">
-      <h2 class="contact-headline">Следующий<br>проект<br>— ваш.</h2>
+      <h2 class="contact-headline">Жду ваши<br>предложения<br>по работе</h2>
       <p class="contact-sub">Открыт к предложениям — агентство, in-house, проектная работа. Пишите напрямую или найдите меня в удобном канале.</p>
     </div>
     <div class="contact-links reveal reveal-delay-1">
@@ -2981,7 +2989,7 @@ document.getElementById('overlay-close-btn').addEventListener('click', () => clo
 document.getElementById('all-overlay-close-btn').addEventListener('click', () => closeAllProjects());
 
 // ── Нав-ссылки закрывают оверлеи перед переходом ─────────────
-document.querySelectorAll('.nav-links a, .drawer-link').forEach(link => {
+document.querySelectorAll('.nav-links a, .drawer-link, .nav-logo').forEach(link => {
   link.addEventListener('click', () => {
     if (overlay.classList.contains('open'))   closeOverlay();
     if (apoEl.classList.contains('open'))     closeAllProjects();
@@ -3038,7 +3046,6 @@ document.querySelectorAll('.drawer-link').forEach(link => {
   });
 });
 
-// ═══════════════════════════════════════
 // ═══════════════════════════════════════
 // MARQUEE — пауза анимации когда полоса вне вьюпорта
 // ═══════════════════════════════════════
