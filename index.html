@@ -472,6 +472,9 @@
   .sport-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/sport.webp') center/cover no-repeat !important;
   }
+  .afisha-visual {
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_1.webp') center/cover no-repeat !important;
+  }
   .ap-card-visual-dark {
     background: linear-gradient(135deg, #0e0e0e 0%, #1c1c1c 60%, #141414 100%);
     display: flex;
@@ -624,6 +627,20 @@
     display: block;
     height: auto;
     border: 1px solid var(--surface-border);
+  }
+  .overlay-images--grid5 {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .overlay-images--grid5 .overlay-img-real {
+    aspect-ratio: 2/3;
+  }
+  .overlay-images--grid5 .overlay-img-full {
+    aspect-ratio: 2/3;
+    object-fit: cover;
+  }
+  @media (max-width: 768px) {
+    .overlay-images--grid5 { grid-template-columns: repeat(2, 1fr); }
   }
   .overlay-cover-video {
     position: relative;
@@ -1570,6 +1587,18 @@
         </div>
       </div>
 
+      <div class="project-card reveal reveal-delay-4" data-project="afisha">
+        <div class="project-card-visual afisha-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">Стереогород · Event</div>
+          <div class="project-title">Афиши для музыкантов</div>
+          <p class="project-desc">Серия афиш для музыкальных мероприятий — от концертов до клубных вечеринок.</p>
+          <div class="project-result">Print / Digital Poster</div>
+        </div>
+      </div>
+
       <div class="project-card reveal reveal-delay-4" data-project="kontour">
         <div class="project-card-visual kontour-visual">
           <span class="project-card-open-hint">Открыть →</span>
@@ -2480,6 +2509,39 @@ const projects = {
     ],
     tags: ['Content'],
   },
+  afisha: {
+    client: 'Стереогород · Event',
+    title: 'Афиши для музыкантов',
+    desc: 'Серия афиш для музыкальных мероприятий Стереогорода — от концертов до клубных вечеринок. Каждая афиша разрабатывалась под конкретного артиста: индивидуальная типографика, цвет, образ.',
+    meta: [
+      ['Клиент', 'Стереогород'],
+      ['Задача', 'Дизайн афиш · Типографика · Вёрстка'],
+      ['Формат', 'Print / Digital Poster'],
+      ['Стек', 'Afisha Design · Brand Identity'],
+    ],
+    cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_1.webp',
+    images: [
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_1.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_2.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_3.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_4.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_5.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_6.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_7.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_8.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_9.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_10.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_11.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_12.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_13.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_14.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_15.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_16.webp',
+      'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/afisha_.gif',
+    ],
+    imageGrid: 5,
+    tags: ['Identity', 'Content'],
+  },
   sport: {
     client: 'Уличный спорт · Event',
     title: 'Съёмка спортивных событий',
@@ -2825,6 +2887,9 @@ function openOverlay(key, push = true) {
   } else {
     overlayImages.classList.remove('overlay-images--video');
     overlayImages.classList.remove('overlay-bento');
+    if (p.imageGrid) {
+      overlayImages.classList.add('overlay-images--grid' + p.imageGrid);
+    }
     (p.images || []).forEach((src, i) => {
       const img = document.createElement('img');
       img.src = src; img.alt = `${p.title} — изображение ${i+1}`;
@@ -2848,6 +2913,7 @@ function closeOverlay(viaHistory = false) {
   overlayImages.innerHTML = '';
   overlayImages.classList.remove('overlay-images--video');
   overlayImages.classList.remove('overlay-bento');
+  overlayImages.className = overlayImages.className.replace(/\boverlay-images--grid\d+\b/g, '');
   if (!apoEl.classList.contains('open')) document.body.style.overflow = '';
   if (!viaHistory && location.hash.startsWith('#/project/')) {
     const from = history.state?.from;
