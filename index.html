@@ -537,7 +537,8 @@
   .overlay-inner {
     max-width: var(--page-max);
     margin: 0 auto;
-    padding: 80px var(--page-px) 120px;
+    /* padding-top равен sticky-позиции close, чтобы он не «подпрыгивал» */
+    padding: 52px var(--page-px) 120px;
   }
   .overlay-close {
     position: sticky;
@@ -1197,8 +1198,8 @@
     .project-card { width: 300px; }
     .project-card-visual { height: 180px; }
 
-    /* overlay — отступ сверху учитывает фиксированный nav (~52px) + воздух */
-    .overlay-inner { padding: 76px var(--page-px) 80px; }
+    /* overlay — padding-top равен sticky-позиции close (под nav 44px) */
+    .overlay-inner { padding: 44px var(--page-px) 80px; }
     .overlay-body { grid-template-columns: 1fr; gap: 32px; }
     .overlay-images { grid-template-columns: 1fr; }
     .overlay-close { top: 44px; margin-bottom: 32px; padding: 12px 0; }
@@ -2989,10 +2990,21 @@ document.getElementById('overlay-close-btn').addEventListener('click', () => clo
 document.getElementById('all-overlay-close-btn').addEventListener('click', () => closeAllProjects());
 
 // ── Нав-ссылки закрывают оверлеи перед переходом ─────────────
+// Закрываем напрямую (без history.back), иначе якорь и history конфликтуют → клик «теряется»
 document.querySelectorAll('.nav-links a, .drawer-link, .nav-logo').forEach(link => {
   link.addEventListener('click', () => {
-    if (overlay.classList.contains('open'))   closeOverlay();
-    if (apoEl.classList.contains('open'))     closeAllProjects();
+    if (overlay.classList.contains('open')) {
+      overlay.classList.remove('open');
+      overlayImages.innerHTML = '';
+      overlayImages.classList.remove('overlay-images--video');
+      overlayImages.classList.remove('overlay-bento');
+      overlayImages.className = overlayImages.className.replace(/\boverlay-images--grid\d+\b/g, '');
+      document.getElementById('overlay-trailing').innerHTML = '';
+    }
+    if (apoEl.classList.contains('open')) {
+      apoEl.classList.remove('open');
+    }
+    document.body.style.overflow = '';
   });
 });
 document.getElementById('allProjectsBtn').addEventListener('click', () => openAllProjects());
