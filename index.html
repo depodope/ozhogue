@@ -451,6 +451,28 @@
   .fornorosso-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fornorosso_0.webp') center/cover no-repeat !important;
   }
+  .bloc-visual {
+    background: linear-gradient(135deg, #0e0e0e 0%, #1c1c1c 60%, #141414 100%) !important;
+    position: relative;
+  }
+  .bloc-visual::after {
+    content: '▶';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: rgba(240,237,230,0.18);
+  }
+  .ap-card-visual-dark {
+    background: linear-gradient(135deg, #0e0e0e 0%, #1c1c1c 60%, #141414 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(240,237,230,0.15);
+    font-size: 48px;
+  }
 
   .project-card-open-hint {
     position: absolute;
@@ -589,6 +611,21 @@
     object-fit: cover;
     border: 1px solid var(--surface-border);
     aspect-ratio: 16/9;
+  }
+  .overlay-video-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    border: 1px solid var(--surface-border);
+    overflow: hidden;
+  }
+  .overlay-video-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
   }
 
   /* ── SERVICES ACCORDION ── */
@@ -1295,6 +1332,18 @@
           <div class="project-title">Логотип и фирменный стиль ресторана</div>
           <p class="project-desc">Тосканская атмосфера в логотипе — закат, печь, кипарисы и медный акцент как фирменный приём.</p>
           <div class="project-result">Identity / Marketing</div>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-4" data-project="bloc">
+        <div class="project-card-visual bloc-visual">
+          <span class="project-card-open-hint">Открыть →</span>
+        </div>
+        <div class="project-card-body">
+          <div class="project-client">BLOC · Продакшн</div>
+          <div class="project-title">Видеоконтент для BLOC</div>
+          <p class="project-desc">Серия видеороликов — от концепции до финального монтажа.</p>
+          <div class="project-result">Content / Video</div>
         </div>
       </div>
 
@@ -2115,6 +2164,25 @@ const projects = {
     ],
     tags: ['Identity', 'Marketing'],
   },
+  bloc: {
+    client: 'BLOC · Продакшн',
+    title: 'Видеоконтент для BLOC',
+    desc: 'Серия видеороликов для продакшн-компании BLOC — от концепции и раскадровки до финального монтажа. Работа охватила полный производственный цикл: подготовку, съёмку и постпродакшн.',
+    meta: [
+      ['Клиент', 'BLOC'],
+      ['Индустрия', 'Production / Content'],
+      ['Задача', 'Видеопроизводство · Монтаж · Постпродакшн'],
+      ['Формат', 'Video Content'],
+    ],
+    videos: [
+      'https://disk.yandex.ru/i/Lz3gY1p41OP1Lg',
+      'https://disk.yandex.ru/i/aJahY1Tlq_LzzA',
+      'https://disk.yandex.ru/i/0E4a7onDWQn_Yw',
+      'https://disk.yandex.ru/i/WdU6ibfFbxTB6w',
+      'https://disk.yandex.ru/i/Brsp-BcI8BgP1Q',
+    ],
+    tags: ['Content', 'Marketing'],
+  },
   fornorosso: {
     client: 'Forno Rosso · Итальянская кухня',
     title: 'Логотип и фирменный стиль ресторана',
@@ -2231,9 +2299,10 @@ function buildAPGrid() {
   apoGrid.innerHTML = Object.entries(projects).map(([key, p]) => {
     const preview = p.desc.length > 110 ? p.desc.substring(0, 110) + '…' : p.desc;
     const tagsStr = p.meta[2] ? p.meta[2][1] : '';
+    const coverImg = p.images?.[0] || p.cover || null;
     return `<div class="ap-card" data-project="${key}" data-tags='${JSON.stringify(p.tags||[])}'>
-      <div class="ap-card-visual">
-        <img src="${p.images[0]}" alt="${p.title}" loading="lazy">
+      <div class="ap-card-visual${!coverImg ? ' ap-card-visual-dark' : ''}">
+        ${coverImg ? `<img src="${coverImg}" alt="${p.title}" loading="lazy">` : '<span>▶</span>'}
         <span class="project-card-open-hint">Открыть →</span>
       </div>
       <div class="ap-card-body">
@@ -2287,12 +2356,26 @@ function openOverlay(key, push = true) {
     `<div class="overlay-meta-row"><span class="overlay-meta-key">${k}</span><span class="overlay-meta-val">${v}</span></div>`
   ).join('');
   overlayImages.innerHTML = '';
-  p.images.forEach((src, i) => {
-    const img = document.createElement('img');
-    img.src = src; img.alt = `${p.title} — изображение ${i+1}`;
-    img.className = 'overlay-img-real'; img.loading = 'lazy';
-    overlayImages.appendChild(img);
-  });
+  if (p.videos) {
+    p.videos.forEach(src => {
+      const wrap = document.createElement('div');
+      wrap.className = 'overlay-video-wrap';
+      const iframe = document.createElement('iframe');
+      iframe.src = src;
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen');
+      wrap.appendChild(iframe);
+      overlayImages.appendChild(wrap);
+    });
+  } else {
+    (p.images || []).forEach((src, i) => {
+      const img = document.createElement('img');
+      img.src = src; img.alt = `${p.title} — изображение ${i+1}`;
+      img.className = 'overlay-img-real'; img.loading = 'lazy';
+      overlayImages.appendChild(img);
+    });
+  }
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   overlay.scrollTop = 0;
