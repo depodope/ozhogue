@@ -3140,20 +3140,39 @@ document.querySelectorAll('.drawer-link').forEach(link => {
 })();
 
 
-// FOOTER CLOCK — на мобиле скрыт, не тикаем; при свёрнутой вкладке — пауза
+// FOOTER CLOCK + MOSCOW WEATHER
 // ═══════════════════════════════════════
 (function() {
   const el = document.getElementById('footerTime');
   if (!el || window.matchMedia('(max-width: 768px)').matches) return;
-  let timer = null;
+
+  let tempStr = '';
+  let timer   = null;
+
   function tick() {
-    el.textContent = 'MSK ' + new Date().toLocaleTimeString('ru-RU', {
-      hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone:'Europe/Moscow'
+    const time = new Date().toLocaleTimeString('ru-RU', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Moscow'
     });
+    el.textContent = 'MSK ' + time + (tempStr ? '  ·  ' + tempStr : '');
   }
+
+  function fetchTemp() {
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=55.7558&longitude=37.6173&current=temperature_2m&timezone=Europe/Moscow')
+      .then(r => r.json())
+      .then(d => {
+        const c = Math.round(d.current.temperature_2m);
+        const f = Math.round(c * 9 / 5 + 32);
+        tempStr = c + '°C / ' + f + '°F';
+      })
+      .catch(() => {});
+  }
+
   function start() { if (!timer) { tick(); timer = setInterval(tick, 1000); } }
   function stop()  { if (timer)  { clearInterval(timer); timer = null; } }
+
   document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+  fetchTemp();
+  setInterval(fetchTemp, 15 * 60 * 1000); // обновляем раз в 15 минут
   start();
 })();
 
