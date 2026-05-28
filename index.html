@@ -3265,29 +3265,55 @@ document.querySelectorAll('.drawer-link').forEach(link => {
   });
 })();
 
-// ── HERO PARALLAX ──
+// ── HERO PHOTO TILT ──
 (function() {
-  const photoWrap = document.getElementById('heroPhotoWrap');
-  if (!photoWrap) return;
+  const wrap = document.getElementById('heroPhotoWrap');
+  if (!wrap || window.innerWidth <= 768) return;
 
-  const RATE_DESKTOP = 0.09;
-  const RATE_MOBILE  = 0.05;
-  let ticking = false;
+  let tiltX = 0, tiltY = 0;   // current rendered tilt
+  let targX = 0, targY = 0;   // target tilt
+  let hovering = false;
+  let rafId   = null;
 
-  function isMobile() { return window.innerWidth <= 768; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
 
-  function update() {
-    const y = window.scrollY || window.pageYOffset;
-    if (isMobile()) {
-      photoWrap.style.transform = `translateY(${y * RATE_MOBILE}px)`;
-    } else {
-      photoWrap.style.transform = `translateY(calc(-50% + ${y * RATE_DESKTOP}px))`;
-    }
-    ticking = false;
+  function applyTilt() {
+    wrap.style.transform =
+      `translateY(-50%) perspective(900px) rotateX(${tiltX.toFixed(3)}deg) rotateY(${tiltY.toFixed(3)}deg)`;
   }
 
-  window.addEventListener('scroll',  () => { if (!ticking) { requestAnimationFrame(update); ticking = true; } }, { passive: true });
-  window.addEventListener('resize',  () => requestAnimationFrame(update), { passive: true });
+  function animate() {
+    tiltX = lerp(tiltX, targX, 0.1);
+    tiltY = lerp(tiltY, targY, 0.1);
+    applyTilt();
+
+    const done = Math.abs(tiltX - targX) < 0.02 && Math.abs(tiltY - targY) < 0.02;
+    if (done && !hovering) {
+      tiltX = 0; tiltY = 0; applyTilt();
+      rafId = null;
+    } else {
+      rafId = requestAnimationFrame(animate);
+    }
+  }
+
+  function startAnim() { if (!rafId) rafId = requestAnimationFrame(animate); }
+
+  wrap.addEventListener('mouseenter', () => { hovering = true; });
+
+  wrap.addEventListener('mousemove', e => {
+    const r  = wrap.getBoundingClientRect();
+    const nx = (e.clientX - r.left) / r.width  * 2 - 1;  // −1…1 left→right
+    const ny = (e.clientY - r.top)  / r.height * 2 - 1;  // −1…1 top→bottom
+    targX = -ny * 9;   // top edge → lean toward viewer (+X), bottom → away
+    targY =  nx * 12;  // left edge → rotate left (−Y), right → rotate right
+    startAnim();
+  });
+
+  wrap.addEventListener('mouseleave', () => {
+    hovering = false;
+    targX = 0; targY = 0;
+    startAnim();
+  });
 })();
 
 </script>
