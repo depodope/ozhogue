@@ -30,27 +30,11 @@
     font-family: var(--body);
     font-size: 16px;
     line-height: 1.6;
-    cursor: none;
     overflow-x: hidden;
   }
 
   /* ── CURSOR ── */
-  #cursor {
-    position: fixed;
-    width: 8px; height: 8px;
-    background: var(--surface);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 10000;
-    transform: translate(-50%, -50%);
-    transition: width 0.22s, height 0.22s, background 0.22s, border-radius 0.22s;
-  }
-  #cursor.hover {
-    width: 40px; height: 40px;
-    background: transparent;
-    border: 1.5px solid var(--surface);
-    mix-blend-mode: difference;
-  }
+  #cursor { display: none; }
   #cursor-temp {
     position: fixed;
     pointer-events: none;
@@ -253,7 +237,7 @@
     background: transparent;
     border: 1px solid rgba(240,237,230,0.35);
     padding: 14px 32px;
-    cursor: none;
+    cursor: pointer;
     text-decoration: none;
     display: inline-block;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
@@ -447,7 +431,7 @@
     background: var(--surface-dim);
     overflow: hidden;
     transition: border-color 0.2s, transform 0.2s;
-    cursor: none;
+    cursor: pointer;
   }
   .project-card:hover { border-color: rgba(240,237,230,0.3); transform: translateY(-2px); }
 
@@ -578,7 +562,7 @@
     background: none;
     border: 1px solid var(--surface-border);
     padding: 10px 20px;
-    cursor: none;
+    cursor: pointer;
     letter-spacing: 0.08em;
     transition: border-color 0.2s, color 0.2s;
   }
@@ -759,7 +743,7 @@
     display: flex; align-items: center; justify-content: center;
     opacity: 0; pointer-events: none;
     transition: opacity 0.2s;
-    cursor: none;
+    cursor: default;
   }
   #lightbox.open { opacity: 1; pointer-events: all; }
   #lb-img-wrap {
@@ -778,7 +762,7 @@
   #lb-img.switching { opacity: 0; }
   #lb-close {
     position: absolute; top: 24px; right: 28px;
-    background: none; border: none; cursor: none;
+    background: none; border: none; cursor: pointer;
     color: rgba(240,237,230,0.5);
     font-size: 18px; font-family: var(--mono);
     letter-spacing: 0.05em;
@@ -788,7 +772,7 @@
   #lb-close:hover { color: var(--surface); }
   #lb-prev, #lb-next {
     position: absolute; top: 50%; transform: translateY(-50%);
-    background: none; border: none; cursor: none;
+    background: none; border: none; cursor: pointer;
     color: rgba(240,237,230,0.4);
     font-size: 28px;
     padding: 16px 20px;
@@ -822,7 +806,7 @@
     padding: 24px 0;
     background: none;
     border: none;
-    cursor: none;
+    cursor: pointer;
     text-align: left;
     transition: background 0.15s;
   }
@@ -958,7 +942,7 @@
     background: transparent;
     border: 1px solid rgba(240,237,230,0.35);
     padding: 14px 32px;
-    cursor: none;
+    cursor: pointer;
     text-decoration: none;
     display: inline-block;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
@@ -1000,7 +984,7 @@
     background: transparent;
     border: 1px solid rgba(240,237,230,0.15);
     padding: 8px 16px;
-    cursor: none;
+    cursor: pointer;
     transition: color 0.2s, border-color 0.2s, background 0.2s;
   }
   .filter-btn:hover { color: var(--surface); border-color: rgba(240,237,230,0.35); }
@@ -1017,7 +1001,7 @@
     background: var(--surface-dim);
     overflow: hidden;
     transition: border-color 0.2s, transform 0.2s;
-    cursor: none;
+    cursor: pointer;
   }
   .ap-card:hover { border-color: rgba(240,237,230,0.3); transform: translateY(-2px); }
   .ap-card-visual {
@@ -2375,7 +2359,6 @@ const HEAT_LUT = (function() {
   if (!tempEl) return;
 
   let showing = false;
-  const _phase = Math.random() * Math.PI * 2;
 
   function fmt(n)  { return n.toFixed(1); }
   function toF(c)  { return c * 9 / 5 + 32; }
@@ -2385,37 +2368,29 @@ const HEAT_LUT = (function() {
   function tick() {
     requestAnimationFrame(tick);
 
-    // 1. Try heat readers (title canvases + hero photo)
-    let heatVal = null;
+    // Читаем тепло под курсором из всех зарегистрированных heat-зон
+    let heatVal  = null;
+    let onZone   = false;
     for (const r of window._heatReaders) {
       const v = r(mx, my);
-      if (v !== null) { heatVal = v; break; }
-    }
-
-    if (heatVal !== null) {
-      // Heat map: 0 → 17°C (cold grey), 1 → 120°C (white hot)
-      const tempC = 17 + heatVal * 103;
-      ctc.textContent = fmt(tempC)   + '°C';
-      ctf.textContent = fmt(toF(tempC)) + '°F';
-      show();
-    } else {
-      // 2. Check if cursor is over any image / card visual
-      const el = document.elementFromPoint(mx, my);
-      const onImg = el && (el.tagName === 'IMG' || el.closest('.project-card-visual, .ap-card-img'));
-      if (onImg) {
-        // Ambient "thermal scan" temperature that wanders slowly
-        const t     = Date.now() / 1800;
-        const norm  = 0.5 + 0.5 * Math.sin(t + _phase + mx * 0.007 + my * 0.005);
-        const tempC = 22 + norm * 18; // 22…40°C
-        ctc.textContent = fmt(tempC)      + '°C';
-        ctf.textContent = fmt(toF(tempC)) + '°F';
-        show();
-      } else {
-        hide();
+      if (v !== null) {
+        onZone  = true;
+        heatVal = v;  // берём первое совпадение
+        break;
       }
     }
 
-    // Follow smooth cursor position
+    if (onZone) {
+      // heat 0 → 0°C, heat 1 → 220°C
+      const tempC = heatVal * 220;
+      ctc.textContent = fmt(tempC)      + '°C';
+      ctf.textContent = fmt(toF(tempC)) + '°F';
+      show();
+    } else {
+      hide();
+    }
+
+    // Следуем за плавной позицией курсора
     tempEl.style.left = (cx + 14) + 'px';
     tempEl.style.top  = (cy - 8)  + 'px';
   }
