@@ -2381,8 +2381,8 @@ const HEAT_LUT = (function() {
     }
 
     if (onZone) {
-      // heat 0 → 0°C, heat 1 → 220°C
-      const tempC = heatVal * 220;
+      // heat 0 → 23°C, heat 1 → 220°C
+      const tempC = 23 + heatVal * 197;
       ctc.textContent = fmt(tempC)      + '°C';
       ctf.textContent = fmt(toF(tempC)) + '°F';
       show();
@@ -3279,8 +3279,8 @@ document.querySelectorAll('.drawer-link').forEach(link => {
     const r  = wrap.getBoundingClientRect();
     const nx = (e.clientX - r.left) / r.width  * 2 - 1;  // −1…1 left→right
     const ny = (e.clientY - r.top)  / r.height * 2 - 1;  // −1…1 top→bottom
-    targX = -ny * 9;   // top edge → lean toward viewer (+X), bottom → away
-    targY =  nx * 12;  // left edge → rotate left (−Y), right → rotate right
+    targX = -ny * 7.2;  // top edge → lean toward viewer (+X), bottom → away
+    targY =  nx * 9.6;  // left edge → rotate left (−Y), right → rotate right
     startAnim();
   });
 
