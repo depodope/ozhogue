@@ -2380,8 +2380,8 @@ const HEAT_LUT = (function() {
       }
     }
 
-    if (onZone) {
-      // heat 0 → 23°C, heat 1 → 220°C
+    if (onZone && heatVal > 0.008) {
+      // heat ~0 → 23°C, heat 1 → 220°C
       const tempC = 23 + heatVal * 197;
       ctc.textContent = fmt(tempC)      + '°C';
       ctf.textContent = fmt(toF(tempC)) + '°F';
