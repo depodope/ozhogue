@@ -137,6 +137,7 @@
     height: 548px;
     z-index: 2;
     cursor: crosshair;
+    will-change: transform;
     -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 22%);
     mask-image: linear-gradient(to top, transparent 0%, #000 22%);
   }
@@ -3162,6 +3163,31 @@ document.querySelectorAll('.drawer-link').forEach(link => {
   overlayImagesEl.addEventListener('mouseout', e => {
     if (e.target.tagName === 'IMG') cursor.classList.remove('hover');
   });
+})();
+
+// ── HERO PARALLAX ──
+(function() {
+  const photoWrap = document.getElementById('heroPhotoWrap');
+  if (!photoWrap) return;
+
+  const RATE_DESKTOP = 0.09;
+  const RATE_MOBILE  = 0.05;
+  let ticking = false;
+
+  function isMobile() { return window.innerWidth <= 768; }
+
+  function update() {
+    const y = window.scrollY || window.pageYOffset;
+    if (isMobile()) {
+      photoWrap.style.transform = `translateY(${y * RATE_MOBILE}px)`;
+    } else {
+      photoWrap.style.transform = `translateY(calc(-50% + ${y * RATE_DESKTOP}px))`;
+    }
+    ticking = false;
+  }
+
+  window.addEventListener('scroll',  () => { if (!ticking) { requestAnimationFrame(update); ticking = true; } }, { passive: true });
+  window.addEventListener('resize',  () => requestAnimationFrame(update), { passive: true });
 })();
 
 </script>
