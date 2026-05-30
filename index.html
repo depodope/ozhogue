@@ -445,7 +445,7 @@
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/alldigital_1.webp') center/cover no-repeat !important;
   }
   .fitlead-visual {
-    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_2.webp') center/cover no-repeat !important;
+    background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fit.webp') center/cover no-repeat !important;
   }
   .saint-visual {
     background: url('https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/saint_1.webp') center/cover no-repeat !important;
@@ -2492,7 +2492,7 @@ const projects = {
       ['Формат', 'Identity / Marketing / Content'],
       ['Стек', 'Айдентика · Маркетинг · Контент-гайдлайны'],
     ],
-    cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_2.webp',
+    cover: 'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fit.webp',
     images: [
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_6.webp',
       'https://raw.githubusercontent.com/depodope/ozhogue/main/assets/images/fitlead_5.webp',
@@ -2908,8 +2908,13 @@ function buildAPGrid() {
     btn.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
 
-  // Карточки
-  apoGrid.innerHTML = Object.entries(projects).map(([key, p]) => {
+  // Карточки — явная очерёдность совпадает с главной страницей
+  const PROJECT_ORDER = [
+    'saint', 'fornorosso', 'joconde', 'blocsite', 'kontour', 'fitlead', 'afisha', 'alldigital',
+    'saintphoto', 'interiorbloc', 'sport', 'bloc', 'marketplace', 'photoproject',
+  ];
+  apoGrid.innerHTML = PROJECT_ORDER.filter(k => projects[k]).map(key => {
+    const p = projects[key];
     const preview = p.desc.length > 110 ? p.desc.substring(0, 110) + '…' : p.desc;
     const tagsStr = p.meta[2] ? p.meta[2][1] : '';
     const coverImg = p.cover || p.images?.[0] || p.content?.find(i => i.type === 'image')?.src || null;
